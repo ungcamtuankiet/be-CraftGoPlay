@@ -1,0 +1,15 @@
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\bin\Debug\net8.0\CGP.Contract.deps.json
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\bin\Debug\net8.0\CGP.Contract.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\bin\Debug\net8.0\CGP.Contract.pdb
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\bin\Debug\net8.0\CGP.Domain.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\bin\Debug\net8.0\CGP.Domain.pdb
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Contract.csproj.AssemblyReference.cache
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Contract.GeneratedMSBuildEditorConfig.editorconfig
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Contract.AssemblyInfoInputs.cache
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Contract.AssemblyInfo.cs
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Contract.csproj.CoreCompileInputs.cache
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Cont.1893316A.Up2Date
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Contract.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\refint\CGP.Contract.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\CGP.Contract.pdb
+C:\Learning\Capstone\CraftGoPlay\CGP.Contract\obj\Debug\net8.0\ref\CGP.Contract.dll

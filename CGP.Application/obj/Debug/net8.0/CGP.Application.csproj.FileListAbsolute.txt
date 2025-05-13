@@ -1,0 +1,17 @@
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\bin\Debug\net8.0\CGP.Application.deps.json
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\bin\Debug\net8.0\CGP.Application.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\bin\Debug\net8.0\CGP.Application.pdb
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\bin\Debug\net8.0\CGP.Contract.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\bin\Debug\net8.0\CGP.Domain.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\bin\Debug\net8.0\CGP.Contract.pdb
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\bin\Debug\net8.0\CGP.Domain.pdb
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Application.csproj.AssemblyReference.cache
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Application.AssemblyInfoInputs.cache
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Application.AssemblyInfo.cs
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Application.csproj.CoreCompileInputs.cache
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Appl.DEE33474.Up2Date
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Application.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\refint\CGP.Application.dll
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\CGP.Application.pdb
+C:\Learning\Capstone\CraftGoPlay\CGP.Application\obj\Debug\net8.0\ref\CGP.Application.dll

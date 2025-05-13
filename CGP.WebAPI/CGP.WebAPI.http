@@ -1,0 +1,6 @@
+@CGP.WebAPI_HostAddress = http://localhost:5064
+
+GET {{CGP.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
