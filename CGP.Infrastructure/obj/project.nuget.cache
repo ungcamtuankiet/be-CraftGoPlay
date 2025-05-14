@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ShKlgdvZMkM=",
+  "dgSpecHash": "jCrjlMIXC48=",
   "success": true,
-  "projectFilePath": "C:\\Learning\\Term9\\CraftGoPlay\\CGP.Infrastructure\\CGP.Infrastructure.csproj",
+  "projectFilePath": "C:\\Learning\\Ky9\\Capstone\\Project\\be-CraftGoPlay\\CGP.Infrastructure\\CGP.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ungca\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\ungca\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",

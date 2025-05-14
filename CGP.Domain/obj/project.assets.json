@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Learning\\Term9\\CraftGoPlay\\CGP.Domain\\CGP.Domain.csproj",
+      "projectUniqueName": "C:\\Learning\\Ky9\\Capstone\\Project\\be-CraftGoPlay\\CGP.Domain\\CGP.Domain.csproj",
       "projectName": "CGP.Domain",
-      "projectPath": "C:\\Learning\\Term9\\CraftGoPlay\\CGP.Domain\\CGP.Domain.csproj",
+      "projectPath": "C:\\Learning\\Ky9\\Capstone\\Project\\be-CraftGoPlay\\CGP.Domain\\CGP.Domain.csproj",
       "packagesPath": "C:\\Users\\ungca\\.nuget\\packages\\",
-      "outputPath": "C:\\Learning\\Term9\\CraftGoPlay\\CGP.Domain\\obj\\",
+      "outputPath": "C:\\Learning\\Ky9\\Capstone\\Project\\be-CraftGoPlay\\CGP.Domain\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

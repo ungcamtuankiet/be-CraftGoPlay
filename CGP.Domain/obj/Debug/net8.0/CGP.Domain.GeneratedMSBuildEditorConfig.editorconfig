@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = CGP.Domain
-build_property.ProjectDir = C:\Learning\Term9\CraftGoPlay\CGP.Domain\
+build_property.ProjectDir = C:\Learning\Ky9\Capstone\Project\be-CraftGoPlay\CGP.Domain\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

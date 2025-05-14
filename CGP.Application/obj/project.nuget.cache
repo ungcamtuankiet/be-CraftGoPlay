@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "O5NHuVhk1vs=",
+  "dgSpecHash": "CyBQR4aTFfo=",
   "success": true,
-  "projectFilePath": "C:\\Learning\\Term9\\CraftGoPlay\\CGP.Application\\CGP.Application.csproj",
+  "projectFilePath": "C:\\Learning\\Ky9\\Capstone\\Project\\be-CraftGoPlay\\CGP.Application\\CGP.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ungca\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\ungca\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
