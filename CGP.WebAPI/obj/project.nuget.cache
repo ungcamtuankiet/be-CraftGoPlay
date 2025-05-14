@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8seyI1rbXC4=",
+  "dgSpecHash": "pkL7wMbh6vM=",
   "success": true,
-  "projectFilePath": "C:\\Learning\\Capstone\\CraftGoPlay\\CGP.WebAPI\\CGP.WebAPI.csproj",
+  "projectFilePath": "C:\\Learning\\Term9\\CraftGoPlay\\CGP.WebAPI\\CGP.WebAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ungca\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\ungca\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",

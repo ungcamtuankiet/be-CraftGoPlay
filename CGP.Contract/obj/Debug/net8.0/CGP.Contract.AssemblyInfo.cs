@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CGP.Contract")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0aed22435804c50887440813886c62d0e11f1ac1")]
 [assembly: System.Reflection.AssemblyProductAttribute("CGP.Contract")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CGP.Contract")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

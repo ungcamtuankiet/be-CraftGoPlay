@@ -1,16 +1,7 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Learning\\Capstone\\CraftGoPlay\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{01F2A1CD-B572-4F2F-9381-7FC9D3DDB647}|CGP.WebAPI\\CGP.WebAPI.csproj|c:\\learning\\capstone\\craftgoplay\\cgp.webapi\\middlewares\\performancemiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01F2A1CD-B572-4F2F-9381-7FC9D3DDB647}|CGP.WebAPI\\CGP.WebAPI.csproj|solutionrelative:cgp.webapi\\middlewares\\performancemiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{01F2A1CD-B572-4F2F-9381-7FC9D3DDB647}|CGP.WebAPI\\CGP.WebAPI.csproj|c:\\learning\\capstone\\craftgoplay\\cgp.webapi\\middlewares\\applicationbuilderextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01F2A1CD-B572-4F2F-9381-7FC9D3DDB647}|CGP.WebAPI\\CGP.WebAPI.csproj|solutionrelative:cgp.webapi\\middlewares\\applicationbuilderextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "WorkspaceRootPath": "C:\\Learning\\Term9\\CraftGoPlay\\",
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -18,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -51,32 +42,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PerformanceMiddleware.cs",
-              "DocumentMoniker": "C:\\Learning\\Capstone\\CraftGoPlay\\CGP.WebAPI\\Middlewares\\PerformanceMiddleware.cs",
-              "RelativeDocumentMoniker": "CGP.WebAPI\\Middlewares\\PerformanceMiddleware.cs",
-              "ToolTip": "C:\\Learning\\Capstone\\CraftGoPlay\\CGP.WebAPI\\Middlewares\\PerformanceMiddleware.cs",
-              "RelativeToolTip": "CGP.WebAPI\\Middlewares\\PerformanceMiddleware.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAUAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-13T08:49:00.602Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ApplicationBuilderExtension.cs",
-              "DocumentMoniker": "C:\\Learning\\Capstone\\CraftGoPlay\\CGP.WebAPI\\Middlewares\\ApplicationBuilderExtension.cs",
-              "RelativeDocumentMoniker": "CGP.WebAPI\\Middlewares\\ApplicationBuilderExtension.cs",
-              "ToolTip": "C:\\Learning\\Capstone\\CraftGoPlay\\CGP.WebAPI\\Middlewares\\ApplicationBuilderExtension.cs",
-              "RelativeToolTip": "CGP.WebAPI\\Middlewares\\ApplicationBuilderExtension.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-13T08:48:28.811Z",
-              "EditorCaption": ""
             }
           ]
         }
