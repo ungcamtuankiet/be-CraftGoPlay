@@ -1,7 +1,7 @@
 ﻿using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 
-namespace Server.Infrastructure.Data
+namespace CGP.Infrastructure.Data
 {
     public static class DbInitializer
     {

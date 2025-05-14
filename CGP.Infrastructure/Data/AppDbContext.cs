@@ -3,7 +3,7 @@ using CGP.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata;
 
-namespace Server.Infrastructure.Data;
+namespace CGP.Infrastructure.Data;
 
 public class AppDbContext : DbContext
 {

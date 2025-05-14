@@ -1,6 +1,6 @@
 ﻿using CGP.Application;
+using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Server.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;

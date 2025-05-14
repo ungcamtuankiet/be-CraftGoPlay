@@ -1,8 +1,8 @@
 ﻿using CGP.Application;
+using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Server.Infrastructure.Data;
 
 namespace CGP.Infrastructure
 {

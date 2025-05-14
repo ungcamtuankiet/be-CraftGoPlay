@@ -2,8 +2,8 @@
 using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Server.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
