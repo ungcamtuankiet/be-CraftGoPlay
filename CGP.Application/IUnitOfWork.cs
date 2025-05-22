@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGP.Application.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,10 @@ namespace CGP.Application
 {
     public interface IUnitOfWork
     {
+
+        IAuthRepository authRepository { get; }
+        IUserRepository userRepository { get; }
+
         public Task<int> SaveChangeAsync();
     }
 }
