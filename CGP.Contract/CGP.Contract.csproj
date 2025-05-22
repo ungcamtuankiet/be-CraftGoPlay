@@ -12,7 +12,10 @@
 
   <ItemGroup>
     <Folder Include="Abstractions\RequestAndResponse\" />
-    <Folder Include="DTO\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>
