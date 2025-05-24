@@ -19,3 +19,5 @@ obj/
 
 # Others
 *.FileListAbsolute.txt
+
+.fake
