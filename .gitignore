@@ -19,7 +19,6 @@ obj/
 
 # Others
 *.FileListAbsolute.txt
-
-# Visual Studio 2015/2017 cache/options directory
+.fake
 .vs/
 
