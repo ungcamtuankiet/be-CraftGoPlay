@@ -15,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
         .AddInfrastructure(builder.Configuration);
 }
 
+//Test git action
+
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
