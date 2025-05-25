@@ -28,4 +28,4 @@ jobs:
         context: .
         file: CGP.WebAPI/Dockerfile
         push: true
-        tags: yourdockerhubusername/craftgoplay:latest
+        tags: ungcamtuankiet/craftgoplay:latest
