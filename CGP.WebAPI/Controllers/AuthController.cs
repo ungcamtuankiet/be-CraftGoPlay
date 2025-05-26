@@ -9,6 +9,7 @@ using CGP.Contract.DTO.User;
 using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CGP.WebAPI.Controllers
 {
@@ -184,9 +185,48 @@ namespace CGP.WebAPI.Controllers
             });
         }
 
-        //Register user
+
+
+        /// <summary>
+        /// Đăng ký tài khoản người dùng mới
+        /// </summary>
+        /// <remarks>
+        /// ### Mô tả chi tiết:
+        /// - API này cho phép đăng ký tài khoản người dùng mới trong hệ thống.
+        /// - Sau khi đăng ký thành công, hệ thống sẽ gửi OTP xác thực qua email.
+        /// - Người dùng cần xác thực OTP để kích hoạt tài khoản.
+        /// 
+        /// ### Yêu cầu dữ liệu:
+        /// | Trường         | Kiểu dữ liệu | Ràng buộc                           | Ví dụ             |
+        /// |----------------|--------------|-------------------------------------|-------------------|
+        /// | Username       | string       | 6-50 ký tự, không chứa ký tự đặc biệt | "user123"         |
+        /// | Email          | string       | Định dạng email hợp lệ              | "user@email.com"  |
+        /// | PhoneNo        | string       | Đúng 10 chữ số                      | "0987654321"      |
+        /// | PasswordHash   | string       | 8-20 ký tự, gồm chữ hoa, thường, số và ký tự đặc biệt | "Pass@123" |
+        /// 
+        /// ### Ví dụ request:
+        /// ```json
+        /// {
+        ///   "username": "user123",
+        ///   "email": "user@email.com",
+        ///   "phoneNo": "0987654321",
+        ///   "passwordHash": "Pass@123"
+        /// }
+        /// ```
+        /// </remarks>
+        /// <param name="request">Đối tượng chứa thông tin đăng ký</param>
+        /// <returns>Thông báo kết quả đăng ký</returns>
+        /// <response code="201">Đăng ký thành công. OTP đã được gửi qua email</response>
+        /// <response code="400">
+        /// Các lỗi có thể xảy ra:
+        /// - Đã đăng nhập
+        /// - Dữ liệu không hợp lệ
+        /// - Email/Username đã tồn tại
+        /// </response>
         [HttpPost("user/register/user")]
-        public async Task<IActionResult> RegisterUser([FromForm] UserRegistrationDTO userRegistrationDto)
+        [SwaggerResponse(201, "Tạo thành công")]
+        [SwaggerResponse(400, "Dữ liệu không hợp lệ")]
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDTO userRegistrationDto)
         {
             // Check if the user is authenticated
             if (User.Identity.IsAuthenticated)

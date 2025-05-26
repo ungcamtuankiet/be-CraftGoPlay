@@ -106,7 +106,7 @@ else
 {
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CrafGoPlay API V1");
         c.InjectJavascript("/custom-swagger.js");
         c.RoutePrefix = string.Empty;
     });

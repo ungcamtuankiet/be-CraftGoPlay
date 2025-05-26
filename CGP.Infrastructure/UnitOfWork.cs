@@ -15,16 +15,22 @@ namespace CGP.Infrastructure
         private readonly AppDbContext _dbContext;
         private readonly IAuthRepository _authRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly ISubCategoryRepository _subCategoryRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
             _userRepository = userRepository;
+            _categoryRepository = categoryRepository;
+            _subCategoryRepository = subCategoryRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;
         public IUserRepository userRepository => _userRepository;
+        public ICategoryRepository categoryRepository => _categoryRepository;
+        public ISubCategoryRepository subCategoryRepository => _subCategoryRepository;
 
         public async Task<int> SaveChangeAsync()
         {
