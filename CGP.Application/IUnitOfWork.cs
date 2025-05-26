@@ -12,6 +12,8 @@ namespace CGP.Application
 
         IAuthRepository authRepository { get; }
         IUserRepository userRepository { get; }
+        ICategoryRepository categoryRepository { get; }
+        ISubCategoryRepository subCategoryRepository { get; }
 
         public Task<int> SaveChangeAsync();
     }

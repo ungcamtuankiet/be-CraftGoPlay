@@ -1,7 +1,9 @@
 ﻿using CGP.API.Services;
 using CGP.Application.Interfaces;
 using CGP.WebAPI.Middlewares;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace CGP.WebAPI
 {
@@ -55,6 +57,13 @@ namespace CGP.WebAPI
                     new string[] { }
                 }
             });
+                // Bật chú thích từ XML comments
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+
+                // Bật hỗ trợ annotations
+                c.EnableAnnotations();
             });
 
 

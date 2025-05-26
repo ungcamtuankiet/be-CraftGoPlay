@@ -25,11 +25,16 @@ namespace CGP.Infrastructure
             services.AddScoped<IRedisService, RedisService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IGoogleService, GoogleService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<ISubCategoryService, SubCategoryService>();
 
             services.AddMemoryCache();
             //Repositories
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
+
             //Database
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
