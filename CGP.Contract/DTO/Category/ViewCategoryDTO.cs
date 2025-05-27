@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGP.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace CGP.Contract.DTO.Category
         }
         public string CategoryId { get; set; }
         public required string CategoryName { get; set; }
-        public int CategoryStatus { get; set; }
+        public CategoryStatusEnum CategoryStatus { get; set; }
         public DateTime CreationDate { get; set; }
 
         public DateTime? ModificationDate { get; set; }

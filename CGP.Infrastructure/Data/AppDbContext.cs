@@ -52,7 +52,8 @@ public class AppDbContext : DbContext
             .IsRequired()
             .HasDefaultValueSql("getutcdate()");
             e.Property(p => p.CategoryStatus)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (CategoryStatusEnum)Enum.Parse(typeof(CategoryStatusEnum), v));
         });
 
         //SubCategory
@@ -71,6 +72,9 @@ public class AppDbContext : DbContext
             .HasDefaultValueSql("getutcdate()");
             e.Property(p => p.CategoryId)
             .IsRequired();
+            e.Property(p => p.Status)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (CategoryStatusEnum)Enum.Parse(typeof(CategoryStatusEnum), v));
             e.HasOne(p => p.Category)
             .WithMany(p => p.SubCategories)
             .HasForeignKey(p => p.CategoryId)
