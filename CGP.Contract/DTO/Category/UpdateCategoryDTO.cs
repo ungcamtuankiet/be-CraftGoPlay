@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGP.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,6 @@ namespace CGP.Contract.DTO.Category
     public class UpdateCategoryDTO
     {
         public required string CategoryName { get; set; }
-        public int CategoryStatus { get; set; }
+        public required CategoryStatusEnum CategoryStatus { get; set; }
     }
 }

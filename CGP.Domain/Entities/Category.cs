@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CGP.Domain.Enums;
 
 namespace CGP.Domain.Entities
 {
@@ -13,7 +9,7 @@ namespace CGP.Domain.Entities
             SubCategories = new HashSet<SubCategory>();
         }
         public string CategoryName { get; set; }
-        public int CategoryStatus { get; set; }
+        public CategoryStatusEnum CategoryStatus { get; set; }
         public virtual ICollection<SubCategory> SubCategories { get; set; }
     }
 }

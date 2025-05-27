@@ -1,4 +1,5 @@
 ﻿using CGP.Contract.DTO.SubCategory;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace CGP.Contract.DTO.Category
             SubCategories = new HashSet<CreateSubCategoryDTO>();
         }
         public required string CategoryName { get; set; }
-        public int CategoryStatus { get; set; }
+        public required CategoryStatusEnum CategoryStatus { get; set; }
         public virtual ICollection<CreateSubCategoryDTO> SubCategories { get; set; }
     }
 }
