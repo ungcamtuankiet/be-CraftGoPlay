@@ -1,44 +1,34 @@
-# Base image with only the .NET runtime
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+USER app
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Build stage with the .NET SDK
+
+# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-
-# Install EF Core tools
-RUN dotnet tool install --global dotnet-ef
-
-# Ensure the dotnet tools path is available
-ENV PATH="$PATH:/root/.dotnet/tools"
-
-# Copy and restore dependencies
 COPY ["CGP.WebAPI/CGP.WebAPI.csproj", "CGP.WebAPI/"]
 COPY ["CGP.Application/CGP.Application.csproj", "CGP.Application/"]
 COPY ["CGP.Contract/CGP.Contract.csproj", "CGP.Contract/"]
 COPY ["CGP.Domain/CGP.Domain.csproj", "CGP.Domain/"]
 COPY ["CGP.Infrastructure/CGP.Infrastructure.csproj", "CGP.Infrastructure/"]
 RUN dotnet restore "./CGP.WebAPI/CGP.WebAPI.csproj"
-
 COPY . .
 WORKDIR "/src/CGP.WebAPI"
 RUN dotnet build "./CGP.WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Publish stage
+# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./CGP.WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Final runtime stage (no SDK, only runtime)
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-
-# Ensure the EF tools are still available (optional, for debugging)
-ENV PATH="$PATH:/root/.dotnet/tools"
-
 ENTRYPOINT ["dotnet", "CGP.WebAPI.dll"]
