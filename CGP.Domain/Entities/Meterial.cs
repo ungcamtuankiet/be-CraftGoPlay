@@ -8,8 +8,8 @@ namespace CGP.Domain.Entities
 {
     public class Meterial : BaseEntity
     {
-        public string MeterialName { get; set; }
+        public string Name { get; set; }
         public string Description { get; set; }
-        public bool IsActive { get; set; }
+        public ICollection<ProductMeterial> ProductMeterials { get; set; } = new List<ProductMeterial>();
     }
 }

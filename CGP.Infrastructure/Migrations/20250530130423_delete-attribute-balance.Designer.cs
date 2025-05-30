@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250527101412_init")]
-    partial class init
+    [Migration("20250530130423_delete-attribute-balance")]
+    partial class deleteattributebalance
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,8 +31,8 @@ namespace CGP.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double?>("Balance")
-                        .HasColumnType("float");
+                    b.Property<Guid?>("CraftVillage_Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -107,9 +107,65 @@ namespace CGP.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CraftVillage_Id");
+
                     b.HasIndex("RoleId");
 
                     b.ToTable("User");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
+                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7935),
+                            Email = "admin",
+                            IsDeleted = false,
+                            IsVerified = true,
+                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
+                            PhoneNumber = "0123456789",
+                            RoleId = 1,
+                            Status = "Active",
+                            UserName = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
+                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7956),
+                            Email = "user",
+                            IsDeleted = false,
+                            IsVerified = true,
+                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
+                            PhoneNumber = "0123456789",
+                            RoleId = 2,
+                            Status = "Active",
+                            UserName = "Staff"
+                        },
+                        new
+                        {
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
+                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7959),
+                            Email = "artisan",
+                            IsDeleted = false,
+                            IsVerified = true,
+                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
+                            PhoneNumber = "0123456789",
+                            RoleId = 3,
+                            Status = "Active",
+                            UserName = "Artisan"
+                        },
+                        new
+                        {
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
+                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7962),
+                            Email = "shop",
+                            IsDeleted = false,
+                            IsVerified = true,
+                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
+                            PhoneNumber = "0123456789",
+                            RoleId = 4,
+                            Status = "Active",
+                            UserName = "User"
+                        });
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Category", b =>
@@ -156,6 +212,57 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("Category", (string)null);
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.CraftVillage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getutcdate()");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EstablishedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Village_Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CraftVillage", (string)null);
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -181,6 +288,16 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
+                            RoleName = "Staff"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            RoleName = "Artisan"
+                        },
+                        new
+                        {
+                            Id = 4,
                             RoleName = "User"
                         });
                 });
@@ -236,11 +353,18 @@ namespace CGP.Infrastructure.Migrations
 
             modelBuilder.Entity("CGP.Domain.Entities.ApplicationUser", b =>
                 {
+                    b.HasOne("CGP.Domain.Entities.CraftVillage", "CraftVillage")
+                        .WithMany("Users")
+                        .HasForeignKey("CraftVillage_Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CGP.Domain.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CraftVillage");
 
                     b.Navigation("Role");
                 });
@@ -260,6 +384,11 @@ namespace CGP.Infrastructure.Migrations
             modelBuilder.Entity("CGP.Domain.Entities.Category", b =>
                 {
                     b.Navigation("SubCategories");
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.CraftVillage", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Role", b =>

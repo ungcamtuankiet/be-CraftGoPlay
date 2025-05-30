@@ -66,6 +66,18 @@ namespace CGP.WebAPI
                 c.EnableAnnotations();
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("UserPolicy", policy =>
+                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "User"));
+                options.AddPolicy("AdminPolicy", policy =>
+                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "Admin"));
+                options.AddPolicy("ArtisanPolicy", policy =>
+                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "Artisan"));
+                options.AddPolicy("StaffPolicy", policy =>
+                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "Staff"));
+            });
+
 
 
             return services;

@@ -18,13 +18,19 @@ namespace CGP.WebAPI.Middlewares
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            _stopwatch.Restart();
-            _logger.LogInformation("Performance Tracking: Request started.");
+            var stopwatch = Stopwatch.StartNew();
+            _logger.LogInformation("Request started for {Path}", context.Request.Path);
 
-            await next(context); // Call next middleware in the pipeline
-
-            _stopwatch.Stop();
-            _logger.LogInformation($"Performance Tracking: Request ended. Time taken: {_stopwatch.ElapsedMilliseconds} ms.");
-        }
+            try
+            {
+                // QUAN TRỌNG: Phải có dòng này để chuyển tiếp request
+                await next(context);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _logger.LogInformation("Request completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
+            }
+        } 
     }
 }

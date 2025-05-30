@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250529155945_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,6 +30,9 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("Balance")
+                        .HasColumnType("float");
 
                     b.Property<Guid?>("CraftVillage_Id")
                         .HasColumnType("uniqueidentifier");
@@ -114,7 +120,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7935),
+                            CreationDate = new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5791),
                             Email = "admin",
                             IsDeleted = false,
                             IsVerified = true,
@@ -127,7 +133,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7956),
+                            CreationDate = new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5810),
                             Email = "user",
                             IsDeleted = false,
                             IsVerified = true,
@@ -140,7 +146,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7959),
+                            CreationDate = new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5813),
                             Email = "artisan",
                             IsDeleted = false,
                             IsVerified = true,
@@ -153,7 +159,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7962),
+                            CreationDate = new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5816),
                             Email = "shop",
                             IsDeleted = false,
                             IsVerified = true,

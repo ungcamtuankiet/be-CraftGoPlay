@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Category;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,15 +24,25 @@ namespace CGP.WebAPI.Controllers
 
         [HttpGet("GetAllCategories")]
         [ProducesResponseType(200, Type = typeof(Result<object>))]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(403)]
         public async Task<IActionResult> GetAllCategories()
         {
-            var result = await _categoryService.GetCategory();
-
-            return Ok(result);
+            try
+            {
+                var result = await _categoryService.GetCategory();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
         [HttpPost("CreateCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
+        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
         public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryDTO CategoryCreate)
         {
             if (CategoryCreate == null)
@@ -54,6 +65,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("CreateCategory/SubCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
+        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
         public async Task<IActionResult> CreateCategoryAndSub([FromBody] CreateCategoryWithSubDTO CategoryCreate)
         {
             if (CategoryCreate == null)
@@ -77,6 +89,7 @@ namespace CGP.WebAPI.Controllers
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(404, Type = typeof(Result<object>))]
+        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
         public async Task<IActionResult> DeleteCategory([FromQuery] string CategoryId)
         {
             Guid id;

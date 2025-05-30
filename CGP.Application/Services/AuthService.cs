@@ -10,6 +10,8 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -117,7 +119,6 @@ namespace CGP.Application.Services
                 {
                     Email = email,
                     UserName = email,
-                    Balance = 0,
                     PasswordHash = null,
                     Status = StatusEnum.Active,
                     Otp = "",
@@ -156,11 +157,10 @@ namespace CGP.Application.Services
                     UserName = userRegistrationDto.UserName,
                     Email = userRegistrationDto.Email,
                     PasswordHash = HashPassword(userRegistrationDto.PasswordHash),
-                    Balance = 0,
                     PhoneNumber = userRegistrationDto.PhoneNo,
                     Status = StatusEnum.Pending,
                     Otp = otp,
-                    RoleId = 2,
+                    RoleId = 4,
                     CreationDate = DateTime.Now,
                     OtpExpiryTime = DateTime.UtcNow.AddMinutes(10)
 
@@ -238,6 +238,12 @@ namespace CGP.Application.Services
 
         public async Task<bool> DeleteRefreshToken(Guid userId)
         {
+            var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            var jwtToken = new JwtSecurityTokenHandler().ReadToken(token) as JwtSecurityToken;
+            var expiry = jwtToken.ValidTo;
+
+            await _redisService.AddToBlacklistAsync(token, expiry);
+
             return await _authRepository.DeleteRefreshToken(userId);
         }
 
@@ -351,26 +357,35 @@ namespace CGP.Application.Services
         }
         public async Task<Authenticator> RefreshToken(string token)
         {
-            //Check refreshToken have validate
+            if (string.IsNullOrEmpty(token))
+                throw new ArgumentNullException(nameof(token), "Refresh token is missing");
+
             var checkRefreshToken = _tokenGenerators.ValidateRefreshToken(token);
             if (!checkRefreshToken)
                 return null;
-            //Check refreshToken in DB
+
             var user = await _authRepository.GetRefreshToken(token);
-            if (user == null) return null;
-            List<Claim> claims = new() {
-            new Claim("id", user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Role.RoleName)
-        };
+            if (user == null)
+                return null;
+
+            if (user.Role == null)
+                throw new Exception("User role is missing");
+
+            List<Claim> claims = new()
+    {
+        new Claim("id", user.Id.ToString()),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Name, user.Role.RoleName ?? "")
+    };
 
             var (accessToken, refreshToken) = _tokenGenerators.GenerateTokens(claims);
 
             await _authRepository.UpdateRefreshToken(user.Id, refreshToken);
-            return new Authenticator()
+
+            return new Authenticator
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken,
+                RefreshToken = refreshToken
             };
         }
         private bool ValidatePassword(string password)
