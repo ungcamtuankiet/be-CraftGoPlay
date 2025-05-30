@@ -18,7 +18,11 @@ public class AppDbContext : DbContext
     public DbSet<ApplicationUser> User { get; set; }
     public DbSet<Category> Category { get; set; }
     public DbSet<SubCategory> SubCategory { get; set; }
-
+    public DbSet<CraftVillage> CraftVillage { get; set; }
+    public DbSet<Wallet> Wallet { get; set; }
+    public DbSet<Product> Product { get; set; }
+    public DbSet<ProductMeterial> ProductMeterial { get; set; }
+    public DbSet<Meterial> Meterial { get; set; }
     #endregion
 
 
@@ -26,8 +30,11 @@ public class AppDbContext : DbContext
     {
         modelBuilder.Entity<Role>().HasData(
            new Role { Id = 1, RoleName = "Admin" },
-           new Role { Id = 2, RoleName = "User" }
+           new Role { Id = 2, RoleName = "Staff" },
+           new Role { Id = 3, RoleName = "Artisan" },
+           new Role { Id = 4, RoleName = "User" }
         );
+
 
         //User
         modelBuilder.Entity<ApplicationUser>()
@@ -36,6 +43,38 @@ public class AppDbContext : DbContext
             v => v.ToString(),
             v => (StatusEnum)Enum.Parse(typeof(StatusEnum), v)
         );
+        modelBuilder.Entity<ApplicationUser>()
+            .HasData(
+                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), UserName = "Admin", Email = "admin", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 1, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
+                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), UserName = "Staff", Email = "user", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 2, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
+                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B470"), UserName = "Artisan", Email = "artisan", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 3, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
+                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B469"), UserName = "User", Email = "shop", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 4, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false }
+           );
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasOne(u => u.CraftVillage)
+            .WithMany(u => u.Users)
+            .HasForeignKey(u => u.CraftVillage_Id)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasOne(r => r.Role)
+            .WithMany(u => u.Users);
+
+        //Wallet
+        modelBuilder.Entity<Wallet>(e =>
+        {
+            e.ToTable("Wallet");
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Id)
+            .IsRequired();
+            e.Property(p => p.Balance)
+            .HasDefaultValue(0);
+            e.HasOne(p => p.User)
+            .WithOne(p => p.Wallet)
+            .HasForeignKey<Wallet>(p => p.User_Id)
+            .OnDelete(DeleteBehavior.Cascade);
+        });
 
         //Category
         modelBuilder.Entity<Category>(e =>
@@ -80,5 +119,74 @@ public class AppDbContext : DbContext
             .HasForeignKey(p => p.CategoryId)
             .HasConstraintName("FK_SubCategory_Category");
         });
-    }  
+
+        modelBuilder.Entity<SubCategory>()
+            .HasOne(sc => sc.Category)
+            .WithMany(sc => sc.SubCategories);
+
+        //CraftVillage
+        modelBuilder.Entity<CraftVillage>(e =>
+        {
+            e.ToTable("CraftVillage");
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Id)
+            .IsRequired()
+            .HasMaxLength(50);
+            e.Property(p => p.Village_Name)
+            .IsRequired()
+            .HasMaxLength(50);
+            e.Property(p => p.CreationDate)
+            .IsRequired()
+            .HasDefaultValueSql("getutcdate()");
+        });
+
+        //Product
+        modelBuilder.Entity<Product>(e =>
+        {
+            e.ToTable("Product");
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Name)
+            .IsRequired()
+            .HasMaxLength(50);
+            e.Property(p => p.Description)
+            .HasMaxLength(250);
+            e.Property(p => p.Status)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (ProductStatusEnum)Enum.Parse(typeof(ProductStatusEnum), v));
+            e.Property(e => e.ImageUrl)
+            .IsRequired(); 
+        });
+
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.SubCategory)
+            .WithMany(p => p.Products);
+
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.User)
+            .WithMany(p => p.Products);
+
+        //Meterial
+        modelBuilder.Entity<Meterial>(e =>
+        {
+            e.ToTable("Meterial");
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Name)
+            .IsRequired()
+            .HasMaxLength(50);
+        });
+
+        //Product Meterial
+        modelBuilder.Entity<ProductMeterial>(e =>
+        {
+            e.ToTable("ProductMeterial");
+        });
+
+        modelBuilder.Entity<ProductMeterial>()
+            .HasOne(pm => pm.Product)
+            .WithMany(pm => pm.ProductMeterials);
+
+        modelBuilder.Entity<ProductMeterial>()
+            .HasOne(pm => pm.Meterial)
+            .WithMany(pm => pm.ProductMeterials);
+    }
 }

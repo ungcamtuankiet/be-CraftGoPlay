@@ -8,5 +8,10 @@ namespace CGP.Application.Interfaces
 {
     public interface IRedisService
     {
+        Task SetCacheAsync<T>(string key, T value, TimeSpan? absoluteExpireTime = null);
+        Task<T?> GetCacheAsync<T>(string key);
+        Task RemoveCacheAsync(string key);
+        Task AddToBlacklistAsync(string token, DateTime expiry);
+        Task<bool> IsTokenBlacklistedAsync(string token);
     }
 }

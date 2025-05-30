@@ -126,11 +126,10 @@ namespace CGP.Infrastructure.Services
                 {
                     Email = payload.Email,
                     UserName = payload.Email,
-                    Balance = 0,
                     PasswordHash = null,
                     Status = StatusEnum.Active,
                     Otp = "",
-                    RoleId = 2,
+                    RoleId = 4,
                     CreationDate = DateTime.Now,
                     IsVerified = true,
                     Provider = "Google",

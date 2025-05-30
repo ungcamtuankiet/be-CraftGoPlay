@@ -143,11 +143,13 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPost("token/refresh")]
-        public async Task<IActionResult> RefreshToken(string token)
+        [Authorize]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             try
             {
-                var checkRefeshToken = await _authService.RefreshToken(token);
+                var checkRefeshToken = await _authService.RefreshToken(request.RefreshToken);
+
                 Response.Cookies.Append("refreshToken", checkRefeshToken.RefreshToken, new CookieOptions
                 {
                     HttpOnly = true,
@@ -155,6 +157,7 @@ namespace CGP.WebAPI.Controllers
                     Path = "/",
                     SameSite = SameSiteMode.Strict,
                 });
+
                 return Ok(new Result<object>
                 {
                     Error = 0,
@@ -173,10 +176,11 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPost("user/logout")]
-        public async Task<IActionResult> Logout([FromBody] Guid userId)
+        [Authorize]
+        public async Task<IActionResult> Logout([FromBody]Guid userId)
         {
-            Response.Cookies.Delete("refreshToken");
             await _authService.DeleteRefreshToken(userId);
+            Response.Cookies.Delete("refreshToken");
             return Ok(new Result<object>
             {
                 Error = 0,

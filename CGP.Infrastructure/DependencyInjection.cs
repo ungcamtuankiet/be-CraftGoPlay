@@ -8,6 +8,7 @@ using CGP.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace CGP.Infrastructure
 {
@@ -40,11 +41,15 @@ namespace CGP.Infrastructure
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
             );
 
-            services.AddStackExchangeRedisCache(option =>
+            /*services.AddStackExchangeRedisCache(option =>
             {
                 option.Configuration = configuration.GetConnectionString("Redis");
                 option.InstanceName = "CraftGoPlay";
-            });
+            });*/
+
+            var redisConnectionString = configuration.GetConnectionString("Redis");
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(redisConnectionString));
             return services;
         }
     }

@@ -1,9 +1,13 @@
 using CGP.Application;
+using CGP.Application.Interfaces;
 using CGP.Infrastructure;
 using CGP.WebAPI;
 using CGP.WebAPI.Middlewares;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,33 +27,30 @@ builder.Logging.AddConsole();
 var key = System.Text.Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]);
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            ClockSkew = System.TimeSpan.Zero
-        };
-    })
-    .AddCookie()
-    .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
-    {
-        options.ClientId = builder.Configuration["GoogleAPI:ClientId"];
-        options.ClientSecret = builder.Configuration["GoogleAPI:SecretCode"];
-    });
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ClockSkew = System.TimeSpan.Zero
+    };
+})
+.AddCookie()
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+{
+    options.ClientId = builder.Configuration["GoogleAPI:ClientId"];
+    options.ClientSecret = builder.Configuration["GoogleAPI:SecretCode"];
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -57,31 +58,24 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
     });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
             builder.WithOrigins(
-                "http://localhost:3000",
-                "https://manager-task-three.vercel.app",
-                "https://promanager.me",
-                "http://promanager.me"
-                )
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
+    "http://localhost:5000",   
+    "https://localhost:5000",  
+    "http://localhost:7254",
+    "https://localhost:7254"
+)
+.AllowAnyHeader()
+.AllowAnyMethod()
+.AllowCredentials();
+
         });
 });
-
-
-// Kestrel File Upload Size
-
-//var maxFileSize = builder.Configuration.GetValue<long>("Kestrel:Limits:MaxRequestBodySize");
-//builder.WebHost.ConfigureKestrel(options =>
-//{
-//    options.Limits.MaxRequestBodySize = maxFileSize;
-//});
 
 
 
@@ -124,13 +118,14 @@ app.UseMiddleware<PerformanceMiddleware>();
 
 
 app.UseHttpsRedirection();
-
-// use authen
-app.UseAuthentication();
-app.UseAuthorization();
-
 // Use Global Exception Middleware 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+// use authen
+app.UseAuthentication();
+app.UseMiddleware<TokenBlacklistMiddleware>();
+app.UseAuthorization();
+
+
 app.MapControllers();
 
 app.UseSqlTableDependency(builder.Configuration.GetConnectionString("DefaultConnection"));

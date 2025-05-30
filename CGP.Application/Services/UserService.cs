@@ -1,4 +1,5 @@
-﻿using CGP.Application.Interfaces;
+﻿using AutoMapper;
+using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Application.Utils;
 using CGP.Contract.DTO.User;
@@ -25,10 +26,11 @@ namespace CGP.Application.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRedisService _redisService;
         private readonly IClaimsService _claimsService;
+        private readonly IMapper _mapper;
 
         public UserService(IUserRepository userRepository, IConfiguration configuration,
             IAuthRepository authRepository, IEmailService emailService, IRedisService redisService,
-            TokenGenerators tokenGenerators, IHttpContextAccessor httpContextAccessor, IClaimsService claimsService)
+            TokenGenerators tokenGenerators, IHttpContextAccessor httpContextAccessor, IClaimsService claimsService, IMapper mapper)
         {
             _userRepository = userRepository;
             _configuration = configuration;
@@ -38,6 +40,7 @@ namespace CGP.Application.Services
             _httpContextAccessor = httpContextAccessor;
             _redisService = redisService;
             _claimsService = claimsService;
+            _mapper = mapper;
         }
 
         public async Task<IList<ApplicationUser>> GetALl()
@@ -72,20 +75,20 @@ namespace CGP.Application.Services
             await _userRepository.UpdateAsync(user);
         }
 
-        public async Task<Result<ApplicationUser>> GetCurrentUserById()
+        public async Task<Result<UserDTO>> GetCurrentUserById()
         {
             var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
+            
             if (token == null)
-                return new Result<ApplicationUser>() { Error = 1, Message = "Token not found", Data = null };
+                return new Result<UserDTO>() { Error = 1, Message = "Token not found", Data = null };
 
             var jwtToken = new JwtSecurityTokenHandler().ReadToken(token) as JwtSecurityToken;
 
             if (jwtToken == null)
-                return new Result<ApplicationUser>() { Error = 1, Message = "Invalid token", Data = null };
+                return new Result<UserDTO>() { Error = 1, Message = "Invalid token", Data = null };
             var userId = Guid.Parse(jwtToken.Claims.First(claim => claim.Type == "id").Value);
-            var user = await _userRepository.GetByIdAsync(userId);
-            return new Result<ApplicationUser>() { Error = 1, Message = "Invalid token", Data = user };
+            var result = _mapper.Map<UserDTO>(await _userRepository.GetAllUserById(userId));
+            return new Result<UserDTO>() { Error = 0, Message = "Get Information Successfully", Data = result };
         }
 
     }

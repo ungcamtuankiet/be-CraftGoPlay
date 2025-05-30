@@ -17,6 +17,6 @@ namespace CGP.Application.Interfaces
 
 
         Task<UserDTO> GetUserById(Guid id);
-        Task<Result<ApplicationUser>> GetCurrentUserById();
+        Task<Result<UserDTO>> GetCurrentUserById();
     }
 }

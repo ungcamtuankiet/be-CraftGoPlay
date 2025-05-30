@@ -4,6 +4,7 @@ using CGP.Contract.DTO.Category;
 using CGP.Contract.DTO.SubCategory;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,6 +39,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("CreateSubCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
+        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
         public async Task<IActionResult> CreateSubCategory([FromForm] CreateSubCategoryDTO CategorySubCreate, string CategoryId)
         {
             if (CategorySubCreate == null)
@@ -72,6 +74,7 @@ namespace CGP.WebAPI.Controllers
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(404, Type = typeof(Result<object>))]
+        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
         public async Task<IActionResult> DeleteSubCategory(string ID)
         {
             Guid SubcategoryId;

@@ -32,7 +32,7 @@ namespace CGP.Infrastructure.Data
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Kiet@0793213702"),
                 Status = StatusEnum.Active,
                 IsVerified = true,
-                RoleId = context.Role.Single(r => r.RoleName == "User").Id
+                RoleId = context.Role.Single(r => r.RoleName == "User").Id,
             };
             context.User.Add(shop);
         }
