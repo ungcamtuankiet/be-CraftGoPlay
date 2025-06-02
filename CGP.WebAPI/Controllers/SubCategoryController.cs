@@ -39,7 +39,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("CreateSubCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
-        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
+        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> CreateSubCategory([FromForm] CreateSubCategoryDTO CategorySubCreate, string CategoryId)
         {
             if (CategorySubCreate == null)
@@ -74,7 +74,7 @@ namespace CGP.WebAPI.Controllers
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(404, Type = typeof(Result<object>))]
-        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
+        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> DeleteSubCategory(string ID)
         {
             Guid SubcategoryId;

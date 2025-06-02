@@ -14,7 +14,9 @@ namespace CGP.Application
         IUserRepository userRepository { get; }
         ICategoryRepository categoryRepository { get; }
         ISubCategoryRepository subCategoryRepository { get; }
-
+        ICraftVillageRepository craftVillageRepository { get; }
+        IProductRepository productRepository { get; }
+        IMeterialRepository meterialRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

@@ -4,6 +4,7 @@ using CGP.WebAPI.Middlewares;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Reflection;
+using System.Security.Claims;
 
 namespace CGP.WebAPI
 {
@@ -76,6 +77,8 @@ namespace CGP.WebAPI
                     policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "Artisan"));
                 options.AddPolicy("StaffPolicy", policy =>
                     policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "Staff"));
+                options.AddPolicy("AdminOrStaffPolicy", policy =>
+                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "Admin", "Staff"));
             });
 
 
