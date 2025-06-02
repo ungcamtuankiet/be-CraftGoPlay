@@ -21,7 +21,6 @@ public class AppDbContext : DbContext
     public DbSet<CraftVillage> CraftVillage { get; set; }
     public DbSet<Wallet> Wallet { get; set; }
     public DbSet<Product> Product { get; set; }
-    public DbSet<ProductMeterial> ProductMeterial { get; set; }
     public DbSet<Meterial> Meterial { get; set; }
     #endregion
 
@@ -46,9 +45,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ApplicationUser>()
             .HasData(
                 new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), UserName = "Admin", Email = "admin", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 1, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
-                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), UserName = "Staff", Email = "user", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 2, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
+                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), UserName = "Staff", Email = "staff", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 2, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
                 new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B470"), UserName = "Artisan", Email = "artisan", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 3, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
-                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B469"), UserName = "User", Email = "shop", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 4, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false }
+                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B469"), UserName = "User", Email = "user", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 4, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false }
            );
 
         modelBuilder.Entity<ApplicationUser>()
@@ -174,19 +173,5 @@ public class AppDbContext : DbContext
             .IsRequired()
             .HasMaxLength(50);
         });
-
-        //Product Meterial
-        modelBuilder.Entity<ProductMeterial>(e =>
-        {
-            e.ToTable("ProductMeterial");
-        });
-
-        modelBuilder.Entity<ProductMeterial>()
-            .HasOne(pm => pm.Product)
-            .WithMany(pm => pm.ProductMeterials);
-
-        modelBuilder.Entity<ProductMeterial>()
-            .HasOne(pm => pm.Meterial)
-            .WithMany(pm => pm.ProductMeterials);
     }
 }

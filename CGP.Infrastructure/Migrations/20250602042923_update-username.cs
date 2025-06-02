@@ -6,80 +6,70 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CGP.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class deleteattributebalance : Migration
+    public partial class updateusername : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Balance",
-                table: "User");
-
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                column: "CreationDate",
-                value: new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7962));
+                columns: new[] { "CreationDate", "Email" },
+                values: new object[] { new DateTime(2025, 6, 2, 11, 29, 22, 388, DateTimeKind.Local).AddTicks(600), "user" });
 
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
                 column: "CreationDate",
-                value: new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7959));
+                value: new DateTime(2025, 6, 2, 11, 29, 22, 388, DateTimeKind.Local).AddTicks(598));
 
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
                 column: "CreationDate",
-                value: new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7935));
+                value: new DateTime(2025, 6, 2, 11, 29, 22, 388, DateTimeKind.Local).AddTicks(573));
 
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                column: "CreationDate",
-                value: new DateTime(2025, 5, 30, 20, 4, 22, 569, DateTimeKind.Local).AddTicks(7956));
+                columns: new[] { "CreationDate", "Email" },
+                values: new object[] { new DateTime(2025, 6, 2, 11, 29, 22, 388, DateTimeKind.Local).AddTicks(594), "staff" });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<double>(
-                name: "Balance",
-                table: "User",
-                type: "float",
-                nullable: true);
-
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                columns: new[] { "Balance", "CreationDate" },
-                values: new object[] { null, new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5816) });
+                columns: new[] { "CreationDate", "Email" },
+                values: new object[] { new DateTime(2025, 5, 30, 23, 1, 46, 507, DateTimeKind.Local).AddTicks(5568), "shop" });
 
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                columns: new[] { "Balance", "CreationDate" },
-                values: new object[] { null, new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5813) });
+                column: "CreationDate",
+                value: new DateTime(2025, 5, 30, 23, 1, 46, 507, DateTimeKind.Local).AddTicks(5566));
 
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                columns: new[] { "Balance", "CreationDate" },
-                values: new object[] { null, new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5791) });
+                column: "CreationDate",
+                value: new DateTime(2025, 5, 30, 23, 1, 46, 507, DateTimeKind.Local).AddTicks(5543));
 
             migrationBuilder.UpdateData(
                 table: "User",
                 keyColumn: "Id",
                 keyValue: new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                columns: new[] { "Balance", "CreationDate" },
-                values: new object[] { null, new DateTime(2025, 5, 29, 22, 59, 45, 39, DateTimeKind.Local).AddTicks(5810) });
+                columns: new[] { "CreationDate", "Email" },
+                values: new object[] { new DateTime(2025, 5, 30, 23, 1, 46, 507, DateTimeKind.Local).AddTicks(5561), "user" });
         }
     }
 }

@@ -42,7 +42,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("CreateCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
-        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryDTO CategoryCreate)
         {
             if (CategoryCreate == null)
@@ -65,7 +65,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("CreateCategory/SubCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
-        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
+        [Authorize(Policy = "StaffOrAdminPolicy")]
         public async Task<IActionResult> CreateCategoryAndSub([FromBody] CreateCategoryWithSubDTO CategoryCreate)
         {
             if (CategoryCreate == null)
@@ -89,7 +89,7 @@ namespace CGP.WebAPI.Controllers
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(404, Type = typeof(Result<object>))]
-        [Authorize(Policy = "AdminPolicy, StaffPolicy")]
+        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> DeleteCategory([FromQuery] string CategoryId)
         {
             Guid id;
