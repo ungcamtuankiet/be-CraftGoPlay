@@ -66,24 +66,7 @@ namespace CGP.Application.Services
                 product.Meterials = meterials;
             }
 
-            if(request.Price < 0)
-            {
-                return new Result<object>
-                {
-                    Error = 1,
-                    Message = "Price must be greater than or equal to 0",
-                    Data = null
-                };
-            }
-
             await _unitOfWork.productRepository.CreateNewProduct(product);
-
-            var result = await _unitOfWork.SaveChangeAsync();
-
-            if (result > 0)
-            {
-                await _redisService.RemoveCacheAsync("product:list");
-            }
             return new Result<object>
             {
                 Error = 0,
