@@ -39,7 +39,7 @@ namespace CGP.Infrastructure.Services
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = "craftgoplay"
+                    Folder = "your_folder_name" // Tùy chọn: để hình ảnh vào thư mục trên Cloudinary
                 };
 
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);

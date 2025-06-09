@@ -18,5 +18,8 @@ namespace CGP.Contract.DTO.Product
 
         public Guid Artisan_id { get; set; }
         public Guid SubCategoryId { get; set; }
+
+        public string? ArtisanName { get; set; }
+        public string? SubCategoryName { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace CGP.Application.Interfaces
     public interface IProductService
     {
         public Task<Result<List<ViewProductDTO>>> GetProductsAsync();
-        public Task<Result<ViewProductDTO>> GetProductByIdAsync(Guid id);
+        public Task<Result<List<ViewProductDTO>>> SearchProducts(string? search, int pageIndex, int pageSize, decimal from, decimal to, string sortOrder);
         public Task<Result<List<ViewProductDTO>>> GetProductsBySubCategoryIdAsync(Guid subCategoryId);
         public Task<Result<object>> CreateProduct(ProductCreateDto request);
         public Task<Result<object>> DeleteProduct(Guid id);
