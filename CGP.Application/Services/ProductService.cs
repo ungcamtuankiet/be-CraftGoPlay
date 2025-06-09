@@ -6,6 +6,7 @@ using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,6 +53,31 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<List<ViewProductDTO>>> SearchProducts(string? search, int pageIndex, int pageSize,  decimal from, decimal to, string sortOrder)
+        {
+            string cacheKey = $"product:search:{search}:{pageIndex}:{pageSize}:{from}:{to}:{sortOrder}";
+            var cachedData = await _redisService.GetCacheAsync<List<ViewProductDTO>>(cacheKey);
+
+            if (cachedData != null)
+            {
+                return new Result<List<ViewProductDTO>>
+                {
+                    Error = 0,
+                    Message = "Get successfully (from cache)",
+                    Data = cachedData
+                };
+            }
+
+            var result = _mapper.Map<List<ViewProductDTO>>(await _unitOfWork.productRepository.SearchProducts(search, pageIndex, pageSize, from, to, sortOrder));
+            await _redisService.SetCacheAsync(cacheKey, result, TimeSpan.FromMinutes(10));
+            return new Result<List<ViewProductDTO>>
+            {
+                Error = 0,
+                Message = "Get successfully",
+                Data = result
+            };
+        }
+
         public async Task<Result<object>> CreateProduct(ProductCreateDto request)
         {
             var uploadResult = await _cloudinaryService.UploadProductImage(request.Image);
@@ -80,10 +106,6 @@ namespace CGP.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<Result<ViewProductDTO>> GetProductByIdAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<Result<List<ViewProductDTO>>> GetProductsBySubCategoryIdAsync(Guid subCategoryId)
         {

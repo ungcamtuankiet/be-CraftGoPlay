@@ -5,6 +5,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,36 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory).ToListAsync();
+        }
+
+        public async Task<IList<Product>> SearchProducts(string? search, int pageIndex, int pageSize, decimal from, decimal to, string sortOrder)
+        {
+            var query = _context.Product
+                .Include(x => x.User)
+                .Include(x => x.Meterials)
+                .Include(x => x.SubCategory)
+                .Where(x => x.Price >= from && x.Price <= to);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.Name.Contains(search) ||
+                    x.Description.Contains(search) ||
+                    x.SubCategory.SubName.Contains(search));
+            }
+            // Sắp xếp động
+            query = (sortOrder.ToLower()) switch
+            {
+                ("asc") => query.OrderBy(x => x.Price),
+                ("desc") => query.OrderByDescending(x => x.Price),
+                _ => query.OrderBy(x => x.Price)
+            };
+
+
+            return await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task<Product> GetProductById(Guid id)

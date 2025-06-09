@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Product;
+using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +38,17 @@ namespace CGP.WebAPI.Controllers
                 return BadRequest(new { Error = 1, Message = "Invalid product data." });
             }
             var result = await _productService.CreateProduct(request);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("SearchProducts")]
+        public async Task<IActionResult> SearchProducts([FromQuery] string? search, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] decimal from = 0, [FromQuery] decimal to = 1000000, [FromQuery] SortOrder sortOrder = SortOrder.asc)
+        {
+            var result = await _productService.SearchProducts(search, pageIndex, pageSize, from, to, sortOrder.ToString());
             if (result.Error == 0)
             {
                 return Ok(result);
