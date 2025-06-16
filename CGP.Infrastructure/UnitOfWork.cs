@@ -21,16 +21,16 @@ namespace CGP.Infrastructure
         private readonly IProductRepository _productRepository;
         private readonly IMeterialRepository _meterialRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, ICraftVillageRepository craftVillageRepository, IProductRepository productRepository, IMeterialRepository meterialRepository)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
             _userRepository = userRepository;
             _categoryRepository = categoryRepository;
             _subCategoryRepository = subCategoryRepository;
-            _craftVillageRepository = craftVillageRepository;
             _productRepository = productRepository;
             _meterialRepository = meterialRepository;
+            _craftVillageRepository = craftVillageRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;

@@ -30,6 +30,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IGoogleService, GoogleService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<ICraftVillageService, CraftVillageService>();
             services.AddScoped<ISubCategoryService, SubCategoryService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IMeterialService, MeterialService>();
