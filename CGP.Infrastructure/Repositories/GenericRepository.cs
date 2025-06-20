@@ -55,6 +55,10 @@ namespace CGP.Infrastructure.Repositories
             _dbSet.Update(entity);
         }
 
+        public void Remove(TEntity entity) { 
+            _dbSet.Remove(entity);
+        }
+
         public async Task AddRangeAsync(List<TEntity> entities)
         {
             foreach (var entity in entities)

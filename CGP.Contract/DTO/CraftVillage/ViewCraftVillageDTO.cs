@@ -8,6 +8,7 @@ namespace CGP.Contract.DTO.CraftVillage
 {
     public class ViewCraftVillageDTO
     {
+        public Guid Id { get; set; }
         public string Village_Name { get; set; }
         public string Description { get; set; }
         public string Location { get; set; }

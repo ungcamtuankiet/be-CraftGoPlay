@@ -14,6 +14,11 @@ namespace CGP.Infrastructure.Mappers.CraftVillageProfile
         public CraftVillageProfile()
         {
             CreateMap<CraftVillage, ViewCraftVillageDTO>().ReverseMap();
+
+            CreateMap<CreateCraftVillageDTO, CraftVillage>().ReverseMap();
+
+            CreateMap<CraftVillage, UpdateCraftVillageDTO>().ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }
