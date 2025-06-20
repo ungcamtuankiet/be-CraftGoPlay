@@ -20,6 +20,8 @@ namespace CGP.Application.Repositories
         Task AddRangeAsync(List<TEntity> entities);
         void SoftRemoveRange(List<TEntity> entities);
 
+        void Remove(TEntity entity);
+
         Task<Pagination<TEntity>> ToPagination(int pageNumber = 0, int pageSize = 10);
     }
 }

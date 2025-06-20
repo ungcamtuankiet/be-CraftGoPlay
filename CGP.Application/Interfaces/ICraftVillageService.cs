@@ -12,8 +12,9 @@ namespace CGP.Application.Interfaces
     public interface ICraftVillageService
     {
         public Task<Result<List<ViewCraftVillageDTO>>> GetAllCraftVillagesAsync();
-        public Task<CraftVillage> GetCraftVillageByIdAsync(Guid id);
-        public Task CreateNewCraftVillage(CraftVillage craftVillage);
-        public Task UpdateCraftVillage(CraftVillage craftVillage);
+        public Task<Result<ViewCraftVillageDTO>> GetCraftVillageByIdAsync(Guid id);
+        public Task<Result<CraftVillage>> CreateNewCraftVillage(CreateCraftVillageDTO craftVillage);
+        public Task<Result<CraftVillage>> UpdateCraftVillage(Guid id, UpdateCraftVillageDTO craftVillage);
+        public Task<Result<object>> DeleteCraftVillage(Guid id);
     }
 }
