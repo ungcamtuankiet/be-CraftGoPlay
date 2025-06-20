@@ -13,6 +13,8 @@ namespace CGP.Application.Repositories
         public Task<CraftVillage> GetCraftVillageByIdAsync(Guid id);
         public Task CreateNewCraftVillage(CraftVillage craftVillage);
         public Task UpdateCraftVillage(CraftVillage craftVillage);
-        
+        public Task<CraftVillage> GetByNameAsync(string name);
+        public Task<CraftVillage> GetByIdAsync(Guid id);
+
     }
 }
