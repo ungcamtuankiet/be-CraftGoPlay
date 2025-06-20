@@ -8,7 +8,7 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Kiet@123456789
     ports:
-      - "11433:1433"
+      - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
 

@@ -1,4 +1,5 @@
 ﻿using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace CGP.Application.Repositories
     {
         public Task<ICollection<Product>> GetProducts();
         public Task<IList<Product>> SearchProducts(string? search, int pageIndex, int pageSize, decimal from, decimal to, string sortOrder);
+        public Task<IList<Product>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus);
         public Task<Product> GetProductById(Guid id);
         public Task CreateNewProduct(Product product);
         public Task UpdateProduct(Product product);
         public Task DeleteProduct(Product product);
-        public Task<ICollection<Product>> GetProductsBySubCategoryId(Guid subCategoryId);
     }
 }

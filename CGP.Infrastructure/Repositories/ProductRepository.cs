@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -35,7 +36,8 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
-                .Where(x => x.Price >= from && x.Price <= to);
+                .Where(x => x.Price >= from && x.Price <= to)
+                .Where(x => x.Status == ProductStatusEnum.Active);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -44,7 +46,7 @@ namespace CGP.Infrastructure.Repositories
                     x.Description.Contains(search) ||
                     x.SubCategory.SubName.Contains(search));
             }
-            // Sắp xếp động
+            
             query = (sortOrder.ToLower()) switch
             {
                 ("asc") => query.OrderBy(x => x.Price),
@@ -58,6 +60,59 @@ namespace CGP.Infrastructure.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
+
+        public async Task<IList<Product>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus)
+        {
+            var query = _context.Product
+                .Include(x => x.User)
+                .Include(x => x.Meterials)
+                .Include(x => x.SubCategory)
+                .Where(x => x.Status == productStatus);
+
+            if (!string.IsNullOrWhiteSpace(productStatus.ToString()))
+            {
+                switch (productStatus.ToString().ToLower())
+                {
+                    case "active":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Active);
+                        break;
+                    case "inactive":
+                        query = query.Where(x => x.Status == ProductStatusEnum.InActive);
+                        break;
+                    case "outofstock":
+                        query = query.Where(x => x.Status == ProductStatusEnum.OutOfStock);
+                        break;
+                    case "preorder":
+                        query = query.Where(x => x.Status == ProductStatusEnum.PreOrder);
+                        break;
+                    case "archived":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Archived);
+                        break;
+                    case "pending":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Pending);
+                        break;
+                    case "onsale":
+                        query = query.Where(x => x.Status == ProductStatusEnum.OnSale);
+                        break;
+                    case "backorder":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Backorder);
+                        break;
+                    default:
+                        query = query.Where(x => x.Status == ProductStatusEnum.Active);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.Where(x => x.Status == ProductStatusEnum.Active);
+            }
+
+            return await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
 
         public async Task<Product> GetProductById(Guid id)
         {
@@ -83,16 +138,6 @@ namespace CGP.Infrastructure.Repositories
         {
             _context.Product.Remove(product);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<ICollection<Product>> GetProductsBySubCategoryId(Guid subCategoryId)
-        {
-            return await _context.Product
-                .Where(x => x.SubCategory.Id == subCategoryId)
-                .Include(x => x.User)
-                .Include(x => x.Meterials)
-                .Include(x => x.SubCategory)
-                .ToListAsync();
         }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using CGP.Application.Interfaces;
+using CGP.Contract.Abstractions.Shared;
 using CGP.Contract.DTO.Category;
 using CGP.Contract.DTO.Product;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
+using CloudinaryDotNet;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -78,6 +81,34 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus)
+        {
+            string cacheKey = $"product:status:{pageIndex}:{pageSize}:{productStatus}";
+            var cachedData = await _redisService.GetCacheAsync<List<ViewProductDTO>>(cacheKey);
+
+            if (cachedData != null)
+            {
+                return new ResponseProductsStatus<List<ViewProductDTO>>
+                {
+                    Error = 0,
+                    Message = "Get successfully (from cache)",
+                    Count = cachedData.Count,
+                    Data = cachedData,
+                    
+                };
+            }
+
+            var result = _mapper.Map<List<ViewProductDTO>>(await _unitOfWork.productRepository.GetProductsByStatus(pageIndex, pageSize, productStatus));
+            await _redisService.SetCacheAsync(cacheKey, result, TimeSpan.FromMinutes(10));
+            return new ResponseProductsStatus<List<ViewProductDTO>>
+            {
+                Error = 0,
+                Message = "Get successfully",
+                Count = result.Count,
+                Data = result,   
+            };
+        }
+
         public async Task<Result<object>> CreateProduct(ProductCreateDto request)
         {
             var uploadResult = await _cloudinaryService.UploadProductImage(request.Image);
@@ -101,13 +132,12 @@ namespace CGP.Application.Services
             };
         }
 
-        public Task<Result<object>> DeleteProduct(Guid id)
+        public Task<Result<object>> UpdateProduct(ProductUpdateDTO request)
         {
             throw new NotImplementedException();
         }
 
-
-        public Task<Result<List<ViewProductDTO>>> GetProductsBySubCategoryIdAsync(Guid subCategoryId)
+        public Task<Result<object>> DeleteProduct(Guid id)
         {
             throw new NotImplementedException();
         }
