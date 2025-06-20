@@ -163,6 +163,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Product>()
             .HasOne(p => p.User)
             .WithMany(p => p.Products);
+        modelBuilder.Entity<Product>()
+            .Property(p => p.Price)
+            .HasPrecision(18, 2);
 
         //Meterial
         modelBuilder.Entity<Meterial>(e =>

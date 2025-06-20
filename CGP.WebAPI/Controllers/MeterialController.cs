@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Meterial;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPost("CreateMeterial")]
+        [Authorize(Policy = "AdminOrStaffPolicy")]
         public async Task<IActionResult> CreateMeterial([FromBody] MeterialCreateDTO request)
         {
             if (request == null)
