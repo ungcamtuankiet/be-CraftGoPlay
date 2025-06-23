@@ -7,6 +7,7 @@ using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using CloudinaryDotNet;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -189,7 +190,25 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> DeleteProduct(Guid id)
         {
-            throw new NotImplementedException();
+            var getProduct = await _unitOfWork.productRepository.GetProductById(id);
+            if (getProduct == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Product not found",
+                    Data = null
+                };
+            }
+
+            await _unitOfWork.productRepository.DeleteProduct(getProduct);
+            await _cloudinaryService.DeleteImageAsync(getProduct.ImageUrl);
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Product deleted successfully",
+                Data = null
+            };
         }
     }
 }

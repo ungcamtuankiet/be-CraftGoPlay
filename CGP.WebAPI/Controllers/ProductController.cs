@@ -82,5 +82,21 @@ namespace CGP.WebAPI.Controllers
             }
             return BadRequest(result);
         }
+
+        [HttpDelete("DeleteProduct/{id}")]
+        [Authorize(Policy = "ArtisanPolicy")]
+        public async Task<IActionResult> DeleteProduct(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { Error = 1, Message = "Invalid product ID." });
+            }
+            var result = await _productService.DeleteProduct(id);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
     }
 }
