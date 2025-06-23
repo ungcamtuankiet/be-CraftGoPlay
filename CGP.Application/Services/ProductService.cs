@@ -7,6 +7,7 @@ using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using CloudinaryDotNet;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -22,6 +23,7 @@ namespace CGP.Application.Services
         private readonly IRedisService _redisService;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
+        private static string FOLDER = "products"; // Thư mục trên Cloudinary, có thể thay đổi theo nhu cầu
 
         public ProductService(IUnitOfWork unitOfWork, IRedisService redisService, IMapper mapper, ICloudinaryService cloudinaryService)
         {
@@ -111,7 +113,7 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> CreateProduct(ProductCreateDto request)
         {
-            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image);
+            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
 
             var product = _mapper.Map<Product>(request);
             product.ImageUrl = uploadResult.SecureUrl.ToString();
@@ -132,14 +134,81 @@ namespace CGP.Application.Services
             };
         }
 
-        public Task<Result<object>> UpdateProduct(ProductUpdateDTO request)
+        public async Task<Result<object>> UpdateProduct(ProductUpdateDTO request)
         {
-            throw new NotImplementedException();
+            var getProduct = await _unitOfWork.productRepository.GetProductById(request.Id);
+            if (getProduct == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Product not found",
+                    Data = null
+                };
+            }
+
+            getProduct.Meterials ??= new List<Meterial>();
+
+            if (request.MeterialIdsToRemove?.Any() == true)
+            {
+                var toRemove = getProduct.Meterials
+                    .Where(m => request.MeterialIdsToRemove.Contains(m.Id))
+                    .ToList();
+
+                foreach (var meterial in toRemove)
+                {
+                    getProduct.Meterials.Remove(meterial);
+                }
+            }
+
+            if (request.MeterialIdsToAdd?.Any() == true)
+            {
+                var meterialsToAdd = await _unitOfWork.meterialRepository.GetByIdsAsync(request.MeterialIdsToAdd);
+
+                foreach (var meterial in meterialsToAdd)
+                {
+                    if (!getProduct.Meterials.Any(m => m.Id == meterial.Id))
+                    {
+                        getProduct.Meterials.Add(meterial);
+                    }
+                }
+            }
+
+            _mapper.Map(request, getProduct);
+
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Product updated successfully",
+                Data = _mapper.Map<ViewProductDTO>(getProduct)
+            };
         }
 
-        public Task<Result<object>> DeleteProduct(Guid id)
+
+
+        public async Task<Result<object>> DeleteProduct(Guid id)
         {
-            throw new NotImplementedException();
+            var getProduct = await _unitOfWork.productRepository.GetProductById(id);
+            if (getProduct == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Product not found",
+                    Data = null
+                };
+            }
+
+            await _unitOfWork.productRepository.DeleteProduct(getProduct);
+            await _cloudinaryService.DeleteImageAsync(getProduct.ImageUrl);
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Product deleted successfully",
+                Data = null
+            };
         }
     }
 }

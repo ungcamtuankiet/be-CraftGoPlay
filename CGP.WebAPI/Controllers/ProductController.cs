@@ -66,5 +66,37 @@ namespace CGP.WebAPI.Controllers
             }
             return BadRequest(result);
         }
+
+        [HttpPatch("UpdateProduct")]
+        [Authorize(Policy = "ArtisanPolicy")]
+        public async Task<IActionResult> UpdateProduct([FromForm] ProductUpdateDTO request)
+        {
+            if (request == null || request.Image == null)
+            {
+                return BadRequest(new { Error = 1, Message = "Invalid product data." });
+            }
+            var result = await _productService.UpdateProduct(request);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpDelete("DeleteProduct/{id}")]
+        [Authorize(Policy = "ArtisanPolicy")]
+        public async Task<IActionResult> DeleteProduct(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { Error = 1, Message = "Invalid product ID." });
+            }
+            var result = await _productService.DeleteProduct(id);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
     }
 }
