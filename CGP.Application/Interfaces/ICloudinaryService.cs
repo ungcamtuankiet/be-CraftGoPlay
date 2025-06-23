@@ -12,7 +12,7 @@ namespace CGP.Application.Interfaces
 {
     public interface ICloudinaryService
     {
-        Task<ImageUploadResult> UploadProductImage(IFormFile file);
+        Task<ImageUploadResult> UploadProductImage(IFormFile file, string folder);
         Task<DeletionResult> DeleteImageAsync(string publicId);
     }
 }

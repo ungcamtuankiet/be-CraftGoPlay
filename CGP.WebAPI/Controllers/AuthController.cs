@@ -65,7 +65,6 @@ namespace CGP.WebAPI.Controllers
         [HttpGet("login")]
         public IActionResult Login()
         {
-            // Chuyển hướng đến Google để xác thực
             var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse") };
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }

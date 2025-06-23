@@ -29,7 +29,7 @@ namespace CGP.Infrastructure.Services
         }
 
 
-        public async Task<ImageUploadResult> UploadProductImage(IFormFile file)
+        public async Task<ImageUploadResult> UploadProductImage(IFormFile file, string folder)
         {
             var uploadResult = new ImageUploadResult();
 
@@ -39,7 +39,7 @@ namespace CGP.Infrastructure.Services
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = "your_folder_name" // Tùy chọn: để hình ảnh vào thư mục trên Cloudinary
+                    Folder = folder 
                 };
 
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);

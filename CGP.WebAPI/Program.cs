@@ -66,7 +66,11 @@ builder.Services.AddCors(options =>
     "http://localhost:5000",   
     "https://localhost:5000",  
     "http://localhost:7254",
-    "https://localhost:7254"
+    "https://localhost:7254",
+    "https://fe-craft-go-play.vercel.app",
+    "http://fe-craft-go-play.vercel.app",
+    "http://localhost:5173",
+    "https://localhost:5173"
 )
 .AllowAnyHeader()
 .AllowAnyMethod()

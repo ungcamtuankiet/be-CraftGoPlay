@@ -66,5 +66,21 @@ namespace CGP.WebAPI.Controllers
             }
             return BadRequest(result);
         }
+
+        [HttpPatch("UpdateProduct")]
+        [Authorize(Policy = "ArtisanPolicy")]
+        public async Task<IActionResult> UpdateProduct([FromForm] ProductUpdateDTO request)
+        {
+            if (request == null || request.Image == null)
+            {
+                return BadRequest(new { Error = 1, Message = "Invalid product data." });
+            }
+            var result = await _productService.UpdateProduct(request);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
     }
 }
