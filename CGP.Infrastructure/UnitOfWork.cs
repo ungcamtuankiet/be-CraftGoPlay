@@ -20,8 +20,9 @@ namespace CGP.Infrastructure
         private readonly ICraftVillageRepository _craftVillageRepository;
         private readonly IProductRepository _productRepository;
         private readonly IMeterialRepository _meterialRepository;
+        private readonly IUserAddressRepository _userAddressRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
@@ -31,6 +32,7 @@ namespace CGP.Infrastructure
             _productRepository = productRepository;
             _meterialRepository = meterialRepository;
             _craftVillageRepository = craftVillageRepository;
+            _userAddressRepository = userAddressRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;
@@ -40,6 +42,7 @@ namespace CGP.Infrastructure
         public ICraftVillageRepository craftVillageRepository => _craftVillageRepository;
         public IProductRepository productRepository => _productRepository;
         public IMeterialRepository meterialRepository => _meterialRepository;
+        public IUserAddressRepository userAddressRepository => _userAddressRepository;
 
         public async Task<int> SaveChangeAsync()
         {

@@ -17,6 +17,7 @@ namespace CGP.Application
         ICraftVillageRepository craftVillageRepository { get; }
         IProductRepository productRepository { get; }
         IMeterialRepository meterialRepository { get; }
+        IUserAddressRepository userAddressRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

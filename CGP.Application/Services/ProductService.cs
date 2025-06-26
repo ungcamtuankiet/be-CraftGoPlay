@@ -116,7 +116,6 @@ namespace CGP.Application.Services
             var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
 
             var product = _mapper.Map<Product>(request);
-            product.ImageUrl = uploadResult.SecureUrl.ToString();
 
             if (request.MeterialIds != null && request.MeterialIds.Any())
             {
@@ -202,7 +201,7 @@ namespace CGP.Application.Services
             }
 
             await _unitOfWork.productRepository.DeleteProduct(getProduct);
-            await _cloudinaryService.DeleteImageAsync(getProduct.ImageUrl);
+/*            await _cloudinaryService.DeleteImageAsync(getProduct.ImageUrl);*/
             return new Result<object>
             {
                 Error = 0,

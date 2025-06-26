@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250626032356_fix-account-autogen")]
+    partial class fixaccountautogen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,9 +98,6 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Thumbnail")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -117,7 +117,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 6, 26, 17, 21, 1, 412, DateTimeKind.Local).AddTicks(1663),
+                            CreationDate = new DateTime(2025, 6, 26, 10, 23, 54, 750, DateTimeKind.Local).AddTicks(9922),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -130,7 +130,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 6, 26, 17, 21, 1, 412, DateTimeKind.Local).AddTicks(1684),
+                            CreationDate = new DateTime(2025, 6, 26, 10, 23, 54, 750, DateTimeKind.Local).AddTicks(9946),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -143,7 +143,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 6, 26, 17, 21, 1, 412, DateTimeKind.Local).AddTicks(1689),
+                            CreationDate = new DateTime(2025, 6, 26, 10, 23, 54, 750, DateTimeKind.Local).AddTicks(9951),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -156,7 +156,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 6, 26, 17, 21, 1, 412, DateTimeKind.Local).AddTicks(1692),
+                            CreationDate = new DateTime(2025, 6, 26, 10, 23, 54, 750, DateTimeKind.Local).AddTicks(9955),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -330,6 +330,10 @@ namespace CGP.Infrastructure.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -348,12 +352,6 @@ namespace CGP.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuantitySold")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -368,48 +366,6 @@ namespace CGP.Infrastructure.Migrations
                     b.HasIndex("SubCategoryId");
 
                     b.ToTable("Product", (string)null);
-                });
-
-            modelBuilder.Entity("CGP.Domain.Entities.ProductImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ModificationBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModificationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductImage", (string)null);
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Role", b =>
@@ -498,53 +454,6 @@ namespace CGP.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("SubCategory", (string)null);
-                });
-
-            modelBuilder.Entity("CGP.Domain.Entities.UserAddress", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FullAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("float");
-
-                    b.Property<Guid?>("ModificationBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModificationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAddress", (string)null);
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Wallet", b =>
@@ -646,17 +555,6 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CGP.Domain.Entities.ProductImage", b =>
-                {
-                    b.HasOne("CGP.Domain.Entities.Product", "Product")
-                        .WithMany("ProductImages")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("CGP.Domain.Entities.SubCategory", b =>
                 {
                     b.HasOne("CGP.Domain.Entities.Category", "Category")
@@ -667,17 +565,6 @@ namespace CGP.Infrastructure.Migrations
                         .HasConstraintName("FK_SubCategory_Category");
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("CGP.Domain.Entities.UserAddress", b =>
-                {
-                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
-                        .WithMany("UserAddresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Wallet", b =>
@@ -710,8 +597,6 @@ namespace CGP.Infrastructure.Migrations
                 {
                     b.Navigation("Products");
 
-                    b.Navigation("UserAddresses");
-
                     b.Navigation("Wallet")
                         .IsRequired();
                 });
@@ -724,11 +609,6 @@ namespace CGP.Infrastructure.Migrations
             modelBuilder.Entity("CGP.Domain.Entities.CraftVillage", b =>
                 {
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("CGP.Domain.Entities.Product", b =>
-                {
-                    b.Navigation("ProductImages");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Role", b =>

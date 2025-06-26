@@ -15,12 +15,12 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
         public ProductProfile()
         {
             CreateMap<ProductCreateDto, Product>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())
+/*                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())*/
                 .ForMember(dest => dest.Meterials, opt => opt.Ignore())
                 .ReverseMap();
 
             CreateMap<ProductUpdateDTO, Product>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())
+/*                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())*/
                 .ForMember(dest => dest.Meterials, opt => opt.Ignore())
                 .ReverseMap();
 

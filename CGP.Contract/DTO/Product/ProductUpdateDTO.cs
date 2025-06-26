@@ -15,6 +15,7 @@ namespace CGP.Contract.DTO.Product
         public string Description { get; set; }
         public IFormFile Image { get; set; }
         public decimal Price { get; set; }
+        public int Quantity { get; set; }
         public ProductStatusEnum Status { get; set; }
         public Guid SubCategoryId { get; set; }
         public Guid Artisan_id { get; set; }

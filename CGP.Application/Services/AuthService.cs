@@ -6,6 +6,7 @@ using CGP.Contract.DTO.Auth;
 using CGP.Contract.DTO.User;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
+using CloudinaryDotNet.Actions;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -34,11 +35,13 @@ namespace CGP.Application.Services
         private readonly IConfiguration _configuration;
         private readonly IOtpService _otpService;
         private readonly IRedisService _redisService;
+        private readonly ICloudinaryService _cloudinaryService;
+        private static string FOLDER = "thumbnail";
 
         public AuthService(IAuthRepository authRepository, TokenGenerators tokenGenerators,
             IUserRepository userRepository, IHttpContextAccessor httpContextAccessor,
             IEmailService emailService, IConfiguration configuration, IOtpService otpService,
-            IMapper mapper, IRedisService redisService)
+            IMapper mapper, IRedisService redisService, ICloudinaryService cloudinaryService)
         {
             _authRepository = authRepository;
             _tokenGenerators = tokenGenerators;
@@ -49,6 +52,7 @@ namespace CGP.Application.Services
             _otpService = otpService;
             _mapper = mapper;
             _redisService = redisService;
+            _cloudinaryService = cloudinaryService;
         }
 
 
@@ -152,6 +156,7 @@ namespace CGP.Application.Services
                     throw new Exception("User with this email or phone number already exists.");
                 }
                 var otp = GenerateOtp();
+                var uploadResult = await _cloudinaryService.UploadProductImage(userRegistrationDto.Thumbnail, FOLDER);
                 var user = new ApplicationUser
                 {
                     UserName = userRegistrationDto.UserName,
@@ -163,7 +168,6 @@ namespace CGP.Application.Services
                     RoleId = 4,
                     CreationDate = DateTime.Now,
                     OtpExpiryTime = DateTime.UtcNow.AddMinutes(10)
-
                 };
 
                 await _userRepository.AddAsync(user);

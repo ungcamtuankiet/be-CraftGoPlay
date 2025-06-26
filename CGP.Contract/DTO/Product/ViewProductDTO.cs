@@ -17,6 +17,7 @@ namespace CGP.Contract.DTO.Product
         public string ImageUrl { get; set; }
         public decimal Price { get; set; }
         public ProductStatusEnum Status { get; set; }
+        public int Quantity { get; set; }
 
         public Guid Artisan_id { get; set; }
         public Guid SubCategoryId { get; set; }

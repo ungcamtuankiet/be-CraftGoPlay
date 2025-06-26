@@ -125,7 +125,8 @@ namespace CGP.Infrastructure.Services
                 user = new ApplicationUser
                 {
                     Email = payload.Email,
-                    UserName = payload.Email,
+                    UserName = payload.Name,
+                    Thumbnail = payload.Picture,
                     PasswordHash = null,
                     Status = StatusEnum.Active,
                     Otp = "",
