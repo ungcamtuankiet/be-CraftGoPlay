@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
     public DbSet<Meterial> Meterial { get; set; }
     public DbSet<ProductImage> ProductImage { get; set; }
     public DbSet<UserAddress> UserAddress { get; set; }
+    public DbSet<ArtisanRequest> ArtisanRequest { get; set; }
     #endregion
 
 

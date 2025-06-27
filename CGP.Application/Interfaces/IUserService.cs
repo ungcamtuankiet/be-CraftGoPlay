@@ -21,5 +21,6 @@ namespace CGP.Application.Interfaces
         Task<Result<object>> AddNewAddress(AddNewAddressDTO userAddress);
         Task<Result<object>> UpdateAddress(UpdateAddressDTO userAddress, Guid addressId);
         Task<Result<object>> DeleteAddress(Guid id);
+        Task<Result<object>> SendRequestUpgradeToArtisan();
     }
 }

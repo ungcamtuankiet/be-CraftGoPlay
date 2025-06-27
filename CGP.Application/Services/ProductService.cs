@@ -83,6 +83,18 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum productStatus)
+        {
+            var result = _mapper.Map<List<ViewProductDTO>>(await _unitOfWork.productRepository.GetProductsByArtisanId(artisanId, pageIndex, pageSize, productStatus));
+            return new ResponseProductsStatus<List<ViewProductDTO>>
+            {
+                Error = 0,
+                Message = "Get successfully",
+                Count = result.Count,
+                Data = result,
+            };
+        }
+
         public async Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus)
         {
             string cacheKey = $"product:status:{pageIndex}:{pageSize}:{productStatus}";

@@ -31,7 +31,9 @@ namespace CGP.Domain.Entities
         [ForeignKey("CraftVillage_Id")]
         public CraftVillage CraftVillage { get; set; }
         public Wallet Wallet { get; set; }
+        public ArtisanRequest ArtisanRequest { get; set; }
         public ICollection<Product> Products { get; set; } = new List<Product>();
         public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+        
     }
 }

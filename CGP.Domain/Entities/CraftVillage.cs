@@ -13,5 +13,6 @@ namespace CGP.Domain.Entities
         public string Location { get; set; } = string.Empty;
         public DateTime EstablishedDate { get; set; }
         public virtual ICollection<ApplicationUser> Users { get; set; }
+        public virtual ICollection<ArtisanRequest> ArtisanRequests { get; set; }
     }
 }

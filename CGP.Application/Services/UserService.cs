@@ -176,5 +176,10 @@ namespace CGP.Application.Services
                 Data = null
             };
         }
+
+        public Task<Result<object>> SendRequestUpgradeToArtisan()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
