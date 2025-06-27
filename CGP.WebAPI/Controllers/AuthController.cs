@@ -319,7 +319,7 @@ namespace CGP.WebAPI.Controllers
             try
             {
                 await _authService.RequestPasswordResetAsync(forgotPasswordRequestDto);
-                return Ok(new { Message = "Password reset link sent successfully." });
+                return Ok(new { Message = "Password reset token sent successfully to your email." });
             }
             catch (Exception ex)
             {

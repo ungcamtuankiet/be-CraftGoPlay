@@ -14,9 +14,11 @@ namespace CGP.Infrastructure.Services
     public class RedisService : IRedisService
     {
         private readonly IDatabase _redisDb;
+        private readonly IConnectionMultiplexer _redis;
 
         public RedisService(IConnectionMultiplexer redis)
         {
+            _redis = redis;
             _redisDb = redis.GetDatabase();
         }
 
@@ -36,6 +38,19 @@ namespace CGP.Infrastructure.Services
         public async Task RemoveCacheAsync(string key)
         {
             await _redisDb.KeyDeleteAsync(key);
+        }
+
+        public async Task RemoveByPatternAsync(string pattern)
+        {
+            var endpoints = _redis.GetEndPoints();
+            var server = _redis.GetServer(endpoints.First());
+
+            var keys = server.Keys(pattern: pattern).ToArray();
+
+            foreach (var key in keys)
+            {
+                await _redisDb.KeyDeleteAsync(key);
+            }
         }
 
         public async Task AddToBlacklistAsync(string token, DateTime expiry)

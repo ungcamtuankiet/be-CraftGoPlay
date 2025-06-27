@@ -138,7 +138,8 @@ namespace CGP.Application.Services
             }
 
             await _unitOfWork.productRepository.CreateNewProduct(product);
-
+            await _redisService.RemoveCacheAsync("product:list");
+            await _redisService.RemoveByPatternAsync("product:search:*");
             return new Result<object>
             {
                 Error = 0,
@@ -215,14 +216,15 @@ namespace CGP.Application.Services
             }
 
             _mapper.Map(request, getProduct);
-
             await _unitOfWork.SaveChangeAsync();
+            await _redisService.RemoveCacheAsync("product:list");
+            await _redisService.RemoveByPatternAsync("product:search:*");
 
             return new Result<object>
             {
                 Error = 0,
                 Message = "Product updated successfully",
-                Data = _mapper.Map<ViewProductDTO>(getProduct)
+                Data = null
             };
         }
 
