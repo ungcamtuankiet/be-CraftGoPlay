@@ -43,5 +43,33 @@ namespace CGP.WebAPI.Controllers
             }
             return BadRequest(result);
         }
+
+        [HttpPut("UpdateMeterial")]
+        [Authorize(Policy = "AdminOrStaffPolicy")]
+        public async Task<IActionResult> UpdateMeterial([FromBody] MeterialUpdateDTO request)
+        {
+            if (request == null || request.Id == Guid.Empty)
+            {
+                return BadRequest("Invalid request data.");
+            }
+            var result = await _meterialService.UpdateMeterial(request);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpDelete("DeleteMeterial/{id}")]
+        [Authorize(Policy = "AdminOrStaffPolicy")]
+        public async Task<IActionResult> DeleteMeterial(Guid id)
+        {
+            var result = await _meterialService.DeleteMeterial(id);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
     }
 }

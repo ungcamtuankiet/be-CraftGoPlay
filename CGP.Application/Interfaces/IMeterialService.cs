@@ -12,5 +12,7 @@ namespace CGP.Application.Interfaces
     {
         public Task<Result<List<ViewMeterialDTO>>> GetMeterialsAsync();
         public Task<Result<object>> CreateMeterial(MeterialCreateDTO request);
+        public Task<Result<object>> UpdateMeterial(MeterialUpdateDTO request);
+        public Task<Result<object>> DeleteMeterial(Guid id);
     }
 }

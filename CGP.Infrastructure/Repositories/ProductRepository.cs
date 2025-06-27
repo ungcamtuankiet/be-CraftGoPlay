@@ -63,6 +63,59 @@ namespace CGP.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IList<Product>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum productStatus)
+        {
+            var query = _context.Product
+                .Include(x => x.User)
+                .Include(x => x.Meterials)
+                .Include(x => x.SubCategory)
+                .Include(x => x.ProductImages)
+                .Where(x => x.Artisan_id == artisanId && x.Status == productStatus);
+
+            if (!string.IsNullOrWhiteSpace(productStatus.ToString()))
+            {
+                switch (productStatus.ToString().ToLower())
+                {
+                    case "active":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Active);
+                        break;
+                    case "inactive":
+                        query = query.Where(x => x.Status == ProductStatusEnum.InActive);
+                        break;
+                    case "outofstock":
+                        query = query.Where(x => x.Status == ProductStatusEnum.OutOfStock);
+                        break;
+                    case "preorder":
+                        query = query.Where(x => x.Status == ProductStatusEnum.PreOrder);
+                        break;
+                    case "archived":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Archived);
+                        break;
+                    case "pending":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Pending);
+                        break;
+                    case "onsale":
+                        query = query.Where(x => x.Status == ProductStatusEnum.OnSale);
+                        break;
+                    case "backorder":
+                        query = query.Where(x => x.Status == ProductStatusEnum.Backorder);
+                        break;
+                    default:
+                        query = query.Where(x => x.Status == ProductStatusEnum.Active);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.Where(x => x.Status == ProductStatusEnum.Active);
+            }
+
+            return await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
         public async Task<IList<Product>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus)
         {
             var query = _context.Product
