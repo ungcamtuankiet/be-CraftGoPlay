@@ -1,5 +1,6 @@
 ﻿using CGP.Contract.DTO.Auth;
 using CGP.Contract.DTO.User;
+using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace CGP.Application.Interfaces
 /*        Task<Authenticator> AuthenticateGoogleUserAsync(GoogleUserRequest request);*/
 
         //REGISTER
-        Task RegisterUserAsync(UserRegistrationDTO userRegistrationDto);
+        Task<Result<object>> RegisterUserAsync(UserRegistrationDTO userRegistrationDto);
         Task<ApplicationUser> GetByVerificationToken(string token);
         Task<bool> VerifyOtpAsync(string email, string otp);
 

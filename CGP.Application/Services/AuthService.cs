@@ -4,6 +4,7 @@ using CGP.Application.Repositories;
 using CGP.Application.Utils;
 using CGP.Contract.DTO.Auth;
 using CGP.Contract.DTO.User;
+using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using Google.Apis.Auth;
@@ -143,13 +144,18 @@ namespace CGP.Application.Services
 
 
         //Register User Account
-        public async Task RegisterUserAsync(UserRegistrationDTO userRegistrationDto)
+        public async Task<Result<object>> RegisterUserAsync(UserRegistrationDTO userRegistrationDto)
         {
             try
             {
                 if (await _userRepository.ExistsAsync(u => u.Email == userRegistrationDto.Email))
                 {
-                    throw new Exception("User with this email or phone number already exists.");
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Email already exist!",
+                        Data = null
+                    };
                 }
                 var otp = GenerateOtp();
                 var user = new ApplicationUser
@@ -168,6 +174,12 @@ namespace CGP.Application.Services
 
                 await _userRepository.AddAsync(user);
                 await _emailService.SendOtpEmailAsync(user.Email, otp);
+                return new Result<object>
+                {
+                    Error = 0,
+                    Message = "Registration successful. Please check your email for the OTP. ",
+                    Data = null
+                };
             }
             catch (ArgumentNullException ex)
             {
