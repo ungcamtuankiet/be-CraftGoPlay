@@ -33,7 +33,11 @@ namespace CGP.Infrastructure.Repositories
         public async Task<ApplicationUser> FindByEmail(string email)
         {
             return await _dbContext.User
-           .FirstOrDefaultAsync(u => u.Email == email);
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task AddAsync(ApplicationUser user)
@@ -66,31 +70,60 @@ namespace CGP.Infrastructure.Repositories
 
         public async Task<ApplicationUser> GetAllUserById(Guid id)
         {
-            return await _dbContext.User.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task<ApplicationUser> GetUserById(Guid userId)
         {
-            return await _dbContext.User.FirstOrDefaultAsync(u => u.Id == userId);
+            return await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
         public async Task<ApplicationUser> GetUserByVerificationToken(string token)
         {
-            return await _dbContext.User.FirstOrDefaultAsync(u => u.VerificationToken == token);
+            return await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .FirstOrDefaultAsync(u => u.VerificationToken == token);
         }
         public async Task<ApplicationUser> GetUserByResetToken(string resetToken)
         {
-            return await _dbContext.User.FirstOrDefaultAsync(u => u.ResetToken == resetToken);
+            return await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .FirstOrDefaultAsync(u => u.ResetToken == resetToken);
         }
 
         public async Task<List<ApplicationUser>> GetUsersByRole(int role)
         {
-            return await _dbContext.User.Where(u => u.RoleId == role).ToListAsync();
+            return await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .Where(u => u.RoleId == role).ToListAsync();
         }
 
         public async Task<ApplicationUser?> FindByLoginAsync(string provider, string key)
         {
             return await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
             .Where(u => u.Provider == provider && u.ProviderKey == key)
             .FirstOrDefaultAsync();
         }

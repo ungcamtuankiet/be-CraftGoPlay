@@ -32,5 +32,6 @@ namespace CGP.Application.Repositories
 
         //Forget Password
         Task<ApplicationUser> GetUserByResetToken(string resetToken);
+
     }
 }

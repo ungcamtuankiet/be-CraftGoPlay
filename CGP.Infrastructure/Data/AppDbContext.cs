@@ -22,6 +22,8 @@ public class AppDbContext : DbContext
     public DbSet<Wallet> Wallet { get; set; }
     public DbSet<Product> Product { get; set; }
     public DbSet<Meterial> Meterial { get; set; }
+    public DbSet<ProductImage> ProductImage { get; set; }
+    public DbSet<UserAddress> UserAddress { get; set; }
     #endregion
 
 
@@ -152,8 +154,6 @@ public class AppDbContext : DbContext
             e.Property(p => p.Status)
             .IsRequired()
             .HasConversion(v => v.ToString(), v => (ProductStatusEnum)Enum.Parse(typeof(ProductStatusEnum), v));
-            e.Property(e => e.ImageUrl)
-            .IsRequired(); 
         });
 
         modelBuilder.Entity<Product>()
@@ -175,6 +175,31 @@ public class AppDbContext : DbContext
             e.Property(p => p.Name)
             .IsRequired()
             .HasMaxLength(50);
+        });
+
+        //ProductImage
+        modelBuilder.Entity<ProductImage>(e =>
+        {
+            e.ToTable("ProductImage");
+            e.HasKey(p => p.Id);
+            e.Property(p => p.ImageUrl)
+            .IsRequired()
+            .HasMaxLength(250);
+            e.HasOne(p => p.Product)
+            .WithMany(p => p.ProductImages)
+            .HasForeignKey(p => p.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        //UserAddress
+        modelBuilder.Entity<UserAddress>(e =>
+        {
+            e.ToTable("UserAddress");
+            e.HasKey(p => p.Id);
+            e.HasOne(p => p.User)
+            .WithMany(p => p.UserAddresses)
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

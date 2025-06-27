@@ -12,10 +12,10 @@ namespace CGP.Domain.Entities
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public string ImageUrl { get; set; }
         public decimal Price { get; set; }
         public ProductStatusEnum Status { get; set; }
-
+        public int Quantity { get; set; }
+        public int QuantitySold { get; set; }
         //Relationships
         public Guid Artisan_id { get; set; }
         [ForeignKey("Artisan_id")]
@@ -24,5 +24,6 @@ namespace CGP.Domain.Entities
         [ForeignKey("SubCategoryId")]
         public SubCategory SubCategory { get; set; }
         public ICollection<Meterial> Meterials { get; set; } = new List<Meterial>();
+        public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace CGP.Contract.DTO.User
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         public string Email { get; set; }
-
+        public IFormFile Thumbnail { get; set; }
         public string PhoneNo { get; set; }
 
         [Required]

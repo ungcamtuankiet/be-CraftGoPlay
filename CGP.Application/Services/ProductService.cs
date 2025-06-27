@@ -23,7 +23,7 @@ namespace CGP.Application.Services
         private readonly IRedisService _redisService;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
-        private static string FOLDER = "products"; // Thư mục trên Cloudinary, có thể thay đổi theo nhu cầu
+        private static string FOLDER = "products"; 
 
         public ProductService(IUnitOfWork unitOfWork, IRedisService redisService, IMapper mapper, ICloudinaryService cloudinaryService)
         {
@@ -113,19 +113,32 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> CreateProduct(ProductCreateDto request)
         {
-            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
-
             var product = _mapper.Map<Product>(request);
-            product.ImageUrl = uploadResult.SecureUrl.ToString();
+
+            if (request.Images != null && request.Images.Any())
+            {
+                foreach (var image in request.Images)
+                {
+                    var uploadResult = await _cloudinaryService.UploadProductImage(image, FOLDER);
+
+                    if (uploadResult != null)
+                    {
+                        product.ProductImages.Add(new ProductImage
+                        {
+                            ImageUrl = uploadResult.SecureUrl.ToString()
+                        });
+                    }
+                }
+            }
 
             if (request.MeterialIds != null && request.MeterialIds.Any())
             {
                 var meterials = await _unitOfWork.meterialRepository.GetByIdsAsync(request.MeterialIds);
-
                 product.Meterials = meterials;
             }
 
             await _unitOfWork.productRepository.CreateNewProduct(product);
+
             return new Result<object>
             {
                 Error = 0,
@@ -145,6 +158,33 @@ namespace CGP.Application.Services
                     Message = "Product not found",
                     Data = null
                 };
+            }
+
+            getProduct.ProductImages ??= new List<ProductImage>();
+            if (request.ImagesToAdd?.Any() == true)
+            {
+                foreach (var image in request.ImagesToAdd)
+                {
+                    var uploadResult = await _cloudinaryService.UploadProductImage(image, FOLDER);
+                    if (uploadResult != null)
+                    {
+                        getProduct.ProductImages.Add(new ProductImage
+                        {
+                            ImageUrl = uploadResult.SecureUrl.ToString()
+                        });
+                    }
+                }
+            }
+            if (request.ImagesToMove?.Any() == true)
+            {
+                var imagesToMove = getProduct.ProductImages
+                    .Where(i => request.ImagesToMove.Contains(i.Id))
+                    .ToList();
+                foreach (var image in imagesToMove)
+                {
+                    await _cloudinaryService.DeleteImageAsync(image.ImageUrl);
+                    await _unitOfWork.productImageRepository.RemoveImage(image);
+                }
             }
 
             getProduct.Meterials ??= new List<Meterial>();
@@ -202,7 +242,13 @@ namespace CGP.Application.Services
             }
 
             await _unitOfWork.productRepository.DeleteProduct(getProduct);
-            await _cloudinaryService.DeleteImageAsync(getProduct.ImageUrl);
+            if (getProduct.ProductImages?.Any() == true)
+            {
+                foreach (var image in getProduct.ProductImages)
+                {
+                    await _cloudinaryService.DeleteImageAsync(image.ImageUrl); 
+                }
+            }
             return new Result<object>
             {
                 Error = 0,

@@ -27,6 +27,7 @@ namespace CGP.Infrastructure.Repositories
             return await _context.Product
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
+                .Include(x => x.ProductImages)
                 .Include(x => x.SubCategory).ToListAsync();
         }
 
@@ -36,6 +37,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
+                .Include(x => x.ProductImages)
                 .Where(x => x.Price >= from && x.Price <= to)
                 .Where(x => x.Status == ProductStatusEnum.Active);
 
@@ -67,6 +69,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
+                .Include(x => x.ProductImages)
                 .Where(x => x.Status == productStatus);
 
             if (!string.IsNullOrWhiteSpace(productStatus.ToString()))
@@ -120,6 +123,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
+                .Include(x => x.ProductImages)
                 .FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException("Product not found");
         }
 

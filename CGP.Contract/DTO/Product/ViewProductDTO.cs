@@ -1,4 +1,5 @@
 ﻿using CGP.Contract.DTO.Meterial;
+using CGP.Contract.DTO.ProductImage;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using System;
@@ -14,9 +15,9 @@ namespace CGP.Contract.DTO.Product
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string ImageUrl { get; set; }
         public decimal Price { get; set; }
         public ProductStatusEnum Status { get; set; }
+        public int Quantity { get; set; }
 
         public Guid Artisan_id { get; set; }
         public Guid SubCategoryId { get; set; }
@@ -25,5 +26,6 @@ namespace CGP.Contract.DTO.Product
         public string? SubCategoryName { get; set; }
 
         public List<MeterialDto> Meterials { get; set; } = new();
+        public List<ProductImageDTO> ProductImages { get; set; } = new();
     }
 }
