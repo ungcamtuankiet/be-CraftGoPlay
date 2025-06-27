@@ -40,6 +40,22 @@ namespace CGP.WebAPI.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("GetProductsByArtisanId/{artisanId}")]
+        [Authorize(Policy = "ArtisanPolicy")]
+        public async Task<IActionResult> GetProductsByArtisanId(Guid artisanId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] ProductStatusEnum productStatus = ProductStatusEnum.Active)
+        {
+            if (artisanId == Guid.Empty)
+            {
+                return BadRequest(new { Error = 1, Message = "Invalid artisan ID." });
+            }
+            var result = await _productService.GetProductsByArtisanId(artisanId, pageIndex, pageSize, productStatus);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [HttpGet("GetProductsByStatus")]
         public async Task<IActionResult> GetProductsByStatus([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] ProductStatusEnum productStatus = ProductStatusEnum.Active)
         {
@@ -55,7 +71,7 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto request)
         {
-            if (request == null || request.Image == null)
+            if (request == null || request.Images == null)
             {
                 return BadRequest(new { Error = 1, Message = "Invalid product data." });
             }
@@ -71,10 +87,6 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> UpdateProduct([FromForm] ProductUpdateDTO request)
         {
-            if (request == null || request.Image == null)
-            {
-                return BadRequest(new { Error = 1, Message = "Invalid product data." });
-            }
             var result = await _productService.UpdateProduct(request);
             if (result.Error == 0)
             {

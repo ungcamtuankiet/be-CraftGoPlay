@@ -47,5 +47,48 @@ namespace CGP.Application.Services
                 Data = _mapper.Map<ViewMeterialDTO>(meterial)
             };
         }
+
+        public async Task<Result<object>> UpdateMeterial(MeterialUpdateDTO request)
+        {
+            var getMeterial = await _unitOfWork.meterialRepository.GetMeterialByIdAsync(request.Id  );
+            if (getMeterial == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Meterial not found",
+                    Data = null
+                };
+            }
+            _mapper.Map(request, getMeterial);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Meterial created successfully",
+                Data = _mapper.Map<ViewMeterialDTO>(request)
+            };
+        }
+
+        public async Task<Result<object>> DeleteMeterial(Guid id)
+        {
+            var getMeterial = await _unitOfWork.meterialRepository.GetMeterialByIdAsync(id);
+            if(getMeterial == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Meterial not found",
+                    Data = null
+                };
+            }
+            await _unitOfWork.meterialRepository.DeleteMeterialAsync(getMeterial);
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Meterial deleted successfully",
+                Data = null
+            };
+        }
     }
 }

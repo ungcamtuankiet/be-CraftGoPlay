@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CGP.Contract.DTO.Meterial;
 using CGP.Contract.DTO.Product;
+using CGP.Contract.DTO.ProductImage;
 using CGP.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,12 +16,12 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
         public ProductProfile()
         {
             CreateMap<ProductCreateDto, Product>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())
+/*                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())*/
                 .ForMember(dest => dest.Meterials, opt => opt.Ignore())
                 .ReverseMap();
 
             CreateMap<ProductUpdateDTO, Product>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())
+/*                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())*/
                 .ForMember(dest => dest.Meterials, opt => opt.Ignore())
                 .ReverseMap();
 
@@ -31,6 +32,7 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ReverseMap();
 
             CreateMap<Meterial, MeterialDto>();
+            CreateMap<ProductImage, ProductImageDTO>();
         }
     }
 }

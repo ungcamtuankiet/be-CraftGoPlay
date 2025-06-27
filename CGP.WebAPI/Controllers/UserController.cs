@@ -1,4 +1,5 @@
 ﻿using CGP.Application.Interfaces;
+using CGP.Contract.DTO.UserAddress;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,5 +24,6 @@ namespace CGP.WebAPI.Controllers
             var getUser = await _userService.GetCurrentUserById();
             return Ok(getUser);
         }
+
     }
 }

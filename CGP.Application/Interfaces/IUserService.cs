@@ -1,4 +1,5 @@
 ﻿using CGP.Contract.DTO.User;
+using CGP.Contract.DTO.UserAddress;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using System;
@@ -14,9 +15,12 @@ namespace CGP.Application.Interfaces
         Task<IList<ApplicationUser>> GetALl();
         Task<ApplicationUser> GetByEmail(string email);
         Task UpdateUserAsync(ApplicationUser user);
-
-
         Task<UserDTO> GetUserById(Guid id);
         Task<Result<UserDTO>> GetCurrentUserById();
+        Task<Result<List<ViewAddressDTO>>> GetListAddressByUserId(Guid userId);
+        Task<Result<object>> AddNewAddress(AddNewAddressDTO userAddress);
+        Task<Result<object>> UpdateAddress(UpdateAddressDTO userAddress, Guid addressId);
+        Task<Result<object>> DeleteAddress(Guid id);
+        Task<Result<object>> SendRequestUpgradeToArtisan();
     }
 }

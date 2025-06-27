@@ -229,7 +229,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("user/register/user")]
         [SwaggerResponse(201, "Tạo thành công")]
         [SwaggerResponse(400, "Dữ liệu không hợp lệ")]
-        public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDTO userRegistrationDto)
+        public async Task<IActionResult> RegisterUser([FromForm] UserRegistrationDTO userRegistrationDto)
         {
             // Check if the user is authenticated
             if (User.Identity.IsAuthenticated)
@@ -323,7 +323,7 @@ namespace CGP.WebAPI.Controllers
             try
             {
                 await _authService.RequestPasswordResetAsync(forgotPasswordRequestDto);
-                return Ok(new { Message = "Password reset link sent successfully." });
+                return Ok(new { Message = "Password reset token sent successfully to your email." });
             }
             catch (Exception ex)
             {

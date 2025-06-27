@@ -8,6 +8,6 @@ namespace CGP.Contract.DTO.User
 {
     public class ForgotPasswordRequestDTO
     {
-        public string EmailOrPhoneNumber { get; set; }
+        public string Email { get; set; }
     }
 }

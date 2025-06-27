@@ -9,6 +9,7 @@ namespace CGP.Domain.Entities
         public string? PasswordHash { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? Thumbnail { get; set; }
         public string Email { get; set; }
         public string? RefreshToken { get; set; }
         public StatusEnum? Status { get; set; }
@@ -30,6 +31,9 @@ namespace CGP.Domain.Entities
         [ForeignKey("CraftVillage_Id")]
         public CraftVillage CraftVillage { get; set; }
         public Wallet Wallet { get; set; }
+        public ArtisanRequest ArtisanRequest { get; set; }
         public ICollection<Product> Products { get; set; } = new List<Product>();
+        public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+        
     }
 }

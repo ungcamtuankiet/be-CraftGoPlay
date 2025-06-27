@@ -11,6 +11,7 @@ namespace CGP.Application.Interfaces
         Task SetCacheAsync<T>(string key, T value, TimeSpan? absoluteExpireTime = null);
         Task<T?> GetCacheAsync<T>(string key);
         Task RemoveCacheAsync(string key);
+        Task RemoveByPatternAsync(string pattern);
         Task AddToBlacklistAsync(string token, DateTime expiry);
         Task<bool> IsTokenBlacklistedAsync(string token);
     }

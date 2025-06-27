@@ -18,7 +18,6 @@ namespace CGP.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRedisService _redisService;
         private readonly IMapper _mapper;
-        const string CATEGORY_CACHE_KEY = "category:list";
 
         public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, ICategoryRepository categoryRepository, IRedisService redisService)
         {
@@ -33,12 +32,6 @@ namespace CGP.Application.Services
             await _categoryRepository.AddAsync(category);
 
             var result = await _unitOfWork.SaveChangeAsync();
-
-            if (result > 0)
-            {
-                await _redisService.RemoveCacheAsync("category:list");
-            }
-
 
             return new Result<object>
             {
@@ -65,10 +58,6 @@ namespace CGP.Application.Services
             _categoryRepository.DeleteCategory(Category);
 
             var result = await _unitOfWork.SaveChangeAsync();
-            if (result > 0)
-            {
-                await _redisService.RemoveCacheAsync("category:list");
-            }
 
             return new Result<object>
             {
@@ -80,23 +69,8 @@ namespace CGP.Application.Services
 
         public async Task<Result<List<ViewCategoryDTO>>> GetCategory()
         {
-            string cacheKey = "category:list";
-            var cachedData = await _redisService.GetCacheAsync<List<ViewCategoryDTO>>(cacheKey);
-
-            if (cachedData != null)
-            {
-                return new Result<List<ViewCategoryDTO>>
-                {
-                    Error = 0,
-                    Message = "Get successfully (from cache)",
-                    Data = cachedData
-                };
-            }
 
             var result = _mapper.Map<List<ViewCategoryDTO>>(await _unitOfWork.categoryRepository.GetCategories());
-
-            //Lưu dữ liệu vào cache 10p
-            await _redisService.SetCacheAsync(cacheKey, result, TimeSpan.FromMinutes(10));
 
             return new Result<List<ViewCategoryDTO>>
             {
