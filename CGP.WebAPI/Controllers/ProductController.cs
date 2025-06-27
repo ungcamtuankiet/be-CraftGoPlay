@@ -55,7 +55,7 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto request)
         {
-            if (request == null || request.Image == null)
+            if (request == null || request.Images == null)
             {
                 return BadRequest(new { Error = 1, Message = "Invalid product data." });
             }
@@ -71,10 +71,6 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> UpdateProduct([FromForm] ProductUpdateDTO request)
         {
-            if (request == null || request.Image == null)
-            {
-                return BadRequest(new { Error = 1, Message = "Invalid product data." });
-            }
             var result = await _productService.UpdateProduct(request);
             if (result.Error == 0)
             {

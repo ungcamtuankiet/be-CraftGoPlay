@@ -46,6 +46,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IMeterialRepository, MeterialRepository>();
             services.AddScoped<IUserAddressRepository, UserAddressRepository>();
+            services.AddScoped<IProductImageRepository, ProductImageRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>

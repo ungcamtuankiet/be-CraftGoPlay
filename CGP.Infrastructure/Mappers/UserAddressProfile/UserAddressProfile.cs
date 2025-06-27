@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CGP.Contract.DTO.Meterial;
 using CGP.Contract.DTO.UserAddress;
 using CGP.Domain.Entities;
 using System;
@@ -18,6 +19,7 @@ namespace CGP.Infrastructure.Mappers.UserAddressProfile
             CreateMap<UserAddress, AddNewAddressDTO>().ReverseMap();
 
             CreateMap<UserAddress, UpdateAddressDTO>().ReverseMap();
+            CreateMap<UserAddress, ViewAddressDTO>().ReverseMap();
         }
     }
 }

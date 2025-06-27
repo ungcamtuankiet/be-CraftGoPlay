@@ -25,36 +25,5 @@ namespace CGP.WebAPI.Controllers
             return Ok(getUser);
         }
 
-        [HttpGet("GetAddress/{userId}")]
-        [Authorize]
-        public async Task<IActionResult> GetAddress(Guid userId)
-        {
-            var getAddress = await _userService.GetListAddressByUserId(userId);
-            return Ok(getAddress);
-        }
-
-        [HttpPost("AddNewAddress")]
-        [Authorize]
-        public async Task<IActionResult> AddNewAddress([FromBody] AddNewAddressDTO userAddress)
-        {
-            var result = await _userService.AddNewAddress(userAddress);
-            return Ok(result);
-        }
-
-        [HttpPatch("UpdateAddress/{addressId}")]
-        [Authorize]
-        public async Task<IActionResult> UpdateAddress(Guid addressId, [FromBody] UpdateAddressDTO userAddress)
-        {
-            var result = await _userService.UpdateAddress(userAddress, addressId);
-            return Ok(result);
-        }
-
-        [HttpDelete("DeleteAddress/{id}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteAddress(Guid id)
-        {
-            var result = await _userService.DeleteAddress(id);
-            return Ok(result);
-        }
     }
 }

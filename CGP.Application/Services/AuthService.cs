@@ -405,7 +405,7 @@ namespace CGP.Application.Services
         {
             try
             {
-                var user = await _userRepository.GetUserByEmail(forgotPasswordRequestDto.EmailOrPhoneNumber);
+                var user = await _userRepository.GetUserByEmail(forgotPasswordRequestDto.Email);
 
                 if (user == null || !user.IsVerified)
                 {

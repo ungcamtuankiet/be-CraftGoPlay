@@ -13,13 +13,14 @@ namespace CGP.Contract.DTO.Product
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public IFormFile Image { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }
         public ProductStatusEnum Status { get; set; }
         public Guid SubCategoryId { get; set; }
         public Guid Artisan_id { get; set; }
-        public List<Guid> MeterialIdsToAdd { get; set; } = new();   
-        public List<Guid> MeterialIdsToRemove { get; set; } = new(); 
+        public List<IFormFile>? ImagesToAdd { get; set; }
+        public List<Guid>? ImagesToMove { get; set; } = new();
+        public List<Guid>? MeterialIdsToAdd { get; set; } = new();   
+        public List<Guid>? MeterialIdsToRemove { get; set; } = new(); 
     }
 }
