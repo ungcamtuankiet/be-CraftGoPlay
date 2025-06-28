@@ -25,5 +25,6 @@ namespace CGP.Domain.Entities
         public SubCategory SubCategory { get; set; }
         public ICollection<Meterial> Meterials { get; set; } = new List<Meterial>();
         public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }
