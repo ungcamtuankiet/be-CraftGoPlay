@@ -36,6 +36,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IMeterialService, MeterialService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IArtisanRequestService, ArtisanRequestService>();
+            services.AddScoped<ICartService, CartService>();
 
             services.AddMemoryCache();
             //Repositories
@@ -49,6 +50,8 @@ namespace CGP.Infrastructure
             services.AddScoped<IUserAddressRepository, UserAddressRepository>();
             services.AddScoped<IProductImageRepository, ProductImageRepository>();
             services.AddScoped<IArtisanRequestRepository, ArtisanRequestRepository>();
+            services.AddScoped<ICartRepository, CartRepository>();
+            services.AddScoped<ICartItemRepository, CartItemRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>
