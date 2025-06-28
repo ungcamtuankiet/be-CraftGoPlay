@@ -21,4 +21,7 @@ obj/
 *.FileListAbsolute.txt
 .fake
 .vs/
+.etag
+.local
+.json
 
