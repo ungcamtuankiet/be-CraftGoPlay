@@ -22,8 +22,9 @@ namespace CGP.Infrastructure
         private readonly IMeterialRepository _meterialRepository;
         private readonly IUserAddressRepository _userAddressRepository;
         private readonly IProductImageRepository _productImageRepository;
+        private readonly IArtisanRequestRepository _artisanRequestRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
@@ -35,6 +36,7 @@ namespace CGP.Infrastructure
             _craftVillageRepository = craftVillageRepository;
             _userAddressRepository = userAddressRepository;
             _productImageRepository = productImageRepository;
+            _artisanRequestRepository = artisanRequestRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;
@@ -46,6 +48,7 @@ namespace CGP.Infrastructure
         public IMeterialRepository meterialRepository => _meterialRepository;
         public IUserAddressRepository userAddressRepository => _userAddressRepository;
         public IProductImageRepository productImageRepository => _productImageRepository;
+        public IArtisanRequestRepository artisanRequestRepository => _artisanRequestRepository;
 
         public async Task<int> SaveChangeAsync()
         {

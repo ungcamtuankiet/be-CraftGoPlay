@@ -24,4 +24,5 @@ obj/
 .etag
 .local
 .json
+TemplateEngineHost/vs/
 
