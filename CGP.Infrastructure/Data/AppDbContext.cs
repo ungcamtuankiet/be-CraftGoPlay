@@ -25,6 +25,8 @@ public class AppDbContext : DbContext
     public DbSet<ProductImage> ProductImage { get; set; }
     public DbSet<UserAddress> UserAddress { get; set; }
     public DbSet<ArtisanRequest> ArtisanRequest { get; set; }
+    public DbSet<Cart> Cart { get; set; }
+    public DbSet<CartItem> CartItem { get; set; }
     #endregion
 
 
@@ -202,5 +204,47 @@ public class AppDbContext : DbContext
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         });
+
+        //ArtisanRequest
+        modelBuilder.Entity<ArtisanRequest>(e =>
+        {
+            e.ToTable("ArtisanRequest");
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Status)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (RequestArtisanStatus)Enum.Parse(typeof(RequestArtisanStatus), v));
+            e.HasOne(p => p.User)
+            .WithOne(p => p.ArtisanRequest)
+            .HasForeignKey<ArtisanRequest>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(p => p.CraftVillages)
+            .WithMany(p => p.ArtisanRequests)
+            .HasForeignKey(p => p.CraftVillageId)
+            .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        //Cart
+        modelBuilder.Entity<Cart>()
+            .HasOne(c => c.User)
+            .WithMany(u => u.Carts)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //CartItem
+        modelBuilder.Entity<CartItem>()
+            .HasOne(ci => ci.Cart)
+            .WithMany(c => c.Items)
+            .HasForeignKey(ci => ci.CartId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CartItem>()
+            .Property(ci => ci.UnitPrice)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<CartItem>()
+            .HasOne(ci => ci.Product)
+            .WithMany(p => p.CartItems)
+            .HasForeignKey(ci => ci.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -15,10 +15,11 @@ namespace CGP.Domain.Entities
         public Guid UserId { get; set; }
         public int YearsOfExperience { get; set; }
         public string Description { get; set; }
+        public string? Reason { get; set; }
         public RequestArtisanStatus Status { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
         [ForeignKey("CraftVillageId")]
-        public ICollection<CraftVillage> CraftVillages { get; set; } = new List<CraftVillage>();
+        public CraftVillage CraftVillages { get; set; }
     }
 }

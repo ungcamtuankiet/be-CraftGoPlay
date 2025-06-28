@@ -19,6 +19,9 @@ namespace CGP.Application
         IMeterialRepository meterialRepository { get; }
         IUserAddressRepository userAddressRepository { get; }
         IProductImageRepository productImageRepository { get; }
+        IArtisanRequestRepository artisanRequestRepository { get; }
+        ICartRepository cartRepository { get; }
+        ICartItemRepository cartItemRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }
