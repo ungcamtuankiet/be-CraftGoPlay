@@ -177,7 +177,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public Task<Result<object>> SendRequestUpgradeToArtisan()
+        public async Task<Result<object>> SendRequestUpgradeToArtisan()
         {
             throw new NotImplementedException();
         }

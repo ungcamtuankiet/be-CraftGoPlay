@@ -202,5 +202,23 @@ public class AppDbContext : DbContext
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         });
+
+        //ArtisanRequest
+        modelBuilder.Entity<ArtisanRequest>(e =>
+        {
+            e.ToTable("ArtisanRequest");
+            e.HasKey(p => p.Id);
+            e.Property(p => p.Status)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (RequestArtisanStatus)Enum.Parse(typeof(RequestArtisanStatus), v));
+            e.HasOne(p => p.User)
+            .WithOne(p => p.ArtisanRequest)
+            .HasForeignKey<ArtisanRequest>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(p => p.CraftVillages)
+            .WithMany(p => p.ArtisanRequests)
+            .HasForeignKey(p => p.CraftVillageId)
+            .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
