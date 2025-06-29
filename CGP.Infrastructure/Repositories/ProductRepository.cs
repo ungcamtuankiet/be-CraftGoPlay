@@ -31,6 +31,16 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.SubCategory).ToListAsync();
         }
 
+        public async Task<Product> GetProductByProductId(Guid productId)
+        {
+            return await _context.Product
+                .Include(x => x.User)
+                .Include(x => x.Meterials)
+                .Include(x => x.SubCategory)
+                .Include(x => x.ProductImages)
+                .FirstOrDefaultAsync(x => x.Id == productId);
+        }
+
         public async Task<IList<Product>> SearchProducts(string? search, int pageIndex, int pageSize, decimal from, decimal to, string sortOrder)
         {
             var query = _context.Product

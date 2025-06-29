@@ -40,6 +40,21 @@ namespace CGP.WebAPI.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("GetProductByProductId/{productId}")]
+        public async Task<IActionResult> GetProductByProductId(Guid productId)
+        {
+            if(productId == Guid.Empty)
+            {
+                return BadRequest(new { Error = 1, Message = "Invalid product ID." });
+            }
+            var result = await _productService.GetProductByProductId(productId);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [HttpGet("GetProductsByArtisanId/{artisanId}")]
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> GetProductsByArtisanId(Guid artisanId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] ProductStatusEnum productStatus = ProductStatusEnum.Active)

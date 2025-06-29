@@ -58,6 +58,29 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<ViewProductDTO>> GetProductByProductId(Guid productId)
+        {
+            var product = await _unitOfWork.productRepository.GetProductByProductId(productId);
+            if (product == null)
+            {
+                return new Result<ViewProductDTO>
+                {
+                    Error = 1,
+                    Message = "Product not found.",
+                    Data = null
+                };
+            }
+
+            var result = _mapper.Map<ViewProductDTO>(product);
+            return new Result<ViewProductDTO>
+            {
+                Error = 0,
+                Message = "Get product by productId successfully",
+                Data = result
+            };
+        }
+
+
         public async Task<Result<List<ViewProductDTO>>> SearchProducts(string? search, int pageIndex, int pageSize,  decimal from, decimal to, string sortOrder)
         {
             string cacheKey = $"product:search:{search}:{pageIndex}:{pageSize}:{from}:{to}:{sortOrder}";

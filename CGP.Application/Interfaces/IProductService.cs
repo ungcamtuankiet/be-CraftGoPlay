@@ -14,6 +14,7 @@ namespace CGP.Application.Interfaces
     public interface IProductService
     {
         public Task<Result<List<ViewProductDTO>>> GetProductsAsync();
+        public Task<Result<ViewProductDTO>> GetProductByProductId(Guid productId);
         public Task<Result<List<ViewProductDTO>>> SearchProducts(string? search, int pageIndex, int pageSize, decimal from, decimal to, string sortOrder);
         public Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum productStatus);
         public Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus);

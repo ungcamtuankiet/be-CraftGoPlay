@@ -26,10 +26,12 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ReverseMap();
 
             CreateMap<Product, ViewProductDTO>()
-                .ForMember(dest => dest.ArtisanName, opt => opt.MapFrom(src => src.User.UserName))
-                .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.SubCategory.SubName))
+                    .ForMember(dest => dest.ArtisanName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : null))
+                .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.SubCategory != null ? src.SubCategory.SubName : null))
                 .ForMember(dest => dest.Meterials, opt => opt.MapFrom(src => src.Meterials))
+                .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages))
                 .ReverseMap();
+
 
             CreateMap<Meterial, MeterialDto>();
             CreateMap<ProductImage, ProductImageDTO>();
