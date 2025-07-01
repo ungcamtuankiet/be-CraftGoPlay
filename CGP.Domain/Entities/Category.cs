@@ -8,6 +8,7 @@ namespace CGP.Domain.Entities
         {
             SubCategories = new HashSet<SubCategory>();
         }
+        public string Image { get; set; }
         public string CategoryName { get; set; }
         public CategoryStatusEnum CategoryStatus { get; set; }
         public virtual ICollection<SubCategory> SubCategories { get; set; }

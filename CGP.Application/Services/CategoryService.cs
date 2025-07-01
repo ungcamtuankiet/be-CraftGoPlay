@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CGP.Application.Services
 {
@@ -17,18 +18,24 @@ namespace CGP.Application.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRedisService _redisService;
+        private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
+        private static string FOLDER = "categorys";
 
-        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, ICategoryRepository categoryRepository, IRedisService redisService)
+        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, ICategoryRepository categoryRepository, IRedisService redisService, ICloudinaryService cloudinaryService)
         {
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _redisService = redisService;
+            _cloudinaryService = cloudinaryService;
         }
 
-        public async Task<Result<object>> Create(Category category)
+        public async Task<Result<object>> Create(CreateCategoryDTO request)
         {
+            var category = _mapper.Map<Category>(request);
+            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
+            category.Image = uploadResult.SecureUrl.ToString();
             await _categoryRepository.AddAsync(category);
 
             var result = await _unitOfWork.SaveChangeAsync();
