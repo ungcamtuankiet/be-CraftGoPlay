@@ -57,7 +57,7 @@ namespace CGP.WebAPI.Controllers
 
         [HttpGet("GetProductsByArtisanId/{artisanId}")]
         [Authorize(Policy = "ArtisanPolicy")]
-        public async Task<IActionResult> GetProductsByArtisanId(Guid artisanId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] ProductStatusEnum productStatus = ProductStatusEnum.Active)
+        public async Task<IActionResult> GetProductsByArtisanId(Guid artisanId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] ProductStatusEnum? productStatus = null)
         {
             if (artisanId == Guid.Empty)
             {

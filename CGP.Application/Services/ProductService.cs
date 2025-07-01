@@ -106,7 +106,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum productStatus)
+        public async Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum? productStatus)
         {
             var result = _mapper.Map<List<ViewProductDTO>>(await _unitOfWork.productRepository.GetProductsByArtisanId(artisanId, pageIndex, pageSize, productStatus));
             return new ResponseProductsStatus<List<ViewProductDTO>>
