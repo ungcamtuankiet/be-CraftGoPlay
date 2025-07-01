@@ -210,7 +210,7 @@ namespace CGP.WebAPI.Controllers
         /// ### Ví dụ request:
         /// ```json
         /// {
-        ///   "username": "user123",
+        ///   "userName": "user123",
         ///   "email": "user@email.com",
         ///   "phoneNo": "0987654321",
         ///   "passwordHash": "Pass@123"
@@ -239,8 +239,12 @@ namespace CGP.WebAPI.Controllers
 
             try
             {
-                await _authService.RegisterUserAsync(userRegistrationDto);
-                return Ok(new { Message = "Registration successful. Please check your email for the OTP. " });
+                var result = await _authService.RegisterUserAsync(userRegistrationDto);
+                if (result.Error == 1)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
