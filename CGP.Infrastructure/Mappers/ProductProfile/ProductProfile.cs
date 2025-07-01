@@ -32,9 +32,7 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages))
                 .ReverseMap();
 
-
-            CreateMap<Meterial, MeterialDto>();
-            CreateMap<ProductImage, ProductImageDTO>();
+            CreateMap<Product, ProductDTO>().ReverseMap();
         }
     }
 }
