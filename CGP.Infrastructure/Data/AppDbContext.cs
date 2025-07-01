@@ -27,6 +27,7 @@ public class AppDbContext : DbContext
     public DbSet<ArtisanRequest> ArtisanRequest { get; set; }
     public DbSet<Cart> Cart { get; set; }
     public DbSet<CartItem> CartItem { get; set; }
+    public DbSet<Favourite> Favourite { get; set; }
     #endregion
 
 
@@ -245,6 +246,20 @@ public class AppDbContext : DbContext
             .HasOne(ci => ci.Product)
             .WithMany(p => p.CartItems)
             .HasForeignKey(ci => ci.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //Favourite
+
+        modelBuilder.Entity<Favourite>()
+            .HasOne(f => f.User)
+            .WithMany(u => u.Favourites)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Favourite>()
+            .HasOne(f => f.Product)
+            .WithMany(p => p.Favourites)
+            .HasForeignKey(f => f.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
