@@ -1,4 +1,5 @@
 ﻿using CGP.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace CGP.Contract.DTO.Category
             SubCategories = new HashSet<ViewSubCateDTO>();
         }
         public string CategoryId { get; set; }
+        public string Image { get; set; }
         public required string CategoryName { get; set; }
         public CategoryStatusEnum CategoryStatus { get; set; }
         public DateTime CreationDate { get; set; }

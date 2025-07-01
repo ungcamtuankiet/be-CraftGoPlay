@@ -17,11 +17,14 @@ namespace CGP.Application.Services
         private readonly ISubCategoryRepository _subCategoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper, ISubCategoryRepository subCategoryRepository)
+        private readonly ICloudinaryService _cloudinaryService; 
+        private static string FOLDER = "subCategories";
+        public SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper, ISubCategoryRepository subCategoryRepository, ICloudinaryService cloudinaryService)
         {
             _subCategoryRepository = subCategoryRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<SubCategory> GetByName(string Name)
@@ -29,20 +32,6 @@ namespace CGP.Application.Services
             var result = await _subCategoryRepository.GetSubCategoryByName(Name);
 
             return result;
-        }
-
-        public async Task<Result<object>> Create(SubCategory subCategory)
-        {
-            await _subCategoryRepository.AddAsync(subCategory);
-
-            var result = await _unitOfWork.SaveChangeAsync();
-
-            return new Result<object>
-            {
-                Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Create category successfully" : "Create category fail",
-                Data = result,
-            };
         }
 
         public async Task<Result<object>> GetById(Guid Id)
@@ -97,7 +86,24 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<object>> AddSubCategoryToCategory(SubCategory subCategory, Guid CategoryId)
+        public async Task<Result<object>> Create(CreateSubCategoryDTO request)
+        {
+            var subCategory = _mapper.Map<SubCategory>(request);
+            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
+            subCategory.Image = uploadResult.SecureUrl.ToString();
+            await _subCategoryRepository.AddAsync(subCategory);
+
+            var result = await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = result > 0 ? 0 : 1,
+                Message = result > 0 ? "Create category successfully" : "Create category fail",
+                Data = result,
+            };
+        }
+
+        public async Task<Result<object>> AddSubCategoryToCategory(CreateSubCategoryDTO request, Guid CategoryId)
         {
             var cateogry = await _unitOfWork.categoryRepository.GetCategoryById(CategoryId);
 
@@ -110,6 +116,10 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
+
+            var subCategory = _mapper.Map<SubCategory>(request);
+            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
+            subCategory.Image = uploadResult.SecureUrl.ToString();
 
             cateogry.SubCategories.Add(subCategory);
 

@@ -65,7 +65,7 @@ namespace CGP.WebAPI.Controllers
                 return BadRequest("There is no category has this id.");
             }
 
-            var result = await _subCategoryService.AddSubCategoryToCategory(_mapper.Map<SubCategory>(CategorySubCreate), Id);
+            var result = await _subCategoryService.AddSubCategoryToCategory(CategorySubCreate, Id);
 
             return Ok(result);
         }

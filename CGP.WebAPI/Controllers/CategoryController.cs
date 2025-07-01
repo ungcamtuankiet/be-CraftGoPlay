@@ -57,12 +57,12 @@ namespace CGP.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _categoryService.Create(_mapper.Map<Category>(CategoryCreate));
+            var result = await _categoryService.Create(CategoryCreate);
 
             return Ok(result);
         }
 
-        [HttpPost("CreateCategory/SubCategory")]
+/*        [HttpPost("CreateCategory/SubCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [Authorize(Policy = "StaffOrAdminPolicy")]
@@ -80,10 +80,10 @@ namespace CGP.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _categoryService.Create(_mapper.Map<Category>(CategoryCreate));
+            var result = await _categoryService.Create(CategoryCreate);
 
             return Ok(result);
-        }
+        }*/
 
         [HttpDelete("CategoryId/Delete")]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
