@@ -25,8 +25,9 @@ namespace CGP.Infrastructure
         private readonly IArtisanRequestRepository _artisanRequestRepository;
         private readonly ICartRepository _cartRepository;
         private readonly ICartItemRepository _cartItemRepository;
+        private readonly IFavouriteRepository _favouriteRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
@@ -41,6 +42,7 @@ namespace CGP.Infrastructure
             _artisanRequestRepository = artisanRequestRepository;
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
+            _favouriteRepository = favouriteRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;
@@ -55,6 +57,7 @@ namespace CGP.Infrastructure
         public IArtisanRequestRepository artisanRequestRepository => _artisanRequestRepository;
         public ICartRepository cartRepository => _cartRepository;
         public ICartItemRepository cartItemRepository => _cartItemRepository;
+        public IFavouriteRepository favouriteRepository => _favouriteRepository;
 
         public async Task<int> SaveChangeAsync()
         {

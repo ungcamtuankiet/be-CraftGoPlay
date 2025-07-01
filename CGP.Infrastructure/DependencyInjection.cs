@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Application.Services;
 using CGP.Contract.Abstractions.CloudinaryService;
+using CGP.Domain.Entities;
 using CGP.Infrastructure.Data;
 using CGP.Infrastructure.Repositories;
 using CGP.Infrastructure.Services;
@@ -37,6 +38,7 @@ namespace CGP.Infrastructure
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IArtisanRequestService, ArtisanRequestService>();
             services.AddScoped<ICartService, CartService>();
+            services.AddScoped<IFavouriteService, FavouriteService>();
 
             services.AddMemoryCache();
             //Repositories
@@ -52,6 +54,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IArtisanRequestRepository, ArtisanRequestRepository>();
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartItemRepository, CartItemRepository>();
+            services.AddScoped<IFavouriteRepository, FavouriteRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CGP.Contract.DTO.Product;
+using CGP.Contract.DTO.ProductImage;
 using CGP.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace CGP.Infrastructure.Mappers.ProductImageProfile
     {
         public ProductImageProfile()
         {
-            CreateMap<Product, ProductDTO>();
+            CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
         }
     } 
 }

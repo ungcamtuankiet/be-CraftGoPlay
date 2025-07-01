@@ -20,7 +20,7 @@ namespace CGP.Infrastructure.Mappers.MeterialProfile
 
             CreateMap<MeterialUpdateDTO, ViewMeterialDTO>().ReverseMap();
 
-            CreateMap<Product, ProductDTO>();
+            CreateMap<Meterial, MeterialDto>().ReverseMap();
         }
     }
 }
