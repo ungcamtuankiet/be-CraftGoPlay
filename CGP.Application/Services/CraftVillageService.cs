@@ -25,7 +25,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Craft village cannot be null."
+                    Message = "Làng thủ công không thể rỗng."
                 };
             }
 
@@ -35,7 +35,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Village name is required."
+                    Message = "Tên làng là bắt buộc."
                 };
             }
 
@@ -44,7 +44,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Location is required."
+                    Message = "Vị trí của làng là bắt buộc."
                 };
             }
 
@@ -53,7 +53,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Established date cannot be in the future."
+                    Message = "Ngày thành lập không thể là ngày trong tương lai."
                 };
             }
 
@@ -64,7 +64,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = $"Craft village with name '{craftVillage.Village_Name}' already exists."
+                    Message = $"Làng nghề có tên {craftVillage.Village_Name} đã tồn tại."
                 };
             }
 
@@ -80,7 +80,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 0,
-                    Message = "Craft village created successfully.",
+                    Message = "Làng nghề được tạo thành công.",
                     Data = newVillage
                 };
             }
@@ -89,7 +89,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = $"Failed to create craft village: {ex.Message}"
+                    Message = $"Không thể tạo ra làng nghề: {ex.Message}"
                 };
             }
         }
@@ -102,7 +102,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewCraftVillageDTO>>
             {
                 Error = 0,
-                Message = "Get all craft villages successfully.",
+                Message = "Lấy danh sách làng nghề thành công.",
                 Data = result
             };
         }
@@ -113,12 +113,12 @@ namespace CGP.Application.Services
             var result = _mapper.Map<ViewCraftVillageDTO>(craftVillage);
             if (craftVillage == null)
             {
-                throw new KeyNotFoundException($"Craft village with ID {id} not found.");
+                throw new KeyNotFoundException($"Làng nghề với mã {id} không được tìm thấy.");
             }
             return new Result<ViewCraftVillageDTO>
             {
                 Error = 0,
-                Message = "Get all craft villages successfully.",
+                Message = "Lấy thông tin làng nghề thành công.",
                 Data = result
             };
         }
@@ -131,7 +131,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Invalid craft village ID."
+                    Message = "Mã làng nghề không hợp lệ."
                 };
             }
 
@@ -141,7 +141,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Craft village cannot be null."
+                    Message = "Vui lòng điền đầy đủ thông tin"
                 };
             }
 
@@ -151,7 +151,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Village name is required."
+                    Message = "Tên làng nghề là bắt buộc."
                 };
             }
 
@@ -160,7 +160,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Location is required."
+                    Message = "Vị trí làng nghề là bắt buộc."
                 };
             }
 
@@ -169,7 +169,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Established date cannot be in the future."
+                    Message = "Ngày thành lập không thể là ngày trong tương lai."
                 };
             }
 
@@ -180,7 +180,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = $"Craft village with ID {id} not found."
+                    Message = $"Mã làng nghề: {id} không tìm thấy."
                 };
             }
 
@@ -191,7 +191,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = $"Craft village with name '{craftVillage.Village_Name}' already exists."
+                    Message = $"Làng nghề với tên: '{craftVillage.Village_Name}' đã tồn tại."
                 };
             }
 
@@ -206,7 +206,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 0,
-                    Message = "Craft village updated successfully.",
+                    Message = "Cập nhật thông tin làng nghề thành công.",
                     Data = existingVillage
                 };
             }
@@ -215,7 +215,7 @@ namespace CGP.Application.Services
                 return new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = $"Failed to update craft village: {ex.Message}"
+                    Message = $"Cập nhật làng nghề thất bại: {ex.Message}"
                 };
             }
         }
@@ -224,14 +224,14 @@ namespace CGP.Application.Services
             var existingVillage = await _unitOfWork.craftVillageRepository.GetByIdAsync(id);
             if (existingVillage == null)
             {
-                throw new KeyNotFoundException($"Craft village with ID {id} not found.");
+                throw new KeyNotFoundException($"Mã làng nghề với: {id} không tìm thấy.");
             }
             _unitOfWork.craftVillageRepository.Remove(existingVillage);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
             {
                 Error = 0,
-                Message = "Craft village deleted successfully.",
+                Message = "Xóa làng nghề thành công.",
                 Data = null
             };
         }

@@ -34,7 +34,7 @@ namespace CGP.WebAPI.Controllers
         {
             if (request == null)
             {
-                return BadRequest("Invalid request data.");
+                return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
             }
             var result = await _meterialService.CreateMeterial(request);
             if (result.Error == 0)
@@ -50,7 +50,7 @@ namespace CGP.WebAPI.Controllers
         {
             if (request == null || request.Id == Guid.Empty)
             {
-                return BadRequest("Invalid request data.");
+                return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
             }
             var result = await _meterialService.UpdateMeterial(request);
             if (result.Error == 0)

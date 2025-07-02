@@ -41,7 +41,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy thông tin danh mục con thành công.",
                 Data = result,
             };
         }
@@ -53,7 +53,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewSubCategoryDTO>>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh sách danh mục con thành công.",
                 Data = result,
             };
         }
@@ -67,7 +67,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Didn't find any category, please try again!",
+                    Message = "Không thể tìm thấy danh mục con, vui lòng thử lại!",
                     Data = null
                 };
             }
@@ -81,7 +81,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Update category successfully" : "Update category fail",
+                Message = result > 0 ? "Cập nhật danh mục con thành công." : "Cập nhật danh mục con thất bại.",
                 Data = subCategory
             };
         }
@@ -98,7 +98,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Create category successfully" : "Create category fail",
+                Message = result > 0 ? "Tạo danh mục con thành công." : "Tạo danh mục con thất bại.",
                 Data = result,
             };
         }
@@ -112,7 +112,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Didn't find any category, please try again!",
+                    Message = "Không thể tìm thấy danh mục con, vui lòng thử lại!",
                     Data = null
                 };
             }
@@ -130,7 +130,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Create category successfully" : "Create category fail",
+                Message = result > 0 ? "Tạo danh mục con thành công" : "Tạo danh mục con thất bại",
                 Data = subCategory
             };
         }
@@ -142,7 +142,7 @@ namespace CGP.Application.Services
             return new Result<SubCategory>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh mục con thành công.",
                 Data = result,
             };
         }
@@ -156,7 +156,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Didn't find any category, please try again!",
+                    Message = "Không thể tìm thấy danh mục con, vui lòng thử lại!",
                     Data = null
                 };
             }
@@ -168,7 +168,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Delete category successfully" : "Delete category fail",
+                Message = result > 0 ? "Xóa danh mục con thành công." : "Xóa danh mục con thất bại.",
                 Data = subCategory,
             };
         }

@@ -88,7 +88,7 @@ namespace CGP.WebAPI.Controllers
         {
             if (request == null || string.IsNullOrEmpty(request.IdToken))
             {
-                return BadRequest("Invalid request data.");
+                return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
             }
 
             try
@@ -108,7 +108,7 @@ namespace CGP.WebAPI.Controllers
                 return Ok(new Result<object>
                 {
                     Error = 0,
-                    Message = "Success",
+                    Message = "Thành công",
                     Data = new
                     {
                         TokenType = "Bearer",
@@ -127,7 +127,7 @@ namespace CGP.WebAPI.Controllers
         {
             if (request == null || string.IsNullOrEmpty(request.IdToken))
             {
-                return BadRequest("Invalid request data.");
+                return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
             }
 
             try
@@ -160,7 +160,7 @@ namespace CGP.WebAPI.Controllers
                 return Ok(new Result<object>
                 {
                     Error = 0,
-                    Message = "Success",
+                    Message = "Thành công",
                     Data = new
                     {
                         TokenType = "Bearer",
@@ -234,7 +234,7 @@ namespace CGP.WebAPI.Controllers
             // Check if the user is authenticated
             if (User.Identity.IsAuthenticated)
             {
-                return BadRequest(new { message = "You are already logged in and cannot register again." });
+                return BadRequest(new { message = "Bạn đã đăng nhập và không thể đăng ký lại." });
             }
 
             try
@@ -260,7 +260,7 @@ namespace CGP.WebAPI.Controllers
                 var isValid = await _authService.VerifyOtpAndCompleteRegistrationAsync(otpVerificationDto.Email, otpVerificationDto.Otp);
                 if (!isValid)
                 {
-                    return BadRequest(new { Message = "Invalid OTP or OTP has expired." });
+                    return BadRequest(new { Message = "OTP không hợp lệ hoặc OTP đã hết hạn." });
                 }
 
                 var user = await _userService.GetByEmail(otpVerificationDto.Email);
@@ -282,7 +282,7 @@ namespace CGP.WebAPI.Controllers
                     await _userService.UpdateUserAsync(user);
                 }
 
-                return Ok(new { Message = "Email verified successfully." });
+                return Ok(new { Message = "Xác thực Email thành công." });
             }
             catch (Exception ex)
             {
@@ -302,11 +302,11 @@ namespace CGP.WebAPI.Controllers
                 var email = User.FindFirst(ClaimTypes.Email)?.Value;
                 if (email == null)
                 {
-                    return Unauthorized(new { Message = "Invalid token." });
+                    return Unauthorized(new { Message = "Token không hợp lệ." });
                 }
 
                 await _authService.ChangePasswordAsync(email, changePasswordDto);
-                return Ok(new { Message = "Password changed successfully. Please log in again." });
+                return Ok(new { Message = "Mật khẩu đã được thay đổi thành công, vui lòng đăng nhập lại." });
             }
             catch (Exception ex)
             {
@@ -323,7 +323,7 @@ namespace CGP.WebAPI.Controllers
             try
             {
                 await _authService.RequestPasswordResetAsync(forgotPasswordRequestDto);
-                return Ok(new { Message = "Password reset token sent successfully to your email." });
+                return Ok(new { Message = "Mã thông báo đặt lại mật khẩu đã được gửi thành công đến email của bạn." });
             }
             catch (Exception ex)
             {
@@ -340,7 +340,7 @@ namespace CGP.WebAPI.Controllers
             try
             {
                 await _authService.ResetPasswordAsync(resetPasswordDto);
-                return Ok(new { Message = "Password reset successfully." });
+                return Ok(new { Message = "Đã đặt lại mật khẩu thành công." });
             }
             catch (Exception ex)
             {
