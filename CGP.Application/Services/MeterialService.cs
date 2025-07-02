@@ -38,6 +38,27 @@ namespace CGP.Application.Services
         public async Task<Result<object>> CreateMeterial(MeterialCreateDTO request)
         {
             var meterial = _mapper.Map<Meterial>(request);
+            var checkExist = await _unitOfWork.meterialRepository.GetMeterialByNameAsync(meterial.Name);
+
+            if(checkExist != null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Vật liệu đã tồn tại.",
+                    Data = null
+                };
+            }
+
+            if(request == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Vui lòng điền đầy đủ thông tin vật liệu.",
+                    Data = null
+                };
+            }
 
             await _unitOfWork.meterialRepository.CreateMeterialAsync(meterial);
             return new Result<object>
@@ -51,6 +72,17 @@ namespace CGP.Application.Services
         public async Task<Result<object>> UpdateMeterial(MeterialUpdateDTO request)
         {
             var getMeterial = await _unitOfWork.meterialRepository.GetMeterialByIdAsync(request.Id  );
+            var checkExist = await _unitOfWork.meterialRepository.GetMeterialByNameAsync(request.Name);
+
+            if(request == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Vui lòng điền đầy đủ thông tin vật liệu.",
+                    Data = null
+                };
+            }
             if (getMeterial == null)
             {
                 return new Result<object>
@@ -60,6 +92,16 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
+            if (checkExist != null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Vật liệu đã tồn tại.",
+                    Data = null
+                };
+            }
+
             _mapper.Map(request, getMeterial);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>

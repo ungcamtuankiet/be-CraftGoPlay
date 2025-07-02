@@ -26,6 +26,14 @@ namespace CGP.Application.Services
         public async Task<Result<CartDto>> ViewCartAsync(Guid userId)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
+            var getUser = await _unitOfWork.userRepository.GetUserById(userId);
+            if(getUser == null)
+                return new Result<CartDto>
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại",
+                    Data = null
+                };
             if (cart == null)
                 return new Result<CartDto>
                 {
@@ -45,6 +53,42 @@ namespace CGP.Application.Services
         public async Task<Result<CartDto>> AddToCartAsync(Guid userId, AddCartItemDto dto)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
+            var getProduct = await _unitOfWork.productRepository.GetProductById(dto.ProductId);
+            if(getProduct == null)
+            {
+                return new Result<CartDto>
+                {
+                    Error = 1,
+                    Message = "Sản phẩm không tồn tại.",
+                    Data = null
+                };
+            }
+            var getUser = await _unitOfWork.userRepository.GetUserById(userId);
+            if (getUser == null)
+                return new Result<CartDto>
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại",
+                    Data = null
+                };
+            if (dto.Quantity <= 0)
+            {
+                return new Result<CartDto>
+                {
+                    Error = 1,
+                    Message = "Số lượng sản phẩm phải lớn hơn 0.",
+                    Data = null
+                };
+            }
+            if (getProduct.Quantity < dto.Quantity)
+            {
+                return new Result<CartDto>
+                {
+                    Error = 1,
+                    Message = "Số lượng sản phẩm không đủ.",
+                    Data = null
+                };
+            }
 
             if (cart == null)
             {
@@ -100,11 +144,29 @@ namespace CGP.Application.Services
                 return new Result<CartDto>
                 {
                     Error = 1,
-                    Message = "Cart item not found.",
+                    Message = "Sản phẩm trong giỏ hàng không tồn tại.",
                     Data = null
                 }
             ;
-
+            var getProduct = await _unitOfWork.productRepository.GetProductById(item.ProductId);
+            if(item.Quantity + dto.Quantity > getProduct.Quantity)
+            {
+                return new Result<CartDto>
+                {
+                    Error = 1,
+                    Message = "Số lượng sản phẩm không đủ.",
+                    Data = null
+                };
+            }
+            if (dto.Quantity <= 0)
+            {
+                return new Result<CartDto>
+                {
+                    Error = 1,
+                    Message = "Số lượng sản phẩm phải lớn hơn 0.",
+                    Data = null
+                };
+            }
             item.Quantity = dto.Quantity;
             await _unitOfWork.cartItemRepository.UpdateCartItemAsync(item);
             await _unitOfWork.SaveChangeAsync();

@@ -109,6 +109,17 @@ namespace CGP.Application.Services
         public async Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum? productStatus)
         {
             var result = _mapper.Map<List<ViewProductDTO>>(await _unitOfWork.productRepository.GetProductsByArtisanId(artisanId, pageIndex, pageSize, productStatus));
+            var getArtisan = await _unitOfWork.userRepository.GetUserById(artisanId);
+            if(getArtisan == null)
+            {
+                return new ResponseProductsStatus<List<ViewProductDTO>>
+                {
+                    Error = 1,
+                    Message = "Nghệ nhân không tồn tại.",
+                    Count = 0,
+                    Data = null
+                };
+            }
             return new ResponseProductsStatus<List<ViewProductDTO>>
             {
                 Error = 0,
@@ -148,119 +159,171 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> CreateProduct(ProductCreateDto request)
         {
-            var product = _mapper.Map<Product>(request);
-
-            if (request.Images != null && request.Images.Any())
+            try
             {
-                foreach (var image in request.Images)
-                {
-                    var uploadResult = await _cloudinaryService.UploadProductImage(image, FOLDER);
+                var product = _mapper.Map<Product>(request);
 
-                    if (uploadResult != null)
+                if (request.Images != null && request.Images.Count > 5)
+                {
+                    return new Result<object>
                     {
-                        product.ProductImages.Add(new ProductImage
+                        Error = 1,
+                        Message = "Chỉ được tải lên tối đa 5 ảnh.",
+                        Data = null
+                    };
+                }
+
+                if (request.Images != null && request.Images.Any())
+                {
+                    foreach (var image in request.Images)
+                    {
+                        var uploadResult = await _cloudinaryService.UploadProductImage(image, FOLDER);
+
+                        if (uploadResult != null)
                         {
-                            ImageUrl = uploadResult.SecureUrl.ToString()
-                        });
+                            product.ProductImages.Add(new ProductImage
+                            {
+                                ImageUrl = uploadResult.SecureUrl.ToString()
+                            });
+                        }
                     }
                 }
+
+                if (request.MeterialIds != null && request.MeterialIds.Any())
+                {
+                    var meterials = await _unitOfWork.meterialRepository.GetByIdsAsync(request.MeterialIds);
+                    product.Meterials = meterials;
+                }
+
+                await _unitOfWork.productRepository.CreateNewProduct(product);
+                await _redisService.RemoveCacheAsync("product:list");
+                await _redisService.RemoveByPatternAsync("product:search:*");
+                return new Result<object>
+                {
+                    Error = 0,
+                    Message = "Tạo sản phẩm thành công.",
+                    Data = _mapper.Map<ViewProductDTO>(product)
+                };
             }
-
-            if (request.MeterialIds != null && request.MeterialIds.Any())
-            {
-                var meterials = await _unitOfWork.meterialRepository.GetByIdsAsync(request.MeterialIds);
-                product.Meterials = meterials;
-            }
-
-            await _unitOfWork.productRepository.CreateNewProduct(product);
-            await _redisService.RemoveCacheAsync("product:list");
-            await _redisService.RemoveByPatternAsync("product:search:*");
-            return new Result<object>
-            {
-                Error = 0,
-                Message = "Tạo sản phẩm thành công.",
-                Data = _mapper.Map<ViewProductDTO>(product)
-            };
-        }
-
-        public async Task<Result<object>> UpdateProduct(ProductUpdateDTO request)
-        {
-            var getProduct = await _unitOfWork.productRepository.GetProductById(request.Id);
-            if (getProduct == null)
+            catch (InvalidOperationException ex)
             {
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Sản phẩm không tồn tại.",
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<Result<object>> UpdateProduct(ProductUpdateDTO request)
+        {
+            try
+            {
+                var getProduct = await _unitOfWork.productRepository.GetProductById(request.Id);
+                if (getProduct == null)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Sản phẩm không tồn tại.",
+                        Data = null
+                    };
+                }
+                if (!string.IsNullOrWhiteSpace(request.Name))
+                    getProduct.Name = request.Name;
+
+                if (!string.IsNullOrWhiteSpace(request.Description))
+                    getProduct.Description = request.Description;
+
+                if (request.Price != default)
+                    getProduct.Price = (decimal)request.Price;
+
+                if (request.Quantity != default)
+                    getProduct.Quantity = (int)request.Quantity;
+
+                if (Enum.IsDefined(typeof(ProductStatusEnum), request.Status))
+                    getProduct.Status = (ProductStatusEnum)request.Status;
+
+                if (request.SubCategoryId != Guid.Empty)
+                    getProduct.SubCategoryId = (Guid)request.SubCategoryId;
+
+                if (request.Artisan_id != Guid.Empty)
+                    getProduct.Artisan_id = (Guid)request.Artisan_id;
+
+                getProduct.ProductImages ??= new List<ProductImage>();
+                if (request.ImagesToAdd?.Any() == true)
+                {
+                    foreach (var image in request.ImagesToAdd)
+                    {
+                        var uploadResult = await _cloudinaryService.UploadProductImage(image, FOLDER);
+                        if (uploadResult != null)
+                        {
+                            getProduct.ProductImages.Add(new ProductImage
+                            {
+                                ImageUrl = uploadResult.SecureUrl.ToString()
+                            });
+                        }
+                    }
+                }
+                if (request.ImagesToMove?.Any() == true)
+                {
+                    var imagesToMove = getProduct.ProductImages
+                        .Where(i => request.ImagesToMove.Contains(i.Id))
+                        .ToList();
+                    foreach (var image in imagesToMove)
+                    {
+                        await _cloudinaryService.DeleteImageAsync(image.ImageUrl);
+                        await _unitOfWork.productImageRepository.RemoveImage(image);
+                    }
+                }
+
+                getProduct.Meterials ??= new List<Meterial>();
+
+                if (request.MeterialIdsToRemove?.Any() == true)
+                {
+                    var toRemove = getProduct.Meterials
+                        .Where(m => request.MeterialIdsToRemove.Contains(m.Id))
+                        .ToList();
+
+                    foreach (var meterial in toRemove)
+                    {
+                        getProduct.Meterials.Remove(meterial);
+                    }
+                }
+
+                if (request.MeterialIdsToAdd?.Any() == true)
+                {
+                    var meterialsToAdd = await _unitOfWork.meterialRepository.GetByIdsAsync(request.MeterialIdsToAdd);
+
+                    foreach (var meterial in meterialsToAdd)
+                    {
+                        if (!getProduct.Meterials.Any(m => m.Id == meterial.Id))
+                        {
+                            getProduct.Meterials.Add(meterial);
+                        }
+                    }
+                }
+
+                await _unitOfWork.productRepository.UpdateProduct(getProduct);
+                await _unitOfWork.SaveChangeAsync();
+                await _redisService.RemoveCacheAsync("product:list");
+                await _redisService.RemoveByPatternAsync("product:search:*");
+
+                return new Result<object>
+                {
+                    Error = 0,
+                    Message = "Cập nhật sản phẩm thành công.",
                     Data = null
                 };
             }
-
-            getProduct.ProductImages ??= new List<ProductImage>();
-            if (request.ImagesToAdd?.Any() == true)
+            catch (InvalidOperationException ex)
             {
-                foreach (var image in request.ImagesToAdd)
+                return new Result<object>
                 {
-                    var uploadResult = await _cloudinaryService.UploadProductImage(image, FOLDER);
-                    if (uploadResult != null)
-                    {
-                        getProduct.ProductImages.Add(new ProductImage
-                        {
-                            ImageUrl = uploadResult.SecureUrl.ToString()
-                        });
-                    }
-                }
+                    Error = 1,
+                    Message = ex.Message
+                };
             }
-            if (request.ImagesToMove?.Any() == true)
-            {
-                var imagesToMove = getProduct.ProductImages
-                    .Where(i => request.ImagesToMove.Contains(i.Id))
-                    .ToList();
-                foreach (var image in imagesToMove)
-                {
-                    await _cloudinaryService.DeleteImageAsync(image.ImageUrl);
-                    await _unitOfWork.productImageRepository.RemoveImage(image);
-                }
-            }
-
-            getProduct.Meterials ??= new List<Meterial>();
-
-            if (request.MeterialIdsToRemove?.Any() == true)
-            {
-                var toRemove = getProduct.Meterials
-                    .Where(m => request.MeterialIdsToRemove.Contains(m.Id))
-                    .ToList();
-
-                foreach (var meterial in toRemove)
-                {
-                    getProduct.Meterials.Remove(meterial);
-                }
-            }
-
-            if (request.MeterialIdsToAdd?.Any() == true)
-            {
-                var meterialsToAdd = await _unitOfWork.meterialRepository.GetByIdsAsync(request.MeterialIdsToAdd);
-
-                foreach (var meterial in meterialsToAdd)
-                {
-                    if (!getProduct.Meterials.Any(m => m.Id == meterial.Id))
-                    {
-                        getProduct.Meterials.Add(meterial);
-                    }
-                }
-            }
-
-            _mapper.Map(request, getProduct);
-            await _unitOfWork.SaveChangeAsync();
-            await _redisService.RemoveCacheAsync("product:list");
-            await _redisService.RemoveByPatternAsync("product:search:*");
-
-            return new Result<object>
-            {
-                Error = 0,
-                Message = "Cập nhật sản phẩm thành công.",
-                Data = null
-            };
         }
 
 
