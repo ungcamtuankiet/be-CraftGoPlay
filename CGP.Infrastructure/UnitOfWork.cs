@@ -26,8 +26,11 @@ namespace CGP.Infrastructure
         private readonly ICartRepository _cartRepository;
         private readonly ICartItemRepository _cartItemRepository;
         private readonly IFavouriteRepository _favouriteRepository;
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly IOrderItemRepository _orderItemRepository;
+        private readonly IOrderRepository _orderRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
@@ -43,6 +46,9 @@ namespace CGP.Infrastructure
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
             _favouriteRepository = favouriteRepository;
+            _paymentRepository = paymentRepository;
+            _orderItemRepository = orderItemRepository;
+            _orderRepository = orderRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;
@@ -58,6 +64,9 @@ namespace CGP.Infrastructure
         public ICartRepository cartRepository => _cartRepository;
         public ICartItemRepository cartItemRepository => _cartItemRepository;
         public IFavouriteRepository favouriteRepository => _favouriteRepository;
+        public IPaymentRepository paymentRepository => _paymentRepository;
+        public IOrderItemRepository orderItemRepository => _orderItemRepository;
+        public IOrderRepository orderRepository => _orderRepository;
 
         public async Task<int> SaveChangeAsync()
         {

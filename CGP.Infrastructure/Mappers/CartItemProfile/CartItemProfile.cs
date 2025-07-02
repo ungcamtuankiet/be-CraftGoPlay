@@ -14,7 +14,9 @@ namespace CGP.Infrastructure.Mappers.CartItemProfile
         public CartItemProfile()
         {
             CreateMap<CartItem, CartItemDto>()
-            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name)).ReverseMap();
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+            .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.Product.ProductImages))
+            .ReverseMap();
 
             CreateMap<AddCartItemDto, CartItem>()
             .ForMember(dest => dest.UnitPrice, opt => opt.Ignore())
