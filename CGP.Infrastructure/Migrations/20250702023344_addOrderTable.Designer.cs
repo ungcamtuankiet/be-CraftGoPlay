@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250702023344_addOrderTable")]
+    partial class addOrderTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,7 +120,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 7, 2, 9, 48, 25, 300, DateTimeKind.Local).AddTicks(8253),
+                            CreationDate = new DateTime(2025, 7, 2, 9, 33, 43, 1, DateTimeKind.Local).AddTicks(184),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -130,7 +133,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 7, 2, 9, 48, 25, 300, DateTimeKind.Local).AddTicks(8272),
+                            CreationDate = new DateTime(2025, 7, 2, 9, 33, 43, 1, DateTimeKind.Local).AddTicks(200),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -143,7 +146,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 7, 2, 9, 48, 25, 300, DateTimeKind.Local).AddTicks(8276),
+                            CreationDate = new DateTime(2025, 7, 2, 9, 33, 43, 1, DateTimeKind.Local).AddTicks(204),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -156,7 +159,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 7, 2, 9, 48, 25, 300, DateTimeKind.Local).AddTicks(8279),
+                            CreationDate = new DateTime(2025, 7, 2, 9, 33, 43, 1, DateTimeKind.Local).AddTicks(207),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -508,12 +511,6 @@ namespace CGP.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ArtisanId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -551,10 +548,6 @@ namespace CGP.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("ArtisanId");
 
                     b.HasIndex("UserId");
 
@@ -1067,23 +1060,11 @@ namespace CGP.Infrastructure.Migrations
 
             modelBuilder.Entity("CGP.Domain.Entities.Order", b =>
                 {
-                    b.HasOne("CGP.Domain.Entities.ApplicationUser", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "Artisan")
-                        .WithMany()
-                        .HasForeignKey("ArtisanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Artisan");
 
                     b.Navigation("User");
                 });

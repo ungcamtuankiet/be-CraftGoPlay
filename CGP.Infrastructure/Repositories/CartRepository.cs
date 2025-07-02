@@ -35,6 +35,7 @@ namespace CGP.Infrastructure.Repositories
             return await _dbContext.Cart
             .Include(c => c.Items)
             .ThenInclude(i => i.Product)
+            .ThenInclude(i => i.ProductImages)
             .FirstOrDefaultAsync(c => c.UserId == userId && !c.IsCheckedOut);
         }
     }

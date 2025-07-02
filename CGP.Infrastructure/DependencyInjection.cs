@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Application.Services;
 using CGP.Contract.Abstractions.CloudinaryService;
+using CGP.Contract.Abstractions.VnPayService;
 using CGP.Domain.Entities;
 using CGP.Infrastructure.Data;
 using CGP.Infrastructure.Repositories;
@@ -39,6 +40,8 @@ namespace CGP.Infrastructure
             services.AddScoped<IArtisanRequestService, ArtisanRequestService>();
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IFavouriteService, FavouriteService>();
+            services.AddScoped<IPayoutService, PayoutService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             services.AddMemoryCache();
             //Repositories
@@ -55,6 +58,9 @@ namespace CGP.Infrastructure
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartItemRepository, CartItemRepository>();
             services.AddScoped<IFavouriteRepository, FavouriteRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>
@@ -63,7 +69,10 @@ namespace CGP.Infrastructure
 
             //Cloundinary
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
-            
+
+            //VnPay
+            services.Configure<VnPaySettings>(configuration.GetSection("VnPay"));
+
 
             var redisConnectionString = configuration.GetConnectionString("Redis");
             services.AddSingleton<IConnectionMultiplexer>(_ =>

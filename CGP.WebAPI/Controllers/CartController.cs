@@ -20,7 +20,7 @@ namespace CGP.WebAPI.Controllers
         public async Task<IActionResult> GetCart(Guid userId)
         {
             var result = await _cartService.ViewCartAsync(userId);
-            if (result.Error != 0) return NotFound(result.Message);
+            if (result.Error != 0) return NotFound(result);
             return Ok(result);
         }
 
@@ -29,7 +29,7 @@ namespace CGP.WebAPI.Controllers
         {
             var result = await _cartService.AddToCartAsync(userId, dto);
             if (result.Error != 0)
-                return BadRequest(new { result.Error, result.Message });
+                return BadRequest(result);
 
             return Ok(result);
         }
@@ -39,7 +39,7 @@ namespace CGP.WebAPI.Controllers
         {
             var result = await _cartService.UpdateCartItemAsync(dto);
             if (result.Error != 0)
-                return NotFound(new { result.Error, result.Message });
+                return NotFound(result);
 
             return Ok(result);
         }
@@ -49,7 +49,7 @@ namespace CGP.WebAPI.Controllers
         {
             var result = await _cartService.RemoveFromCartAsync(cartItemId);
             if (result.Error != 0)
-                return NotFound(new { result.Error, result.Message });
+                return NotFound(result);
 
             return Ok(result);
         }
