@@ -11,6 +11,7 @@ namespace CGP.Application.Repositories
     {
         public Task<List<Meterial>> GetMeterialsAsync();
         public Task<Meterial> GetMeterialByIdAsync(Guid id);
+        public Task<Meterial> GetMeterialByNameAsync(string materialName);
         public Task<List<Meterial>> GetByIdsAsync(List<Guid> ids);
         public Task CreateMeterialAsync(Meterial meterial);
         public Task UpdateMeterialAsync(Meterial meterial);

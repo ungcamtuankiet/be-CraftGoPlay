@@ -33,13 +33,29 @@ namespace CGP.Infrastructure.Services
         {
             var uploadResult = new ImageUploadResult();
 
+            // Kiểm tra kích thước tối đa: 2MB = 2 * 1024 * 1024 bytes
+            const long maxFileSize = 2 * 1024 * 1024;
+            if (file.Length > maxFileSize)
+            {
+                throw new InvalidOperationException("Kích thước ảnh không được vượt quá 2MB.");
+            }
+
+            // Kiểm tra định dạng ảnh hợp lệ
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException("Định dạng ảnh không hợp lệ. Chỉ chấp nhận: .jpg, .jpeg, .png, .webp, .gif");
+            }
+
             if (file.Length > 0)
             {
                 await using var stream = file.OpenReadStream();
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = folder 
+                    Folder = folder
                 };
 
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);

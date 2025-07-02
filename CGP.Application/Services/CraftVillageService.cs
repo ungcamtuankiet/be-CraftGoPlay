@@ -19,7 +19,6 @@ namespace CGP.Application.Services
 
         public async Task<Result<CraftVillage>> CreateNewCraftVillage(CreateCraftVillageDTO craftVillage)
         {
-            // Kiểm tra null ngay từ đầu
             if (craftVillage == null)
             {
                 return new Result<CraftVillage>
@@ -29,7 +28,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // Kiểm tra các trường bắt buộc
             if (string.IsNullOrWhiteSpace(craftVillage.Village_Name))
             {
                 return new Result<CraftVillage>
@@ -57,7 +55,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // Kiểm tra trùng lặp Village_Name (nếu cần)
             var existingVillage = await _unitOfWork.craftVillageRepository.GetByNameAsync(craftVillage.Village_Name);
             if (existingVillage != null)
             {
@@ -70,9 +67,8 @@ namespace CGP.Application.Services
 
             try
             {
-                // Ánh xạ DTO sang thực thể
                 var newVillage = _mapper.Map<CraftVillage>(craftVillage);
-                newVillage.Id = Guid.NewGuid(); // Gán Id mới
+                newVillage.Id = Guid.NewGuid(); 
 
                 await _unitOfWork.craftVillageRepository.AddAsync(newVillage);
                 await _unitOfWork.SaveChangeAsync();
@@ -125,7 +121,6 @@ namespace CGP.Application.Services
 
         public async Task<Result<CraftVillage>> UpdateCraftVillage(Guid id, UpdateCraftVillageDTO craftVillage)
         {
-            // Kiểm tra id hợp lệ
             if (id == Guid.Empty)
             {
                 return new Result<CraftVillage>
@@ -135,7 +130,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // Kiểm tra null
             if (craftVillage == null)
             {
                 return new Result<CraftVillage>
@@ -145,7 +139,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // Kiểm tra các trường bắt buộc
             if (string.IsNullOrWhiteSpace(craftVillage.Village_Name))
             {
                 return new Result<CraftVillage>
@@ -173,7 +166,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // Kiểm tra sự tồn tại của CraftVillage
             var existingVillage = await _unitOfWork.craftVillageRepository.GetByIdAsync(id);
             if (existingVillage == null)
             {
@@ -184,7 +176,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // Kiểm tra trùng lặp Village_Name (ngoại trừ chính bản ghi đang cập nhật)
             var duplicateVillage = await _unitOfWork.craftVillageRepository.GetByNameAsync(craftVillage.Village_Name);
             if (duplicateVillage != null && duplicateVillage.Id != id)
             {
@@ -197,7 +188,6 @@ namespace CGP.Application.Services
 
             try
             {
-                // Ánh xạ dữ liệu từ DTO vào thực thể hiện có
                 _mapper.Map(craftVillage, existingVillage);
 
                 await _unitOfWork.craftVillageRepository.UpdateCraftVillage(existingVillage);

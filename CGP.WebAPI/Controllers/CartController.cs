@@ -16,7 +16,7 @@ namespace CGP.WebAPI.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("GetAllItemCart/{userId}")]
         public async Task<IActionResult> GetCart(Guid userId)
         {
             var result = await _cartService.ViewCartAsync(userId);
@@ -24,7 +24,7 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost("{userId}")]
+        [HttpPost("AddToCart/{userId}")]
         public async Task<IActionResult> AddToCart(Guid userId, [FromBody] AddCartItemDto dto)
         {
             var result = await _cartService.AddToCartAsync(userId, dto);
@@ -34,7 +34,7 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPut("item")]
+        [HttpPut("UpdateCart")]
         public async Task<IActionResult> UpdateCartItem([FromBody] UpdateCartItemDto dto)
         {
             var result = await _cartService.UpdateCartItemAsync(dto);
@@ -44,7 +44,7 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("item/{cartItemId}")]
+        [HttpDelete("Delete/{cartItemId}")]
         public async Task<IActionResult> RemoveFromCart(Guid cartItemId)
         {
             var result = await _cartService.RemoveFromCartAsync(cartItemId);
