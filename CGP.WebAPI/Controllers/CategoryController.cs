@@ -50,7 +50,7 @@ namespace CGP.WebAPI.Controllers
 
             if (await _categoryService.GetCategoryByName(CategoryCreate.CategoryName) != null)
             {
-                ModelState.AddModelError("", "Category already exists");
+                ModelState.AddModelError("", "Danh mục đã tồn tại.");
                 return StatusCode(422, ModelState);
             }
 
@@ -100,7 +100,7 @@ namespace CGP.WebAPI.Controllers
             }
             catch
             {
-                return NotFound("This category is not exist!!!");
+                return NotFound("Danh mục này không tồn tại!!!");
             }
 
             var result = await _categoryService.Delete(id);

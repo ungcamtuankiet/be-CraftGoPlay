@@ -83,7 +83,7 @@ namespace CGP.WebAPI.Controllers
                 return BadRequest(new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "Invalid craft village ID."
+                    Message = "Mã làng nghề không hợp lệ."
                 });
             }
 
@@ -92,7 +92,7 @@ namespace CGP.WebAPI.Controllers
                 return BadRequest(new Result<CraftVillage>
                 {
                     Error = 1,
-                    Message = "The ID in the DTO does not match the provided ID."
+                    Message = "Mã trong DTO không khớp với Mã đã cung cấp."
                 });
             }
 
@@ -108,7 +108,7 @@ namespace CGP.WebAPI.Controllers
             var result = await _craftVillageService.UpdateCraftVillage(id, craftVillage);
             if (result.Error != 0)
             {
-                return result.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
+                return result.Message.Contains("không tìm thấy", StringComparison.OrdinalIgnoreCase)
                     ? NotFound(result)
                     : BadRequest(result);
             }
@@ -131,14 +131,14 @@ namespace CGP.WebAPI.Controllers
                 return BadRequest(new Result<bool>
                 {
                     Error = 1,
-                    Message = "Invalid craft village ID."
+                    Message = "Mã làng nghề không hợp lệ."
                 });
             }
 
             var result = await _craftVillageService.DeleteCraftVillage(id);
             if (result.Error != 0)
             {
-                return result.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
+                return result.Message.Contains("không tìm thấy", StringComparison.OrdinalIgnoreCase)
                     ? NotFound(result)
                     : BadRequest(result);
             }

@@ -66,20 +66,20 @@ namespace CGP.Application.Services
 
                 if (user == null)
                 {
-                    throw new KeyNotFoundException("Invalid email or account does not exist.");
+                    throw new KeyNotFoundException("Email sai hoặc tài khoản không tồn tại.");
                 }
 
                 if (!user.IsVerified)
                 {
-                    throw new InvalidOperationException("Account is not activated. Please verify your email.");
+                    throw new InvalidOperationException("Tài khoản chưa được kích hoạt. Vui lòng xác nhận email.");
                 }
                 if (user.Status.ToString() != "Active")
                 {
-                    throw new InvalidOperationException("Your account has been lock. Contact to website to solve it.");
+                    throw new InvalidOperationException("Tài khoản đã bị khóa. Vui lòng liên hệ với trang web để được giải quyết.");
                 }
                 if (!BCrypt.Net.BCrypt.Verify(loginDTO.PasswordHash, user.PasswordHash))
                 {
-                    throw new UnauthorizedAccessException("Invalid password.");
+                    throw new UnauthorizedAccessException("Mật khẩu sai.");
                 }
 
                 // Generate JWT token
@@ -89,22 +89,22 @@ namespace CGP.Application.Services
             catch (KeyNotFoundException ex)
             {
                 // Handle cases where the user is not found
-                throw new ApplicationException("Invalid email or account does not exist.", ex);
+                throw new ApplicationException("Email sai hoặc tài khoản không tồn tại.", ex);
             }
             catch (InvalidOperationException ex)
             {
                 // Handle cases where the account is not verified
-                throw new ApplicationException("Account is not activated. Please verify your email.", ex);
+                throw new ApplicationException("Tài khoản chưa được kích hoạt. Vui lòng xác nhận email.", ex);
             }
             catch (UnauthorizedAccessException ex)
             {
                 // Handle cases where the password is invalid
-                throw new ApplicationException("Invalid password.", ex);
+                throw new ApplicationException("Mật khẩu sai.", ex);
             }
             catch (Exception ex)
             {
                 // General exception handling
-                throw new ApplicationException("An error occurred during login.", ex);
+                throw new ApplicationException("Xảy ra lỗi trong quá trình đăng nhập.", ex);
             }
         }
 
@@ -157,7 +157,7 @@ namespace CGP.Application.Services
                     return new Result<object>
                     {
                         Error = 1,
-                        Message = "Email already exist!",
+                        Message = "Email không tồn tại.",
                         Data = null
                     };
                 }
@@ -181,24 +181,24 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 0,
-                    Message = "Registration successful. Please check your email for the OTP. ",
+                    Message = "Đăng ký tài khoản thành công. Vui lòng kiểm tra email để lấy mã OPT. ",
                     Data = null
                 };
             }
             catch (ArgumentNullException ex)
             {
                 // Handle cases where required information is missing
-                throw new ApplicationException("Missing required registration information.", ex);
+                throw new ApplicationException("Vui lòng điền các thông tin cần thiết.", ex);
             }
             catch (InvalidOperationException ex)
             {
                 // Handle cases where an operation is invalid, such as duplicate user registration
-                throw new ApplicationException("Invalid operation during user registration.", ex);
+                throw new ApplicationException("Thao tác không hợp lệ trong quá trình đăng ký người dùng.", ex);
             }
             catch (Exception ex)
             {
                 // General exception handling
-                throw new ApplicationException("An error occurred while registering the user.", ex);
+                throw new ApplicationException("Xảy ra lỗi trong quá trình đăng ký.", ex);
             }
         }
 
@@ -212,7 +212,7 @@ namespace CGP.Application.Services
             catch (Exception ex)
             {
                 // Handle potential exceptions such as token not found
-                throw new ApplicationException("An error occurred while retrieving the user by verification token.", ex);
+                throw new ApplicationException("Đã xảy ra lỗi khi truy xuất người dùng bằng mã thông báo xác minh.", ex);
             }
         }
 
@@ -273,7 +273,7 @@ namespace CGP.Application.Services
             {
                 var byteArray = new byte[4];
                 rng.GetBytes(byteArray);
-                var otp = BitConverter.ToUInt32(byteArray, 0) % 1000000; // Generate a 6-digit OTP
+                var otp = BitConverter.ToUInt32(byteArray, 0) % 1000000;
                 return otp.ToString("D6");
             }
         }
@@ -304,12 +304,12 @@ namespace CGP.Application.Services
             catch (KeyNotFoundException ex)
             {
                 // Handle cases where the user is not found
-                throw new ApplicationException("User not found for OTP verification.", ex);
+                throw new ApplicationException("Không tìm thấy người dùng để xác minh OTP.", ex);
             }
             catch (Exception ex)
             {
                 // General exception handling
-                throw new ApplicationException("An error occurred while verifying the OTP.", ex);
+                throw new ApplicationException("Đã xảy ra lỗi khi xác minh OTP.", ex);
             }
         }
 
@@ -339,17 +339,17 @@ namespace CGP.Application.Services
 
                 if (user == null || !BCrypt.Net.BCrypt.Verify(changePasswordDto.OldPassword, user.PasswordHash))
                 {
-                    throw new ArgumentException("Invalid old password.");
+                    throw new ArgumentException("Mật khẩu sai.");
                 }
 
                 if (changePasswordDto.NewPassword == changePasswordDto.OldPassword)
                 {
-                    throw new InvalidOperationException("New password cannot be the same as the old password.");
+                    throw new InvalidOperationException("Mật khẩu mới không được phép giống với mật khẩu cũ.");
                 }
 
                 if (!ValidatePassword(changePasswordDto.NewPassword))
                 {
-                    throw new ArgumentException("New password must contain at least one uppercase letter and one special character.");
+                    throw new ArgumentException("Mật khẩu mới phải chứa ít nhất một chữ cái viết hoa và một ký tự đặc biệt.");
                 }
 
                 user.PasswordHash = HashPassword(changePasswordDto.NewPassword);
@@ -358,17 +358,17 @@ namespace CGP.Application.Services
             catch (ArgumentException ex)
             {
                 // Handle cases where the provided password details are invalid
-                throw new ApplicationException("Password change failed due to invalid input.", ex);
+                throw new ApplicationException("Thay đổi mật khẩu không thành công do nhập dữ liệu không hợp lệ.", ex);
             }
             catch (InvalidOperationException ex)
             {
                 // Handle cases where the new password is the same as the old password
-                throw new ApplicationException("Password change failed due to operational constraints.", ex);
+                throw new ApplicationException("Không thể thay đổi mật khẩu do hạn chế về mặt hoạt động.", ex);
             }
             catch (Exception ex)
             {
                 // General exception handling
-                throw new ApplicationException("An error occurred while changing the password.", ex);
+                throw new ApplicationException("Đã xảy ra lỗi khi thay đổi mật khẩu.", ex);
             }
         }
         public async Task<Authenticator> RefreshToken(string token)
@@ -421,7 +421,7 @@ namespace CGP.Application.Services
 
                 if (user == null || !user.IsVerified)
                 {
-                    throw new KeyNotFoundException("User not found or not activated.");
+                    throw new KeyNotFoundException("Người dùng không tìm thấy hoặc chưa được kích hoạt.");
                 }
 
                 var token = GenerateResetToken();
@@ -435,21 +435,21 @@ namespace CGP.Application.Services
                 await _emailService.SendEmailAsync(new EmailDTO
                 {
                     To = user.Email,
-                    Subject = "Password Reset Request",
+                    Subject = "Yêu cầu đặt lại mật khẩu",
                     //Body = $"Please reset your password by clicking on the following link: <a href='{resetLink}'>Reset Password</a>" -- FRONT-END ONLY
 
-                    Body = @$"Your token for resetting password is: {token}"
+                    Body = @$"Mã token của bạn để đặt lại mật khẩu là: {token}"
                 });
             }
             catch (KeyNotFoundException ex)
             {
                 // Handle cases where the user is not found or not activated
-                throw new ApplicationException("Password reset request failed due to user not found or not activated.", ex);
+                throw new ApplicationException("Yêu cầu đặt lại mật khẩu không thành công do không tìm thấy người dùng hoặc không được kích hoạt.", ex);
             }
             catch (Exception ex)
             {
                 // General exception handling
-                throw new ApplicationException("An error occurred while requesting the password reset.", ex);
+                throw new ApplicationException("Đã xảy ra lỗi khi yêu cầu đặt lại mật khẩu.", ex);
             }
         }
         public async Task ResetPasswordAsync(ResetPasswordDTO resetPasswordDto)
@@ -465,7 +465,7 @@ namespace CGP.Application.Services
 
                 if (!ValidatePassword(resetPasswordDto.NewPassword))
                 {
-                    throw new ArgumentException("New password must contain at least one uppercase letter, one special character, and be at least 6 characters long.");
+                    throw new ArgumentException("Mật khẩu mới phải chứa ít nhất một chữ cái viết hoa, một ký tự đặc biệt và dài ít nhất 6 ký tự.");
                 }
 
                 user.PasswordHash = HashPassword(resetPasswordDto.NewPassword);
@@ -477,12 +477,12 @@ namespace CGP.Application.Services
             catch (ArgumentException ex)
             {
                 // Handle cases where the token is invalid or the new password does not meet requirements
-                throw new ApplicationException("Password reset failed due to invalid input.", ex);
+                throw new ApplicationException("Đặt lại mật khẩu không thành công do nhập không hợp lệ.", ex);
             }
             catch (Exception ex)
             {
                 // General exception handling
-                throw new ApplicationException("An error occurred while resetting the password.", ex);
+                throw new ApplicationException("Đã xảy ra lỗi khi đặt lại mật khẩu.", ex);
             }
         }
         public async Task<string> GetIdFromToken()

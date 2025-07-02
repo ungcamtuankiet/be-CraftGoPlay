@@ -63,7 +63,7 @@ namespace CGP.Application.Services
             var user = await _userRepository.GetUserById(id);
             if (user == null)
             {
-                throw new Exception("User is not exist!");
+                throw new Exception("Người dùng không tồn tại!");
             }
 
             UserDTO userDto = new()
@@ -93,7 +93,7 @@ namespace CGP.Application.Services
                 return new Result<UserDTO>() { Error = 1, Message = "Invalid token", Data = null };
             var userId = Guid.Parse(jwtToken.Claims.First(claim => claim.Type == "id").Value);
             var result = _mapper.Map<UserDTO>(await _userRepository.GetAllUserById(userId));
-            return new Result<UserDTO>() { Error = 0, Message = "Get Information Successfully", Data = result };
+            return new Result<UserDTO>() { Error = 0, Message = "Lấy thông tin người dùng thành công", Data = result };
         }
 
         public async Task<Result<List<ViewAddressDTO>>> GetListAddressByUserId(Guid userId)
@@ -104,7 +104,7 @@ namespace CGP.Application.Services
                 return new Result<List<ViewAddressDTO>>()
                 {
                     Error = 1,
-                    Message = "User not found",
+                    Message = "Danh sách địa chỉ trống.",
                     Data = null
                 };
             }
@@ -114,7 +114,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewAddressDTO>>()
             {
                 Error = 0,
-                Message = "Get List Address Successfully",
+                Message = "Lấy danh sách địa chỉ của người dùng thành công.",
                 Data = result
             };
         }
@@ -127,7 +127,7 @@ namespace CGP.Application.Services
             return new Result<object>()
             {
                 Error = 0,
-                Message = "Add new address successfully",
+                Message = "Thêm địa chỉ thành công.",
                 Data = _mapper.Map<ViewAddressDTO>(address)
             };
         }
@@ -140,7 +140,7 @@ namespace CGP.Application.Services
                 return new Result<object>()
                 {
                     Error = 1,
-                    Message = "Address not found",
+                    Message = "Địa chỉ không tồn tại!",
                     Data = null
                 };
             }
@@ -151,7 +151,7 @@ namespace CGP.Application.Services
             return new Result<object>()
             {
                 Error = 0,
-                Message = "Update address successfully",
+                Message = "Cập nhật địa chỉ thành công.",
                 Data = _mapper.Map<ViewAddressDTO>(getUser)
             };
         }
@@ -164,7 +164,7 @@ namespace CGP.Application.Services
                 return new Result<object>()
                 {
                     Error = 1,
-                    Message = "Address not found",
+                    Message = "Địa chỉ không tồn tại!",
                     Data = null
                 };
             }
@@ -172,7 +172,7 @@ namespace CGP.Application.Services
             return new Result<object>()
             {
                 Error = 0,
-                Message = "Delete address successfully",
+                Message = "Xóa địa chỉ thành công.",
                 Data = null
             };
         }

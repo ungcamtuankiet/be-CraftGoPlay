@@ -30,7 +30,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewMeterialDTO>>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh sách vật liệu thành công.",
                 Data = result
             };
         }
@@ -43,7 +43,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Meterial created successfully",
+                Message = "Tạo vật liệu thành công.",
                 Data = _mapper.Map<ViewMeterialDTO>(meterial)
             };
         }
@@ -56,7 +56,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Meterial not found",
+                    Message = "Vật liệu không được tìm thấy.",
                     Data = null
                 };
             }
@@ -65,7 +65,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Meterial created successfully",
+                Message = "Cập nhật thông tin vật liệu thành công.",
                 Data = _mapper.Map<ViewMeterialDTO>(request)
             };
         }
@@ -78,7 +78,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Meterial not found",
+                    Message = "Vật liệu không được tìm thấy.",
                     Data = null
                 };
             }
@@ -86,7 +86,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Meterial deleted successfully",
+                Message = "Xóa vật liệu thành công.",
                 Data = null
             };
         }

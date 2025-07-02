@@ -34,7 +34,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewRequestDTO>>
             {
                 Error = 0,
-                Message = "Get All Request successfully.",
+                Message = "Lấy danh sách yêu cầu thành công.",
                 Data = result,
             };
         }
@@ -54,7 +54,7 @@ namespace CGP.Application.Services
             return new Result<ViewRequestDTO>
             {
                 Error = 0,
-                Message = "Get Request successfully.",
+                Message = "Lấy yêu cầu thành công.",
                 Data = result.FirstOrDefault()
             };
         }
@@ -67,14 +67,14 @@ namespace CGP.Application.Services
                 return new Result<List<ViewRequestDTO>>
                 {
                     Error = 1,
-                    Message = "No requests found for the given status.",
+                    Message = "Không có yêu cầu nào được tìm thấy với trạng thái yêu cầu đó.",
                     Data = null
                 };
             }
             return new Result<List<ViewRequestDTO>>
             {
                 Error = 0,
-                Message = "Get Request by status successfully.",
+                Message = "Lấy danh sách yêu cầu thành công.",
                 Data = result
             };
         }
