@@ -11,7 +11,6 @@ namespace CGP.Contract.DTO.Favourite
     public class ViewFavouriteDTO
     {
         public Guid Id { get; set; }
-        public ProductDTO Product { get; set; }
-        public UserDTO User { get; set; }
+        public ViewProductFavouriteDTO Product { get; set; }
     }
 }

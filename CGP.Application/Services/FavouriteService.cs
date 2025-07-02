@@ -66,5 +66,16 @@ namespace CGP.Application.Services
                 Data = result
             };
         }
+
+        public async Task<Result<bool>> CheckFavourite(Guid userId, Guid productId)
+        {
+            var isFavorited = await _unitOfWork.favouriteRepository.CheckFavourite(userId, productId);
+            return new Result<bool>
+            {
+                Error = 0,
+                Message = "Kiểm tra thành công",
+                Data = isFavorited
+            };
+        }
     }
 }

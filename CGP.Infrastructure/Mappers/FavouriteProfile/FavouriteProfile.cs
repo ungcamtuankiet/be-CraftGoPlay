@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CGP.Contract.DTO.Favourite;
+using CGP.Contract.DTO.ProductImage;
 using CGP.Domain.Entities;
 using System;
 using System.Collections.Generic;

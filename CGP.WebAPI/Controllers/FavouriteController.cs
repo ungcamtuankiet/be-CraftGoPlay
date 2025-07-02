@@ -31,11 +31,15 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("CheckFavourite")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> CheckFavourite([FromQuery] Guid userId, [FromQuery] Guid productId)
+        {
+            var result = await _favouriteService.CheckFavourite(userId, productId);
+            return Ok(new { isFavorited = result.Data });
+        }
+
         [HttpPost("AddFavourite")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Result<Favourite>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result<Favourite>))]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> AddFavourite([FromBody] CreateFavouriteDTO favourite)
         {
@@ -44,10 +48,6 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpDelete("DeleteFavourite/{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(Result<Favourite>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result<Favourite>))]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> DeleteFavourite(Guid id)
         {
