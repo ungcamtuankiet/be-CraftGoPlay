@@ -33,6 +33,10 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ReverseMap();
 
             CreateMap<Product, ProductDTO>().ReverseMap();
+
+            CreateMap<Product, ViewProductFavouriteDTO>()
+                .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages))
+                .ReverseMap();
         }
     }
 }

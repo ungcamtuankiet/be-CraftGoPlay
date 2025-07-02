@@ -36,8 +36,15 @@ namespace CGP.Infrastructure.Repositories
             return await _context.Favourite
                 .Include(fa => fa.User)
                 .Include(fa => fa.Product)
+                .ThenInclude(fa => fa.ProductImages)
                 .Where(fa => fa.UserId == id)
                 .ToListAsync();
+        }
+
+        public async Task<bool> CheckFavourite(Guid userId, Guid productId)
+        {
+            return await _context.Favourite
+                .AnyAsync(f => f.UserId == userId && f.ProductId == productId);
         }
     }
 }
