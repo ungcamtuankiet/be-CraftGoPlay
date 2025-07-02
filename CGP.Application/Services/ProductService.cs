@@ -43,7 +43,7 @@ namespace CGP.Application.Services
                 return new Result<List<ViewProductDTO>>
                 {
                     Error = 0,
-                    Message = "Get successfully (from cache)",
+                    Message = "Lấy danh sách sản phẩm thành công (từ bộ nhớ đệm).",
                     Data = cachedData
                 };
             }
@@ -53,7 +53,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewProductDTO>>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh sách sản phẩm thành công.",
                 Data = result
             };
         }
@@ -66,7 +66,7 @@ namespace CGP.Application.Services
                 return new Result<ViewProductDTO>
                 {
                     Error = 1,
-                    Message = "Product not found.",
+                    Message = "Sản phẩm không tồn tại.",
                     Data = null
                 };
             }
@@ -75,7 +75,7 @@ namespace CGP.Application.Services
             return new Result<ViewProductDTO>
             {
                 Error = 0,
-                Message = "Get product by productId successfully",
+                Message = "Lấy sản phẩm bằng mã sản phẩm thành công.",
                 Data = result
             };
         }
@@ -91,7 +91,7 @@ namespace CGP.Application.Services
                 return new Result<List<ViewProductDTO>>
                 {
                     Error = 0,
-                    Message = "Get successfully (from cache)",
+                    Message = "Lấy danh sách sản phẩm thành công (từ bộ nhớ đệm).",
                     Data = cachedData
                 };
             }
@@ -101,7 +101,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewProductDTO>>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh sách sản phẩm thành công.",
                 Data = result
             };
         }
@@ -112,7 +112,7 @@ namespace CGP.Application.Services
             return new ResponseProductsStatus<List<ViewProductDTO>>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh sách sản phẩm của nghệ nhân thành công.",
                 Count = result.Count,
                 Data = result,
             };
@@ -128,7 +128,7 @@ namespace CGP.Application.Services
                 return new ResponseProductsStatus<List<ViewProductDTO>>
                 {
                     Error = 0,
-                    Message = "Get successfully (from cache)",
+                    Message = "Lấy danh sách sản phẩm bằng trạng thái sản phẩm thành công (từ bộ nhớ đệm).",
                     Count = cachedData.Count,
                     Data = cachedData,
                     
@@ -140,7 +140,7 @@ namespace CGP.Application.Services
             return new ResponseProductsStatus<List<ViewProductDTO>>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh sách sản phẩm bằng trạng thái sản phẩm thành công",
                 Count = result.Count,
                 Data = result,   
             };
@@ -178,7 +178,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Product created successfully",
+                Message = "Tạo sản phẩm thành công.",
                 Data = _mapper.Map<ViewProductDTO>(product)
             };
         }
@@ -191,7 +191,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Product not found",
+                    Message = "Sản phẩm không tồn tại.",
                     Data = null
                 };
             }
@@ -258,7 +258,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Product updated successfully",
+                Message = "Cập nhật sản phẩm thành công.",
                 Data = null
             };
         }
@@ -273,7 +273,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Product not found",
+                    Message = "Sản phẩm không tồn tại.",
                     Data = null
                 };
             }
@@ -289,7 +289,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Product deleted successfully",
+                Message = "Xóa sản phẩm thành công.",
                 Data = null
             };
         }

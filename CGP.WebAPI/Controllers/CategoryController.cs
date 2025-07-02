@@ -50,19 +50,19 @@ namespace CGP.WebAPI.Controllers
 
             if (await _categoryService.GetCategoryByName(CategoryCreate.CategoryName) != null)
             {
-                ModelState.AddModelError("", "Category already exists");
+                ModelState.AddModelError("", "Danh mục đã tồn tại.");
                 return StatusCode(422, ModelState);
             }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _categoryService.Create(_mapper.Map<Category>(CategoryCreate));
+            var result = await _categoryService.Create(CategoryCreate);
 
             return Ok(result);
         }
 
-        [HttpPost("CreateCategory/SubCategory")]
+/*        [HttpPost("CreateCategory/SubCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [Authorize(Policy = "StaffOrAdminPolicy")]
@@ -80,10 +80,10 @@ namespace CGP.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _categoryService.Create(_mapper.Map<Category>(CategoryCreate));
+            var result = await _categoryService.Create(CategoryCreate);
 
             return Ok(result);
-        }
+        }*/
 
         [HttpDelete("CategoryId/Delete")]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
@@ -100,7 +100,7 @@ namespace CGP.WebAPI.Controllers
             }
             catch
             {
-                return NotFound("This category is not exist!!!");
+                return NotFound("Danh mục này không tồn tại!!!");
             }
 
             var result = await _categoryService.Delete(id);

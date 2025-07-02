@@ -50,7 +50,7 @@ namespace CGP.WebAPI.Controllers
 
             if (await _subCategoryService.GetByName(CategorySubCreate.SubName) != null)
             {
-                ModelState.AddModelError("", "This sub category already exists");
+                ModelState.AddModelError("", "Danh mục con này đã tồn tại");
                 return StatusCode(422, ModelState);
             }
 
@@ -62,10 +62,10 @@ namespace CGP.WebAPI.Controllers
             }
             catch
             {
-                return BadRequest("There is no category has this id.");
+                return BadRequest("Không có danh mục nào có mã này.");
             }
 
-            var result = await _subCategoryService.AddSubCategoryToCategory(_mapper.Map<SubCategory>(CategorySubCreate), Id);
+            var result = await _subCategoryService.AddSubCategoryToCategory(CategorySubCreate, Id);
 
             return Ok(result);
         }
@@ -85,7 +85,7 @@ namespace CGP.WebAPI.Controllers
             }
             catch
             {
-                return NotFound("This sub category is not exist!!!");
+                return NotFound("Danh mục con này không tồn tại!!!");
             }
 
             var result = await _subCategoryService.Delete(SubcategoryId);

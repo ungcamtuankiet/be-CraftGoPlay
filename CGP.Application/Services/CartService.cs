@@ -30,14 +30,14 @@ namespace CGP.Application.Services
                 return new Result<CartDto>
                 {
                     Error = 1,
-                    Message = "Cart not found.",
+                    Message = "Giỏ hàng không tồn tại",
                     Data = null
                 };
 
             return new Result<CartDto>
             {
                 Error = 0,
-                Message = "Cart retrieved successfully.",
+                Message = "Lấy danh sách sản phầm trong giỏ hàng thành công.",
                 Data = _mapper.Map<CartDto>(cart)
             };
         }
@@ -61,7 +61,7 @@ namespace CGP.Application.Services
                 return new Result<CartDto>
                 {
                     Error = 1,
-                    Message = "Product not found.",
+                    Message = "Sản phẩm không tồn tại.",
                     Data = null
                 }
             ;
@@ -88,7 +88,7 @@ namespace CGP.Application.Services
             return new Result<CartDto>
             {
                 Error = 0,
-                Message = "Item added to cart successfully.",
+                Message = "Thêm sản phẩm vào giỏ hàng thành công.",
                 Data = _mapper.Map<CartDto>(cart)
             };
         }
@@ -113,7 +113,7 @@ namespace CGP.Application.Services
             return new Result<CartDto>
             {
                 Error = 0,
-                Message = "Cart item updated successfully.",
+                Message = "Cập nhật giỏ hàng thành công.",
                 Data = _mapper.Map<CartDto>(cart)
             };
         }
@@ -125,7 +125,7 @@ namespace CGP.Application.Services
                 return new Result<bool>
                 {
                     Error = 1,
-                    Message = "Cart item not found.",
+                    Message = "Sản phẩm không tồn tại.",
                     Data = false
                 };
 
@@ -134,7 +134,7 @@ namespace CGP.Application.Services
             return new Result<bool>
             {
                 Error = 0,
-                Message = "Cart item removed successfully.",
+                Message = "Xóa sản phẩm khỏi giỏ hàng thành công.",
                 Data = true
             };
         }

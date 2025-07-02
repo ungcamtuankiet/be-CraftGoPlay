@@ -56,6 +56,7 @@ namespace CGP.Infrastructure.Repositories
                 query = query.Where(x =>
                     x.Name.Contains(search) ||
                     x.Description.Contains(search) ||
+                    x.User.UserName.Contains(search) ||
                     x.SubCategory.SubName.Contains(search));
             }
             

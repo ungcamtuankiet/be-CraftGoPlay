@@ -16,7 +16,7 @@ namespace CGP.Application.Interfaces
         public Task<Category?> GetCategoryIdWithoutMap(Guid Id);
         public Task<Result<object>> UpdateCateWithNameAndStatus(Category category, string cateName, int Status);
         public Task<Category> GetCategoryByName(string name);
-        public Task<Result<object>> Create(Category category);
+        public Task<Result<object>> Create(CreateCategoryDTO request);
         public Task<Result<object>> Delete(Guid Id);
     }
 }

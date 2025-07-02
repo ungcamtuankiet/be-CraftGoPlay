@@ -17,11 +17,14 @@ namespace CGP.Application.Services
         private readonly ISubCategoryRepository _subCategoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper, ISubCategoryRepository subCategoryRepository)
+        private readonly ICloudinaryService _cloudinaryService; 
+        private static string FOLDER = "subCategories";
+        public SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper, ISubCategoryRepository subCategoryRepository, ICloudinaryService cloudinaryService)
         {
             _subCategoryRepository = subCategoryRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<SubCategory> GetByName(string Name)
@@ -31,20 +34,6 @@ namespace CGP.Application.Services
             return result;
         }
 
-        public async Task<Result<object>> Create(SubCategory subCategory)
-        {
-            await _subCategoryRepository.AddAsync(subCategory);
-
-            var result = await _unitOfWork.SaveChangeAsync();
-
-            return new Result<object>
-            {
-                Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Create category successfully" : "Create category fail",
-                Data = result,
-            };
-        }
-
         public async Task<Result<object>> GetById(Guid Id)
         {
             var result = _mapper.Map<ViewSubCategoryDTO>(await _unitOfWork.subCategoryRepository.GetSubCategoryById(Id));
@@ -52,7 +41,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy thông tin danh mục con thành công.",
                 Data = result,
             };
         }
@@ -64,7 +53,7 @@ namespace CGP.Application.Services
             return new Result<List<ViewSubCategoryDTO>>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh sách danh mục con thành công.",
                 Data = result,
             };
         }
@@ -78,7 +67,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Didn't find any category, please try again!",
+                    Message = "Không thể tìm thấy danh mục con, vui lòng thử lại!",
                     Data = null
                 };
             }
@@ -92,12 +81,29 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Update category successfully" : "Update category fail",
+                Message = result > 0 ? "Cập nhật danh mục con thành công." : "Cập nhật danh mục con thất bại.",
                 Data = subCategory
             };
         }
 
-        public async Task<Result<object>> AddSubCategoryToCategory(SubCategory subCategory, Guid CategoryId)
+        public async Task<Result<object>> Create(CreateSubCategoryDTO request)
+        {
+            var subCategory = _mapper.Map<SubCategory>(request);
+            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
+            subCategory.Image = uploadResult.SecureUrl.ToString();
+            await _subCategoryRepository.AddAsync(subCategory);
+
+            var result = await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = result > 0 ? 0 : 1,
+                Message = result > 0 ? "Tạo danh mục con thành công." : "Tạo danh mục con thất bại.",
+                Data = result,
+            };
+        }
+
+        public async Task<Result<object>> AddSubCategoryToCategory(CreateSubCategoryDTO request, Guid CategoryId)
         {
             var cateogry = await _unitOfWork.categoryRepository.GetCategoryById(CategoryId);
 
@@ -106,10 +112,14 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Didn't find any category, please try again!",
+                    Message = "Không thể tìm thấy danh mục con, vui lòng thử lại!",
                     Data = null
                 };
             }
+
+            var subCategory = _mapper.Map<SubCategory>(request);
+            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
+            subCategory.Image = uploadResult.SecureUrl.ToString();
 
             cateogry.SubCategories.Add(subCategory);
 
@@ -120,7 +130,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Create category successfully" : "Create category fail",
+                Message = result > 0 ? "Tạo danh mục con thành công" : "Tạo danh mục con thất bại",
                 Data = subCategory
             };
         }
@@ -132,7 +142,7 @@ namespace CGP.Application.Services
             return new Result<SubCategory>
             {
                 Error = 0,
-                Message = "Get successfully",
+                Message = "Lấy danh mục con thành công.",
                 Data = result,
             };
         }
@@ -146,7 +156,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Didn't find any category, please try again!",
+                    Message = "Không thể tìm thấy danh mục con, vui lòng thử lại!",
                     Data = null
                 };
             }
@@ -158,7 +168,7 @@ namespace CGP.Application.Services
             return new Result<object>
             {
                 Error = result > 0 ? 0 : 1,
-                Message = result > 0 ? "Delete category successfully" : "Delete category fail",
+                Message = result > 0 ? "Xóa danh mục con thành công." : "Xóa danh mục con thất bại.",
                 Data = subCategory,
             };
         }

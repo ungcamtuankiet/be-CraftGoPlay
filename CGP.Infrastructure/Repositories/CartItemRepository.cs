@@ -29,6 +29,8 @@ namespace CGP.Infrastructure.Repositories
         {
             return await _dbContext.CartItem
                 .Include(i => i.Cart) 
+                .Include(i => i.Product)
+                .ThenInclude(p => p.ProductImages)
                 .FirstOrDefaultAsync(ct => ct.Id == cartItemId);
         }
         public async Task AddCartItemAsync(CartItem item)

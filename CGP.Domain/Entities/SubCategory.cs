@@ -9,6 +9,7 @@ namespace CGP.Domain.Entities
 {
     public class SubCategory : BaseEntity
     {
+        public string Image { get; set; }
         public string SubName { get; set; }
         public CategoryStatusEnum Status { get; set; }
         public Guid CategoryId { get; set; }

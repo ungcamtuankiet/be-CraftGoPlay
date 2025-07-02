@@ -28,6 +28,9 @@ public class AppDbContext : DbContext
     public DbSet<Cart> Cart { get; set; }
     public DbSet<CartItem> CartItem { get; set; }
     public DbSet<Favourite> Favourite { get; set; }
+    public DbSet<Order> Order { get; set; }
+    public DbSet<OrderItem> OrderItem { get; set; }
+    public DbSet<Payment> Payment { get; set; }
     #endregion
 
 
@@ -249,7 +252,6 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         //Favourite
-
         modelBuilder.Entity<Favourite>()
             .HasOne(f => f.User)
             .WithMany(u => u.Favourites)
@@ -260,6 +262,39 @@ public class AppDbContext : DbContext
             .HasOne(f => f.Product)
             .WithMany(p => p.Favourites)
             .HasForeignKey(f => f.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //Order
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.User)
+            .WithMany()
+            .HasForeignKey(o => o.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Artisan)
+            .WithMany()
+            .HasForeignKey(o => o.ArtisanId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //OrderItem
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.Product)
+            .WithMany(p => p.OrderItems)
+            .HasForeignKey(oi => oi.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.Order)
+            .WithMany(o => o.OrderItems)
+            .HasForeignKey(oi => oi.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //Payment
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Payment)
+            .WithOne(p => p.Order)
+            .HasForeignKey<Payment>(p => p.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

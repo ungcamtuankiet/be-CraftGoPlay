@@ -83,7 +83,7 @@ namespace CGP.Infrastructure.Services
                     return new LoginGoogleDTO()
                     {
                         Code = 1,
-                        Error = "Account not exist please register new account",
+                        Error = "Tài khoản không tồn tại, vui lòng tới trang đăng ký tài khoản để đăng ký.",
                         AccessToken = null,
                         RefreshToken = null
                     };
@@ -93,11 +93,11 @@ namespace CGP.Infrastructure.Services
             }
             catch (InvalidJwtException ex)
             {
-                throw new ApplicationException("Invalid Google ID token.", ex);
+                throw new ApplicationException("Mã Token không hợp lệ.", ex);
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("An error occurred during Google authentication.", ex);
+                throw new ApplicationException("Đã xảy ra lỗi trong quá trình xác thực Google.", ex);
             }
         }
 
@@ -114,7 +114,7 @@ namespace CGP.Infrastructure.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Acount already exist",
+                    Message = "Tài khoản đã tồn tại!",
                     Data = null
                 };
             }
@@ -143,7 +143,7 @@ namespace CGP.Infrastructure.Services
             return new Result<object>
             {
                 Error = 0,
-                Message = "Register Successfully",
+                Message = "Đăng ký tài khoản bằng Google thành công.",
                 Data = null
             };
         }
@@ -205,7 +205,7 @@ namespace CGP.Infrastructure.Services
             return new LoginGoogleDTO
             {
                 Code = 0,
-                Error = "Login Successfully",
+                Error = "Đăng nhập thành công.",
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 RefreshToken = refreshToken
             };

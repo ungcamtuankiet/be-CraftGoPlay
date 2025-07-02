@@ -45,7 +45,7 @@ namespace CGP.WebAPI.Controllers
         {
             if(productId == Guid.Empty)
             {
-                return BadRequest(new { Error = 1, Message = "Invalid product ID." });
+                return BadRequest(new { Error = 1, Message = "Mã sản phẩm không hợp lệ." });
             }
             var result = await _productService.GetProductByProductId(productId);
             if (result.Error == 0)
@@ -61,7 +61,7 @@ namespace CGP.WebAPI.Controllers
         {
             if (artisanId == Guid.Empty)
             {
-                return BadRequest(new { Error = 1, Message = "Invalid artisan ID." });
+                return BadRequest(new { Error = 1, Message = "Mã nghệ nhân không hợp lệ." });
             }
             var result = await _productService.GetProductsByArtisanId(artisanId, pageIndex, pageSize, productStatus);
             if (result.Error == 0)
@@ -88,7 +88,7 @@ namespace CGP.WebAPI.Controllers
         {
             if (request == null || request.Images == null)
             {
-                return BadRequest(new { Error = 1, Message = "Invalid product data." });
+                return BadRequest(new { Error = 1, Message = "Dữ liệu sản phẩm không hợp lệ." });
             }
             var result = await _productService.CreateProduct(request);
             if (result.Error == 0)
@@ -116,7 +116,7 @@ namespace CGP.WebAPI.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(new { Error = 1, Message = "Invalid product ID." });
+                return BadRequest(new { Error = 1, Message = "Mã sản phẩm không hợp lệ." });
             }
             var result = await _productService.DeleteProduct(id);
             if (result.Error == 0)

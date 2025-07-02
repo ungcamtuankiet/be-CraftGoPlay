@@ -23,6 +23,9 @@ namespace CGP.Application
         ICartRepository cartRepository { get; }
         ICartItemRepository cartItemRepository { get; }
         IFavouriteRepository favouriteRepository { get; }
+        IPaymentRepository paymentRepository { get; }
+        IOrderItemRepository orderItemRepository { get; }
+        IOrderRepository orderRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }
