@@ -46,12 +46,11 @@ namespace CGP.WebAPI.Controllers
             var result = await _favouriteService.AddFavourite(favourite);
             return Ok(result);
         }
-
-        [HttpDelete("DeleteFavourite/{id}")]
+        [HttpDelete("DeleteFavourite")]
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> DeleteFavourite(Guid id)
+        public async Task<IActionResult> DeleteFavourite([FromQuery] Guid userId, [FromQuery] Guid productId)
         {
-            var result = await _favouriteService.DeleteFavourite(id);
+            var result = await _favouriteService.DeleteFavouriteByUserAndProduct(userId, productId);
             return Ok(result);
         }
     }
