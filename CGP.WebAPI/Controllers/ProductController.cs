@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Product;
+using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -86,6 +87,15 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Dữ liệu không hợp lệ.",
+                    Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                });
+            }
             if (request == null || request.Images == null)
             {
                 return BadRequest(new { Error = 1, Message = "Dữ liệu sản phẩm không hợp lệ." });
@@ -102,6 +112,15 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> UpdateProduct([FromForm] ProductUpdateDTO request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Dữ liệu không hợp lệ.",
+                    Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                });
+            }
             var result = await _productService.UpdateProduct(request);
             if (result.Error == 0)
             {

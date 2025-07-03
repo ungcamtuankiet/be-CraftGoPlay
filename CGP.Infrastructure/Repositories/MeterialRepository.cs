@@ -57,5 +57,12 @@ namespace CGP.Infrastructure.Repositories
             _context.Meterial.Update(meterial);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Meterial> GetMeterialByNameAsync(string materialName)
+        {
+            return await _context.Meterial
+                .Include(m => m.Products)
+                .FirstOrDefaultAsync(m => m.Name.Equals(materialName, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }
