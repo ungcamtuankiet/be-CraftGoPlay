@@ -20,24 +20,13 @@ namespace CGP.WebAPI.Controllers
             _artisanRequestService = artisanRequestService;
         }
 
+        // ======== GET ========
         [HttpGet("get-current-user")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {
             var getUser = await _userService.GetCurrentUserById();
             return Ok(getUser);
-        }
-
-        [HttpPost("SendRequestUpgradeToArtisan")]
-        [Authorize(Policy = "UserPolicy")]
-        public async Task<IActionResult> SendRequestUpgradeToArtisan([FromForm] SendRequestDTO request)
-        {
-            var result = await _artisanRequestService.SendRequestAsync(request);
-            if (result.Error != 0)
-            {
-                return BadRequest(result);
-            }
-            return Ok(result);
         }
 
         [HttpGet("CheckRequestSent/{userId}")]
@@ -61,11 +50,49 @@ namespace CGP.WebAPI.Controllers
             });
         }
 
+        [HttpGet("GetSentRequestByUserId/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetSentRequestByUserId(Guid userId)
+        {
+            var result = await _artisanRequestService.GetLatestRequestByUserId(userId);
+            if (result.Error != 0)
+            {
+                return NotFound(result);
+            }
+            return Ok(result);
+        }
+
+        // ======== POST ========
+        [HttpPost("SendRequestUpgradeToArtisan")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> SendRequestUpgradeToArtisan([FromForm] SendRequestDTO request)
+        {
+            var result = await _artisanRequestService.SendRequestAsync(request);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // ======== PUT ========
         [HttpPut("CancelRequest/{userId}")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CancelRequest(Guid userId)
         {
             var result = await _artisanRequestService.CancelRequestByArtisan(userId);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpPut("ResendRequest")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> ResendRequest([FromQuery] Guid userId, [FromQuery] Guid requestId)
+        {
+            var result = await _artisanRequestService.ResendRequest(userId, requestId);
             if (result.Error != 0)
             {
                 return BadRequest(result);

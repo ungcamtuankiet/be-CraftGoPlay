@@ -184,5 +184,67 @@ namespace CGP.Application.Services
                 Data = null
             };
         }
+
+        public async Task<Result<ViewRequestDTO>> GetLatestRequestByUserId(Guid userId)
+        {
+            var request = await _unitOfWork.artisanRequestRepository
+                .GetLatestRequestByUserId(userId);
+
+            if (request == null)
+            {
+                return new Result<ViewRequestDTO>
+                {
+                    Error = 1,
+                    Message = "Người dùng chưa gửi yêu cầu nào.",
+                    Data = null
+                };
+            }
+
+            return new Result<ViewRequestDTO>
+            {
+                Error = 0,
+                Message = "Lấy yêu cầu thành công.",
+                Data = _mapper.Map<ViewRequestDTO>(request)
+            };
+        }
+
+        public async Task<Result<object>> ResendRequest(Guid userId, Guid requestId)
+        {
+            var request = await _unitOfWork.artisanRequestRepository
+                .GetRequestByIdAndUserId(requestId, userId);
+
+            if (request == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy yêu cầu phù hợp để gửi lại.",
+                    Data = null
+                };
+            }
+
+            if (request.Status != RequestArtisanStatus.Cancelled)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Chỉ có thể gửi lại yêu cầu đã bị huỷ.",
+                    Data = null
+                };
+            }
+
+            request.Status = RequestArtisanStatus.Pending;
+            _unitOfWork.artisanRequestRepository.Update(request);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Gửi lại yêu cầu thành công.",
+                Data = null
+            };
+        }
+
+
     }
 }

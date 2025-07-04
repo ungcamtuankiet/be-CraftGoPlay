@@ -20,5 +20,7 @@ namespace CGP.Application.Interfaces
         public Task<Result<object>> CancelRequestByArtisan(Guid id);
         public Task<Result<object>> ApprovedRequest(Guid id);
         public Task<Result<object>> RejectedRequest(RejectRequestDTO reject);
+        public Task<Result<ViewRequestDTO>> GetLatestRequestByUserId(Guid userId);
+        public Task<Result<object>> ResendRequest(Guid userId, Guid requestId);
     }
 }

@@ -113,5 +113,18 @@ namespace CGP.Infrastructure.Repositories
             _dbContext.ArtisanRequest.Update(artisanRequest);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<ArtisanRequest?> GetLatestRequestByUserId(Guid userId)
+        {
+            return await _dbContext.ArtisanRequest
+                .Where(r => r.UserId == userId)
+                .OrderByDescending(r => r.Status)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<ArtisanRequest?> GetRequestByIdAndUserId(Guid requestId, Guid userId)
+        {
+            return await _dbContext.ArtisanRequest
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.UserId == userId);
+        }
     }
 }
