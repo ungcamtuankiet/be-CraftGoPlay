@@ -85,6 +85,14 @@ namespace CGP.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<ArtisanRequest?> GetPendingRequestByUserId(Guid userId)
+        {
+            return await _dbContext.ArtisanRequest
+                .Where(r => r.UserId == userId && r.Status == RequestArtisanStatus.Pending)
+                .FirstOrDefaultAsync();
+        }
+
+
         public async Task CancelRequestByArtisan(ArtisanRequest artisanRequest)
         {
             artisanRequest.Status = RequestArtisanStatus.Cancelled;

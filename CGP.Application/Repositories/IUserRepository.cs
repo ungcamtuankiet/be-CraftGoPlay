@@ -16,9 +16,7 @@ namespace CGP.Application.Repositories
 
         // Login Google
         Task<ApplicationUser?> FindByLoginAsync(string provider, string key);
-
-
-
+        
         Task UpdateAsync(ApplicationUser user);
         Task AddAsync(ApplicationUser user);
         Task<ApplicationUser> GetUserByEmail(string email);
