@@ -34,18 +34,22 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<object>> DeleteFavourite(Guid id)
+        public async Task<Result<object>> DeleteFavouriteByUserAndProduct(Guid userId, Guid productId)
         {
-            var getFavourite = await _unitOfWork.favouriteRepository.GetByIdAsync(id);
-            if (getFavourite == null) {
+            var favourite = await _unitOfWork.favouriteRepository
+                .GetFavouriteByUserAndProduct(userId, productId);
+
+            if (favourite == null)
+            {
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Sản phẩm không tồn tại",
+                    Message = "Sản phẩm không có trong danh sách yêu thích",
                     Data = null
                 };
-            };
-            await _unitOfWork.favouriteRepository.DeleteFavourite(getFavourite);
+            }
+
+            await _unitOfWork.favouriteRepository.DeleteFavouriteByUserAndProduct(userId, productId);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
             {

@@ -12,7 +12,7 @@ namespace CGP.Application.Interfaces
     {
         public Task<Result<List<ViewFavouriteDTO>>> GetFavourites(Guid id);
         public Task<Result<object>> AddFavourite(CreateFavouriteDTO request);
-        public Task<Result<object>> DeleteFavourite(Guid id);
+        public Task<Result<object>> DeleteFavouriteByUserAndProduct(Guid userId, Guid productId);
         public Task<Result<bool>> CheckFavourite(Guid userId, Guid productId);
     }
 }

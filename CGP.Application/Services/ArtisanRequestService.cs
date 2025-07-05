@@ -81,10 +81,26 @@ namespace CGP.Application.Services
 
         public async Task<Result<ViewRequestDTO>> SendRequestAsync(SendRequestDTO requestDto)
         {
+            // Kiểm tra xem user đã gửi request chưa
+            var existing = await _unitOfWork.artisanRequestRepository.GetPendingRequestByUserId(requestDto.UserId);
+            if (existing != null)
+            {
+                return new Result<ViewRequestDTO>
+                {
+                    Error = 1,
+                    Message = "Bạn đã gửi yêu cầu trước đó và đang chờ duyệt.",
+                    Data = null
+                };
+            }
+
             var request = _mapper.Map<ArtisanRequest>(requestDto);
+
             var image = await _cloudinaryService.UploadProductImage(requestDto.Image, FOLDER);
             request.Image = image.SecureUrl.ToString();
+
             await _unitOfWork.artisanRequestRepository.SendNewRequest(request);
+            await _unitOfWork.SaveChangeAsync(); // Đừng quên dòng này nếu bạn chưa có
+
             return new Result<ViewRequestDTO>
             {
                 Error = 0,
@@ -92,6 +108,12 @@ namespace CGP.Application.Services
                 Data = _mapper.Map<ViewRequestDTO>(request)
             };
         }
+
+        public async Task<ArtisanRequest?> GetPendingRequestByUserId(Guid userId)
+        {
+            return await _unitOfWork.artisanRequestRepository.GetPendingRequestByUserId(userId);
+        }
+
 
         public async Task<Result<object>> ApprovedRequest(Guid id)
         {
@@ -112,7 +134,7 @@ namespace CGP.Application.Services
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
             {
-                Error = 1,
+                Error = 0,
                 Message = "Chấp nhận yêu cầu thành công.",
                 Data = null
             };
@@ -120,7 +142,7 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> CancelRequestByArtisan(Guid id)
         {
-            var getRequest = await _unitOfWork.artisanRequestRepository.GetArtisanRequestById(id);
+            var getRequest = await _unitOfWork.artisanRequestRepository.GetPendingRequestByUserId(id);
             if (getRequest == null)
             {
                 return new Result<object>
@@ -133,7 +155,7 @@ namespace CGP.Application.Services
             await _unitOfWork.artisanRequestRepository.CancelRequestByArtisan(getRequest);
             return new Result<object>
             {
-                Error = 1,
+                Error = 0,
                 Message = "Hủy bỏ yêu cầu thành công.",
                 Data = null
             };
@@ -157,10 +179,72 @@ namespace CGP.Application.Services
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
             {
-                Error = 1,
+                Error = 0,
                 Message = "Từ chối yêu cầu thành công.",
                 Data = null
             };
         }
+
+        public async Task<Result<ViewRequestDTO>> GetLatestRequestByUserId(Guid userId)
+        {
+            var request = await _unitOfWork.artisanRequestRepository
+                .GetLatestRequestByUserId(userId);
+
+            if (request == null)
+            {
+                return new Result<ViewRequestDTO>
+                {
+                    Error = 1,
+                    Message = "Người dùng chưa gửi yêu cầu nào.",
+                    Data = null
+                };
+            }
+
+            return new Result<ViewRequestDTO>
+            {
+                Error = 0,
+                Message = "Lấy yêu cầu thành công.",
+                Data = _mapper.Map<ViewRequestDTO>(request)
+            };
+        }
+
+        public async Task<Result<object>> ResendRequest(Guid userId, Guid requestId)
+        {
+            var request = await _unitOfWork.artisanRequestRepository
+                .GetRequestByIdAndUserId(requestId, userId);
+
+            if (request == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy yêu cầu phù hợp để gửi lại.",
+                    Data = null
+                };
+            }
+
+            if (request.Status != RequestArtisanStatus.Cancelled)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Chỉ có thể gửi lại yêu cầu đã bị huỷ.",
+                    Data = null
+                };
+            }
+
+            request.Status = RequestArtisanStatus.Pending;
+            _unitOfWork.artisanRequestRepository.Update(request);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Gửi lại yêu cầu thành công.",
+                Data = null
+            };
+        }
+
+
     }
 }

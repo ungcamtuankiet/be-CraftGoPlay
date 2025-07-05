@@ -20,6 +20,7 @@ namespace CGP.WebAPI.Controllers
             _artisanRequestService = artisanRequestService;
         }
 
+        // ======== GET ========
         [HttpGet("get-current-user")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
@@ -28,6 +29,40 @@ namespace CGP.WebAPI.Controllers
             return Ok(getUser);
         }
 
+        [HttpGet("CheckRequestSent/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> CheckAlreadySentRequest(Guid userId)
+        {
+            var existing = await _artisanRequestService.GetPendingRequestByUserId(userId);
+            if (existing != null)
+            {
+                return Ok(new
+                {
+                    isSent = true,
+                    message = "Bạn đã gửi yêu cầu và đang chờ duyệt."
+                });
+            }
+
+            return Ok(new
+            {
+                isSent = false,
+                message = "Bạn chưa gửi yêu cầu."
+            });
+        }
+
+        [HttpGet("GetSentRequestByUserId/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetSentRequestByUserId(Guid userId)
+        {
+            var result = await _artisanRequestService.GetLatestRequestByUserId(userId);
+            if (result.Error != 0)
+            {
+                return NotFound(result);
+            }
+            return Ok(result);
+        }
+
+        // ======== POST ========
         [HttpPost("SendRequestUpgradeToArtisan")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> SendRequestUpgradeToArtisan([FromForm] SendRequestDTO request)
@@ -40,11 +75,24 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPut("CancelRequest/{id}")]
-        [Authorize(Policy = "ArtisanPolicy")]
-        public async Task<IActionResult> CancelRequest(Guid id)
+        // ======== PUT ========
+        [HttpPut("CancelRequest/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> CancelRequest(Guid userId)
         {
-            var result = await _artisanRequestService.CancelRequestByArtisan(id);
+            var result = await _artisanRequestService.CancelRequestByArtisan(userId);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpPut("ResendRequest")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> ResendRequest([FromQuery] Guid userId, [FromQuery] Guid requestId)
+        {
+            var result = await _artisanRequestService.ResendRequest(userId, requestId);
             if (result.Error != 0)
             {
                 return BadRequest(result);

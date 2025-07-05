@@ -19,7 +19,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetAllRequest")]
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Policy = "StaffPolicy")]
         public async Task<IActionResult> GetAllRequest()
         {
             var result = await _artisanRequestService.GetAllRequestsAsync();
@@ -31,7 +31,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetRequestById/{id}")]
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Policy = "StaffPolicy")]
         public async Task<IActionResult> GetRequestById(Guid id)
         {
             var result = await _artisanRequestService.GetRequestByIdAsync(id);
@@ -43,7 +43,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetRequestByStatus")]
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Policy = "StaffPolicy")]
         public async Task<IActionResult> GetRequestByStatus([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] RequestArtisanStatus status = RequestArtisanStatus.Pending)
         {
             var result = await _artisanRequestService.GetRequestByStatus(pageIndex, pageSize, status);
@@ -55,7 +55,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("ApprovedRequest/{id}")]
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Policy = "StaffPolicy")]
         public async Task<IActionResult> ApprovedRequest(Guid id)
         {
             var result = await _artisanRequestService.ApprovedRequest(id);
@@ -67,7 +67,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("RejectedRequest")]
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Policy = "StaffPolicy")]
         public async Task<IActionResult> RejectedRequest(RejectRequestDTO reject)
         {
             var result = await _artisanRequestService.RejectedRequest(reject);

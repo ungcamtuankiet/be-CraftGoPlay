@@ -12,7 +12,8 @@ namespace CGP.Application.Repositories
     {
         public Task<List<Favourite>> GetFavouritesByUserId(Guid id);
         public Task AddFavourite(Favourite favourite);
-        public Task DeleteFavourite(Favourite favourite);
+        public Task<Favourite> GetFavouriteByUserAndProduct(Guid userId, Guid productId);
+        public Task DeleteFavouriteByUserAndProduct(Guid userId, Guid productId);
         public Task<bool> CheckFavourite(Guid userId, Guid productId);
     }
 }

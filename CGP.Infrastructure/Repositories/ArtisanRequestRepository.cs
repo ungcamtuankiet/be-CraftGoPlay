@@ -85,6 +85,14 @@ namespace CGP.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<ArtisanRequest?> GetPendingRequestByUserId(Guid userId)
+        {
+            return await _dbContext.ArtisanRequest
+                .Where(r => r.UserId == userId && r.Status == RequestArtisanStatus.Pending)
+                .FirstOrDefaultAsync();
+        }
+
+
         public async Task CancelRequestByArtisan(ArtisanRequest artisanRequest)
         {
             artisanRequest.Status = RequestArtisanStatus.Cancelled;
@@ -104,6 +112,19 @@ namespace CGP.Infrastructure.Repositories
             artisanRequest.Status = RequestArtisanStatus.Rejected;
             _dbContext.ArtisanRequest.Update(artisanRequest);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<ArtisanRequest?> GetLatestRequestByUserId(Guid userId)
+        {
+            return await _dbContext.ArtisanRequest
+                .Where(r => r.UserId == userId)
+                .OrderByDescending(r => r.Status)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<ArtisanRequest?> GetRequestByIdAndUserId(Guid requestId, Guid userId)
+        {
+            return await _dbContext.ArtisanRequest
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.UserId == userId);
         }
     }
 }

@@ -26,9 +26,19 @@ namespace CGP.Infrastructure.Repositories
             await _context.Favourite.AddAsync(favourite);
         }
 
-        public async Task DeleteFavourite(Favourite favourite)
+        public async Task<Favourite> GetFavouriteByUserAndProduct(Guid userId, Guid productId)
         {
-            _context.Favourite.Remove(favourite);
+            return await _context.Favourite
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
+        }
+
+        public async Task DeleteFavouriteByUserAndProduct(Guid userId, Guid productId)
+        {
+            var favourite = await GetFavouriteByUserAndProduct(userId, productId);
+            if (favourite != null)
+            {
+                _context.Favourite.Remove(favourite);
+            }
         }
 
         public async Task<List<Favourite>> GetFavouritesByUserId(Guid id)
