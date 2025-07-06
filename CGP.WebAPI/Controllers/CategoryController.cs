@@ -89,7 +89,7 @@ namespace CGP.WebAPI.Controllers
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(404, Type = typeof(Result<object>))]
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> DeleteCategory([FromQuery] string CategoryId)
         {
             Guid id;

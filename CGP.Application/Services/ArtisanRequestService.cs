@@ -118,7 +118,6 @@ namespace CGP.Application.Services
         public async Task<Result<object>> ApprovedRequest(Guid id)
         {
             var getRequest = await _unitOfWork.artisanRequestRepository.GetArtisanRequestById(id);
-            var getUser = await _unitOfWork.userRepository.GetUserById(getRequest.UserId);
             if (getRequest == null)
             {
                 return new Result<object>
@@ -128,6 +127,19 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
+
+            // ✅ Kiểm tra trạng thái phải là Pending
+            if (getRequest.Status != RequestArtisanStatus.Pending)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Chỉ có thể chấp nhận những yêu cầu đang chờ duyệt.",
+                    Data = null
+                };
+            }
+
+            var getUser = await _unitOfWork.userRepository.GetUserById(getRequest.UserId);
             await _unitOfWork.artisanRequestRepository.AcceptRequest(getRequest);
             getUser.RoleId = 3;
             await _unitOfWork.userRepository.UpdateAsync(getUser);
