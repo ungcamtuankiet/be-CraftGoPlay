@@ -62,28 +62,18 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-/*        [HttpPost("CreateCategory/SubCategory")]
-        [ProducesResponseType(204, Type = typeof(Result<object>))]
-        [ProducesResponseType(400, Type = typeof(Result<object>))]
-        [Authorize(Policy = "StaffOrAdminPolicy")]
-        public async Task<IActionResult> CreateCategoryAndSub([FromBody] CreateCategoryWithSubDTO CategoryCreate)
+        [HttpPut("UpdateCategory/{categoryId}")]
+        [Authorize(Policy = "AdminOrStaffPolicy")]
+        public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromForm] UpdateCategoryDTO updateCategoryDTO)
         {
-            if (CategoryCreate == null)
-                return BadRequest(ModelState);
-
-            if (await _categoryService.GetCategoryByName(CategoryCreate.CategoryName) != null)
+            var result = await _categoryService.UpdateCategory(categoryId, updateCategoryDTO);
+            if(result.Error != 0)
             {
-                ModelState.AddModelError("", "Category already exists");
-                return StatusCode(422, ModelState);
+                return BadRequest(result);
             }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _categoryService.Create(CategoryCreate);
-
             return Ok(result);
-        }*/
+        }
+
 
         [HttpDelete("CategoryId/Delete")]
         [ProducesResponseType(400, Type = typeof(Result<object>))]

@@ -129,5 +129,33 @@ namespace CGP.Application.Services
                 Data = result
             };
         }
+
+        public async Task<Result<object>> UpdateCategory(Guid id, UpdateCategoryDTO updateCategoryDTO)
+        {
+            var getCategory = await _categoryRepository.GetByIdAsync(id);
+            if(getCategory == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy danh mục nào, vui lòng thử lại!",
+                    Data = null
+                };
+            }
+            await _cloudinaryService.DeleteImageAsync(getCategory.Image);
+            var uploadResult = await _cloudinaryService.UploadProductImage(updateCategoryDTO.Image, FOLDER);
+            getCategory.Image = uploadResult.SecureUrl.ToString();
+            getCategory.CategoryName = updateCategoryDTO.CategoryName;
+            getCategory.CategoryStatus = updateCategoryDTO.CategoryStatus;
+            getCategory.ModificationDate = DateTime.UtcNow;
+            _unitOfWork.categoryRepository.Update(getCategory);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Cập nhật danh mục thành công.",
+                Data = getCategory
+            };
+        }
     }
 }

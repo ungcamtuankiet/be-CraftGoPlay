@@ -13,6 +13,7 @@ namespace CGP.Application.Interfaces
     {
         public Task<Result<List<ViewCategoryDTO>>> GetCategory();
         public Task<Result<ViewCategoryDTO>> GetCategoryIdWithMap(Guid Id);
+        public Task<Result<object>> UpdateCategory(Guid id, UpdateCategoryDTO updateCategoryDTO);
         public Task<Category?> GetCategoryIdWithoutMap(Guid Id);
         public Task<Result<object>> UpdateCateWithNameAndStatus(Category category, string cateName, int Status);
         public Task<Category> GetCategoryByName(string name);

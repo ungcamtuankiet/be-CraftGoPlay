@@ -1,4 +1,5 @@
 ﻿using CGP.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,9 @@ namespace CGP.Contract.DTO.Category
 {
     public class UpdateCategoryDTO
     {
-        public required string CategoryName { get; set; }
-        public required CategoryStatusEnum CategoryStatus { get; set; }
+        public string CategoryName { get; set; }
+        public IFormFile Image { get; set; }
+
+        public CategoryStatusEnum CategoryStatus { get; set; }
     }
 }
