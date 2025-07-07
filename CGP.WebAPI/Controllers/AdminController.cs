@@ -85,5 +85,17 @@ namespace CGP.WebAPI.Controllers
             }
             return BadRequest(result.Message);
         }
+
+        [HttpDelete("DeleteAccount/{id}")]
+        [Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> DeleteAccount(Guid id)
+        {
+            var result = await _userService.DeleteAccountAsync(id);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return NotFound(result.Message);
+        }
     }
 }

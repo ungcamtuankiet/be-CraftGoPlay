@@ -20,8 +20,8 @@ namespace CGP.Contract.DTO.User
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$", ErrorMessage = "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.")]
         public string? PasswordHash { get; set; }
 
-        [RegularExpression(@"^\d{4}-\d{2}-\d{2}$", ErrorMessage = "Ngày sinh phải đúng định dạng yyyy-MM-dd.")]
-        [SwaggerSchema(Description = "Ngày sinh định dạng yyyy-MM-dd")]
+        [DataType(DataType.Date)]
+        [SwaggerSchema(Format = "date", Description = "Ngày sinh định dạng yyyy-MM-dd")]
         public DateTime? DateOfBirth { get; set; }
 
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]

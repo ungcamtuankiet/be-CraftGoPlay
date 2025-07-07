@@ -18,6 +18,7 @@ namespace CGP.Application.Interfaces
         Task<Result<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status);
         Task<Result<object>> CreateNewAccountAsync(CreateNewAccountDTO createNewAccountDTO);
         Task<Result<object>> UpdateAccountAsync(UpdateAccountDTO updateAccountDTO);
+        Task<Result<object>> DeleteAccountAsync(Guid id);
         Task<ApplicationUser> GetByEmail(string email);
         Task UpdateUserAsync(ApplicationUser user);
         Task<UserDTO> GetUserById(Guid id);

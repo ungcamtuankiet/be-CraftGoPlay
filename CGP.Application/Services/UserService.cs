@@ -313,6 +313,29 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<object>> DeleteAccountAsync(Guid id)
+        {
+            var getUser = await _unitOfWork.userRepository.GetUserById(id);
+            if (getUser == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại.",
+                    Data = null
+                };
+            }
+            await _cloudinaryService.DeleteImageAsync(getUser.Thumbnail);
+            _unitOfWork.userRepository.Remove(getUser);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Xóa tài khoản thành công.",
+                Data = null
+            };
+        }
+
 
         private string HashPassword(string password)
         {
