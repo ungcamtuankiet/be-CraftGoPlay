@@ -234,6 +234,86 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<object>> UpdateAccountAsync(UpdateAccountDTO updateAccountDTO)
+        {
+            var getUser = await _unitOfWork.userRepository.GetUserById(updateAccountDTO.Id);
+            if (getUser == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại.",
+                    Data = null
+                };
+            }
+
+            // Kiểm tra Email trùng (trừ chính user này)
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.Email) && updateAccountDTO.Email != getUser.Email)
+            {
+                var checkEmail = await _unitOfWork.userRepository.GetUserByEmail(updateAccountDTO.Email);
+                if (checkEmail != null)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Email đã tồn tại.",
+                        Data = null
+                    };
+                }
+                getUser.Email = updateAccountDTO.Email;
+            }
+
+            // Kiểm tra số điện thoại trùng (trừ chính user này)
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.PhoneNumber) && updateAccountDTO.PhoneNumber != getUser.PhoneNumber)
+            {
+                var checkPhone = await _unitOfWork.userRepository.FindByPhoneNoAsync(updateAccountDTO.PhoneNumber); // <-- Hàm đúng
+                if (checkPhone != null)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Số điện thoại đã tồn tại.",
+                        Data = null
+                    };
+                }
+                getUser.PhoneNumber = updateAccountDTO.PhoneNumber;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.UserName))
+                getUser.UserName = updateAccountDTO.UserName;
+
+            if (updateAccountDTO.DateOfBirth.HasValue)
+                getUser.DateOfBirth = updateAccountDTO.DateOfBirth;
+
+            if (updateAccountDTO.Status != getUser.Status)
+                getUser.Status = updateAccountDTO.Status;
+
+            if (updateAccountDTO.RoleId != default)
+                getUser.RoleId = (int)updateAccountDTO.RoleId;
+
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.PasswordHash))
+                getUser.PasswordHash = HashPassword(updateAccountDTO.PasswordHash);
+
+            // ✅ Chỉ khi có ảnh mới thì mới cập nhật
+            if (updateAccountDTO.Thumbnail != null)
+            {
+                await _cloudinaryService.DeleteImageAsync(getUser.Thumbnail);
+                var uploadResult = await _cloudinaryService.UploadProductImage(updateAccountDTO.Thumbnail, FOLDER);
+                getUser.Thumbnail = uploadResult.SecureUrl.ToString();
+            }
+
+            await _unitOfWork.userRepository.UpdateAsync(getUser);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Cập nhật tài khoản thành công.",
+                Data = _mapper.Map<UserDTO>(getUser)
+            };
+        }
+
+
         private string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

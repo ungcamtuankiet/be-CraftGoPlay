@@ -35,7 +35,6 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> CreateNewAccount([FromForm] CreateNewAccountDTO createNewAccountDTO)
         {
-            var result = await _userService.CreateNewAccountAsync(createNewAccountDTO);
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
@@ -52,6 +51,34 @@ namespace CGP.WebAPI.Controllers
                     Data = errors
                 });
             }
+            var result = await _userService.CreateNewAccountAsync(createNewAccountDTO);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result.Message);
+        }
+
+        [HttpPut("UpdateAccount")]
+        [Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> UpdateAccount([FromForm] UpdateAccountDTO updateAccountDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(ms => ms.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Dữ liệu không hợp lệ.",
+                    Data = errors
+                });
+            }
+            var result = await _userService.UpdateAccountAsync(updateAccountDTO);
             if (result.Error == 0)
             {
                 return Ok(result);
