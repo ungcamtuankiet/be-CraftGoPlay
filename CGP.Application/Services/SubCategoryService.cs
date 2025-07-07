@@ -172,5 +172,43 @@ namespace CGP.Application.Services
                 Data = subCategory,
             };
         }
+
+        public async Task<Result<object>> UpdateSubCategoryAsync(Guid Id, UpdateSubCategoryDTO request)
+        {
+            var getSubCategory = await _subCategoryRepository.GetSubCategoryById(Id);
+            if (getSubCategory == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Không thể tìm thấy danh mục con, vui lòng thử lại!",
+                    Data = null
+                };
+            }
+            var getCategory = await _unitOfWork.categoryRepository.GetCategoryById(request.CategoryId);
+            if(getCategory == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Danh mục cha không tồn tại.",
+                    Data = null
+                };
+            }
+            await _cloudinaryService.DeleteImageAsync(getSubCategory.Image);
+            var uploadResult = await _cloudinaryService.UploadProductImage(request.Image, FOLDER);
+            getSubCategory.Image = uploadResult.SecureUrl.ToString();
+            getSubCategory.SubName = request.SubName;
+            getSubCategory.CategoryId = request.CategoryId;
+            getSubCategory.Status = request.Status;
+            _unitOfWork.subCategoryRepository.Update(getSubCategory);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Cập nhật danh mục con thành công.",
+                Data = getSubCategory
+            };
+        }
     }
 }

@@ -70,6 +70,18 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPut("UpdateSubCategory/{id}")]
+        [Authorize(Policy = "AdminOrStaffPolicy")]
+        public async Task<IActionResult> UpdateSubCategory(Guid id, [FromForm] UpdateSubCategoryDTO updateSubCategoryDTO)
+        {
+            var result = await _subCategoryService.UpdateSubCategoryAsync(id, updateSubCategoryDTO);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         [HttpDelete("SubCategoryId/Delete")]
         [ProducesResponseType(400, Type = typeof(Result<object>))]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
