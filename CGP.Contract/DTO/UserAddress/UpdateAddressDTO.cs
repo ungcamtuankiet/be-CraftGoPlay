@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGP.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,10 @@ namespace CGP.Contract.DTO.UserAddress
 {
     public class UpdateAddressDTO
     {
+        public string FullName { get; set; }
+        public string PhoneNumber { get; set; }
+        public TypeAddressEnum AddressType { get; set; }
+        public bool IsDefault { get; set; }
         public string FullAddress { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }

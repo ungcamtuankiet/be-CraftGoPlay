@@ -7,6 +7,7 @@ using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -21,7 +22,6 @@ namespace CGP.Application.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly IAuthRepository _authRepository;
         private readonly IEmailService _emailService;
@@ -31,12 +31,13 @@ namespace CGP.Application.Services
         private readonly IClaimsService _claimsService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICloudinaryService _cloudinaryService;
+        private static string FOLDER = "thumbnail";
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration,
+        public UserService(IConfiguration configuration,
             IAuthRepository authRepository, IEmailService emailService, IRedisService redisService,
-            TokenGenerators tokenGenerators, IHttpContextAccessor httpContextAccessor, IClaimsService claimsService, IMapper mapper, IUnitOfWork unitOfWork)
+            TokenGenerators tokenGenerators, IHttpContextAccessor httpContextAccessor, IClaimsService claimsService, IMapper mapper, IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService)
         {
-            _userRepository = userRepository;
             _configuration = configuration;
             _authRepository = authRepository;
             _emailService = emailService;
@@ -46,21 +47,34 @@ namespace CGP.Application.Services
             _claimsService = claimsService;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<IList<ApplicationUser>> GetALl()
         {
-            var getUser = await _userRepository.GetAllAsync();
+            var getUser = await _unitOfWork.userRepository.GetAllAsync();
             return getUser;
         }
+
+        public async Task<Result<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)
+        {
+            var getUser = _mapper.Map<List<UserDTO>>(await _unitOfWork.userRepository.GetAllAccountByStatusAsync(pageIndex, pageSize, status));
+            return new Result<List<UserDTO>>()
+            {
+                Error = 0,
+                Message = "Lấy danh sách người dùng thành công.",
+                Data = getUser
+            };
+        }
+
         public async Task<ApplicationUser> GetByEmail(string email)
         {
-            return await _userRepository.GetUserByEmail(email);
+            return await _unitOfWork.userRepository.GetUserByEmail(email);
         }
 
         public async Task<UserDTO> GetUserById(Guid id)
         {
-            var user = await _userRepository.GetUserById(id);
+            var user = await _unitOfWork.userRepository.GetUserById(id);
             if (user == null)
             {
                 throw new Exception("Người dùng không tồn tại!");
@@ -77,7 +91,7 @@ namespace CGP.Application.Services
 
         public async Task UpdateUserAsync(ApplicationUser user)
         {
-            await _userRepository.UpdateAsync(user);
+            await _unitOfWork.userRepository.UpdateAsync(user);
         }
 
         public async Task<Result<UserDTO>> GetCurrentUserById()
@@ -92,7 +106,7 @@ namespace CGP.Application.Services
             if (jwtToken == null)
                 return new Result<UserDTO>() { Error = 1, Message = "Invalid token", Data = null };
             var userId = Guid.Parse(jwtToken.Claims.First(claim => claim.Type == "id").Value);
-            var result = _mapper.Map<UserDTO>(await _userRepository.GetAllUserById(userId));
+            var result = _mapper.Map<UserDTO>(await _unitOfWork.userRepository.GetAllUserById(userId));
             return new Result<UserDTO>() { Error = 0, Message = "Lấy thông tin người dùng thành công", Data = result };
         }
 
@@ -180,6 +194,152 @@ namespace CGP.Application.Services
         public async Task<Result<object>> SendRequestUpgradeToArtisan()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Result<object>> CreateNewAccountAsync(CreateNewAccountDTO createNewAccountDTO)
+        {
+            var user = _mapper.Map<ApplicationUser>(createNewAccountDTO);
+            var checkEmail = await _unitOfWork.userRepository.GetUserByEmail(createNewAccountDTO.Email);
+            if (checkEmail != null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Email đã tồn tại.",
+                    Data = null
+                };
+            }
+
+            var checkPhoneNo = await _unitOfWork.userRepository.FindByEmail(createNewAccountDTO.PhoneNumber);
+            if (checkPhoneNo != null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Số điện thoại đã tồn tại.",
+                    Data = null
+                };
+            }
+
+            user.PasswordHash = HashPassword(createNewAccountDTO.PasswordHash);
+            var uploadResult = await _cloudinaryService.UploadProductImage(createNewAccountDTO.Thumbnail, FOLDER);
+            user.Thumbnail = uploadResult.SecureUrl.ToString();
+            await _unitOfWork.userRepository.AddAsync(user);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Tạo tài khoản thành công.",
+                Data = _mapper.Map<UserDTO>(user)
+            };
+        }
+
+        public async Task<Result<object>> UpdateAccountAsync(UpdateAccountDTO updateAccountDTO)
+        {
+            var getUser = await _unitOfWork.userRepository.GetUserById(updateAccountDTO.Id);
+            if (getUser == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại.",
+                    Data = null
+                };
+            }
+
+            // Kiểm tra Email trùng (trừ chính user này)
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.Email) && updateAccountDTO.Email != getUser.Email)
+            {
+                var checkEmail = await _unitOfWork.userRepository.GetUserByEmail(updateAccountDTO.Email);
+                if (checkEmail != null)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Email đã tồn tại.",
+                        Data = null
+                    };
+                }
+                getUser.Email = updateAccountDTO.Email;
+            }
+
+            // Kiểm tra số điện thoại trùng (trừ chính user này)
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.PhoneNumber) && updateAccountDTO.PhoneNumber != getUser.PhoneNumber)
+            {
+                var checkPhone = await _unitOfWork.userRepository.FindByPhoneNoAsync(updateAccountDTO.PhoneNumber); // <-- Hàm đúng
+                if (checkPhone != null)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Số điện thoại đã tồn tại.",
+                        Data = null
+                    };
+                }
+                getUser.PhoneNumber = updateAccountDTO.PhoneNumber;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.UserName))
+                getUser.UserName = updateAccountDTO.UserName;
+
+            if (updateAccountDTO.DateOfBirth.HasValue)
+                getUser.DateOfBirth = updateAccountDTO.DateOfBirth;
+
+            if (updateAccountDTO.Status != getUser.Status)
+                getUser.Status = updateAccountDTO.Status;
+
+            if (updateAccountDTO.RoleId != default)
+                getUser.RoleId = (int)updateAccountDTO.RoleId;
+
+            if (!string.IsNullOrWhiteSpace(updateAccountDTO.PasswordHash))
+                getUser.PasswordHash = HashPassword(updateAccountDTO.PasswordHash);
+
+            // ✅ Chỉ khi có ảnh mới thì mới cập nhật
+            if (updateAccountDTO.Thumbnail != null)
+            {
+                await _cloudinaryService.DeleteImageAsync(getUser.Thumbnail);
+                var uploadResult = await _cloudinaryService.UploadProductImage(updateAccountDTO.Thumbnail, FOLDER);
+                getUser.Thumbnail = uploadResult.SecureUrl.ToString();
+            }
+
+            await _unitOfWork.userRepository.UpdateAsync(getUser);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Cập nhật tài khoản thành công.",
+                Data = _mapper.Map<UserDTO>(getUser)
+            };
+        }
+
+        public async Task<Result<object>> DeleteAccountAsync(Guid id)
+        {
+            var getUser = await _unitOfWork.userRepository.GetUserById(id);
+            if (getUser == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại.",
+                    Data = null
+                };
+            }
+            await _cloudinaryService.DeleteImageAsync(getUser.Thumbnail);
+            _unitOfWork.userRepository.Remove(getUser);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Xóa tài khoản thành công.",
+                Data = null
+            };
+        }
+
+
+        private string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
     }
 }
