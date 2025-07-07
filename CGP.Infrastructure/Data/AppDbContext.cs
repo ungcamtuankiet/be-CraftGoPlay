@@ -207,6 +207,10 @@ public class AppDbContext : DbContext
             .WithMany(p => p.UserAddresses)
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+            e.Property(p => p.AddressType)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (TypeAddressEnum)Enum.Parse(typeof(TypeAddressEnum), v));
         });
 
         //ArtisanRequest

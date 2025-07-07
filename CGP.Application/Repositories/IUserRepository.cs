@@ -1,4 +1,5 @@
 ﻿using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using Google.Apis.Auth;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,9 @@ namespace CGP.Application.Repositories
     public interface IUserRepository : IGenericRepository<ApplicationUser>
     {
         Task<IList<ApplicationUser>> GetALl();
+        Task<IList<ApplicationUser>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status);
         Task<ApplicationUser?> FindByEmail(string email);
+        Task<ApplicationUser?> FindByPhoneNoAsync(string phoneNo);
 
         // Login Google
         Task<ApplicationUser?> FindByLoginAsync(string provider, string key);

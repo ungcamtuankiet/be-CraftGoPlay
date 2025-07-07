@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CGP.Infrastructure.Repositories
 {
@@ -38,6 +40,49 @@ namespace CGP.Infrastructure.Repositories
                 .Include(u => u.Wallet)
                 .Include(u => u.UserAddresses)
                 .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<IList<ApplicationUser>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)
+        {
+            var query = _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .AsQueryable();
+
+            if (status != null)
+            {
+                if (!string.IsNullOrWhiteSpace(status.ToString()))
+                {
+                    switch (status.ToString().ToLower())
+                    {
+                        case "active":
+                            query = query.Where(x => x.Status == StatusEnum.Active);
+                            break;
+                        case "pending":
+                            query = query.Where(x => x.Status == StatusEnum.Pending);
+                            break;
+                        case "inactive":
+                            query = query.Where(x => x.Status == StatusEnum.Inactive);
+                            break;
+                        case "reject":
+                            query = query.Where(x => x.Status == StatusEnum.Rejected);
+                            break;
+                        default:
+                            query = query.Where(p => p.Status == StatusEnum.Active);
+                            break;
+                    }
+                }
+                else
+                {
+                    query = query = query.Where(p => p.Status == status);
+                }
+            }
+            return await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task AddAsync(ApplicationUser user)
@@ -126,6 +171,16 @@ namespace CGP.Infrastructure.Repositories
                 .Include(u => u.UserAddresses)
             .Where(u => u.Provider == provider && u.ProviderKey == key)
             .FirstOrDefaultAsync();
+        }
+
+        public async Task<ApplicationUser?> FindByPhoneNoAsync(string phoneNo)
+        {
+            return await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.CraftVillage)
+                .Include(u => u.Wallet)
+                .Include(u => u.UserAddresses)
+                .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNo);
         }
     }
 }

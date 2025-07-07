@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.ArtisanRequest;
 using CGP.Contract.DTO.UserAddress;
+using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,6 @@ namespace CGP.WebAPI.Controllers
             _artisanRequestService = artisanRequestService;
         }
 
-        // ======== GET ========
         [HttpGet("get-current-user")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()

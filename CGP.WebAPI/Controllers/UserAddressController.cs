@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.UserAddress;
+using CGP.Contracts.Abstractions.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,16 +28,34 @@ namespace CGP.WebAPI.Controllers
 
         [HttpPost("AddNewAddress")]
         [Authorize]
-        public async Task<IActionResult> AddNewAddress([FromBody] AddNewAddressDTO userAddress)
+        public async Task<IActionResult> AddNewAddress([FromForm] AddNewAddressDTO userAddress)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Dữ liệu không hợp lệ.",
+                    Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                });
+            }
             var result = await _userService.AddNewAddress(userAddress);
             return Ok(result);
         }
 
         [HttpPatch("UpdateAddress/{addressId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateAddress(Guid addressId, [FromBody] UpdateAddressDTO userAddress)
+        public async Task<IActionResult> UpdateAddress(Guid addressId, [FromForm] UpdateAddressDTO userAddress)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Dữ liệu không hợp lệ.",
+                    Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                });
+            }
             var result = await _userService.UpdateAddress(userAddress, addressId);
             return Ok(result);
         }

@@ -57,5 +57,12 @@ namespace CGP.Infrastructure.Repositories
                 .Where(x => x.UserId == userId && !x.IsDeleted)
                 .ToListAsync();
         }
+
+        public Task<UserAddress?> GetDefaultAddressByUserId(Guid userId)
+        {
+            return _dbContext.UserAddress
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.IsDefault == true);
+        }
     }
 }

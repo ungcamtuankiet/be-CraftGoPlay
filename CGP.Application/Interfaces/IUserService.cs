@@ -3,6 +3,7 @@ using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace CGP.Application.Interfaces
     public interface IUserService
     {
         Task<IList<ApplicationUser>> GetALl();
+        Task<Result<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status);
+        Task<Result<object>> CreateNewAccountAsync(CreateNewAccountDTO createNewAccountDTO);
         Task<ApplicationUser> GetByEmail(string email);
         Task UpdateUserAsync(ApplicationUser user);
         Task<UserDTO> GetUserById(Guid id);
