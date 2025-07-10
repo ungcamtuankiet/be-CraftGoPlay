@@ -44,15 +44,13 @@ namespace CGP.Infrastructure.Repositories
 
         public async Task<IList<ApplicationUser>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)
         {
-            var query = _dbContext.User
+            var query =  _dbContext.User
                 .Include(u => u.Role)
                 .Include(u => u.CraftVillage)
                 .Include(u => u.Wallet)
                 .Include(u => u.UserAddresses)
                 .AsQueryable();
 
-            if (status != null)
-            {
                 if (!string.IsNullOrWhiteSpace(status.ToString()))
                 {
                     switch (status.ToString().ToLower())
@@ -78,7 +76,6 @@ namespace CGP.Infrastructure.Repositories
                 {
                     query = query = query.Where(p => p.Status == status);
                 }
-            }
             return await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)

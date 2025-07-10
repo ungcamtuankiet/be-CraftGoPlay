@@ -21,7 +21,7 @@ namespace CGP.WebAPI.Controllers
 
         [HttpGet("GetAllAccountByStatus")]
         [Authorize(Policy = "AdminOrStaffPolicy")]
-        public async Task<IActionResult> GetAllAccountByStatus([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] StatusEnum status = StatusEnum.Active)
+        public async Task<IActionResult> GetAllAccountByStatus([FromQuery]int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] StatusEnum status = StatusEnum.Active)
         {
             var result = await _userService.GetAllAccountByStatusAsync(pageIndex, pageSize, status);
             if (result.Error != 0)
