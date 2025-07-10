@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.ArtisanRequest;
+using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
 using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -76,6 +77,21 @@ namespace CGP.WebAPI.Controllers
         }
 
         // ======== PUT ========
+        [HttpPut("UpdateInfoUser")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> UpdateUserInfo([FromForm] UpdateInfoUserDTO updateDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Dữ liệu không hợp lệ.");
+
+            var result = await _userService.UpdateUserInfoAsync(updateDto);
+
+            if (result.Error != 0)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpPut("CancelRequest/{userId}")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CancelRequest(Guid userId)

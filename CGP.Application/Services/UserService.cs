@@ -341,5 +341,53 @@ namespace CGP.Application.Services
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
+
+        public async Task<Result<object>> UpdateUserInfoAsync(UpdateInfoUserDTO updateDto)
+        {
+            try
+            {
+                var user = await _unitOfWork.userRepository.GetUserById(updateDto.Id);
+
+                if (user == null)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Không tìm thấy người dùng.",
+                        Data = null
+                    };
+                }
+
+                user.UserName = updateDto.UserName ?? user.UserName;
+                user.Email = updateDto.Email ?? user.Email;
+                user.PhoneNumber = updateDto.PhoneNumber ?? user.PhoneNumber;
+                user.DateOfBirth = updateDto.DateOfBirth ?? user.DateOfBirth;
+
+                // Upload ảnh mới nếu có
+                if (updateDto.Thumbnail != null && updateDto.Thumbnail.Length > 0)
+                {
+                    var uploadResult = await _cloudinaryService.UploadProductImage(updateDto.Thumbnail, FOLDER);
+                    user.Thumbnail = uploadResult.SecureUrl.ToString();
+                }
+
+                await _unitOfWork.userRepository.UpdateAsync(user);
+
+                return new Result<object>
+                {
+                    Error = 0,
+                    Message = "Cập nhật thông tin người dùng thành công.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = $"Có lỗi xảy ra: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
     }
 }

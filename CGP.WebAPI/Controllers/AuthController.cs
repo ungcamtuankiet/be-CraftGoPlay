@@ -200,11 +200,11 @@ namespace CGP.WebAPI.Controllers
         /// - Người dùng cần xác thực OTP để kích hoạt tài khoản.
         /// 
         /// ### Yêu cầu dữ liệu:
-        /// | Trường         | Kiểu dữ liệu | Ràng buộc                           | Ví dụ             |
-        /// |----------------|--------------|-------------------------------------|-------------------|
-        /// | Username       | string       | 6-50 ký tự, không chứa ký tự đặc biệt | "user123"         |
-        /// | Email          | string       | Định dạng email hợp lệ              | "user@email.com"  |
-        /// | PhoneNo        | string       | Đúng 10 chữ số                      | "0987654321"      |
+        /// | Trường         | Kiểu dữ liệu | Ràng buộc                             | Ví dụ             |
+        /// |----------------|--------------|---------------------------------------|-------------------|
+        /// | UserName       | string       | 6-50 ký tự, không chứa ký tự đặc biệt | "user123"         |
+        /// | Email          | string       | Định dạng email hợp lệ                | "user@email.com"  |
+        /// | PhoneNo        | string       | Đúng 10 chữ số                        | "0987654321"      |
         /// | PasswordHash   | string       | 8-20 ký tự, gồm chữ hoa, thường, số và ký tự đặc biệt | "Pass@123" |
         /// 
         /// ### Ví dụ request:
