@@ -42,6 +42,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IFavouriteService, FavouriteService>();
             services.AddScoped<IPayoutService, PayoutService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<ICraftSkillService, CraftSkillService>();
 
             services.AddMemoryCache();
             //Repositories
@@ -61,6 +62,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<ICraftSkillRepository, CraftSkillRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>
