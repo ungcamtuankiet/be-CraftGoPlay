@@ -128,7 +128,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // ✅ Kiểm tra trạng thái phải là Pending
             if (getRequest.Status != RequestArtisanStatus.Pending)
             {
                 return new Result<object>
@@ -140,6 +139,7 @@ namespace CGP.Application.Services
             }
 
             var getUser = await _unitOfWork.userRepository.GetUserById(getRequest.UserId);
+            getUser.CraftVillage_Id = getRequest.CraftVillageId;
             await _unitOfWork.artisanRequestRepository.AcceptRequest(getRequest);
             getUser.RoleId = 3;
             await _unitOfWork.userRepository.UpdateAsync(getUser);

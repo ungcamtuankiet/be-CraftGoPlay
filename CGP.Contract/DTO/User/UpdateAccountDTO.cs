@@ -34,7 +34,7 @@ namespace CGP.Contract.DTO.User
         public string? Email { get; set; }
 
         [EnumDataType(typeof(StatusEnum), ErrorMessage = "Trạng thái không hợp lệ.")]
-        public StatusEnum? Status { get; set; } = StatusEnum.Active;
+        public StatusEnum Status { get; set; } = StatusEnum.Active;
 
         [EnumDataType(typeof(RoleEnum), ErrorMessage = "Role không hợp lệ.")]
         public RoleEnum? RoleId { get; set; }

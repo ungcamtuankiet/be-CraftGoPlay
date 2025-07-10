@@ -12,7 +12,7 @@ namespace CGP.Domain.Entities
         public string? Thumbnail { get; set; }
         public string Email { get; set; }
         public string? RefreshToken { get; set; }
-        public StatusEnum? Status { get; set; }
+        public StatusEnum Status { get; set; }
         public string? Otp { get; set; }
         public bool IsVerified { get; set; } = false;
         public DateTime? OtpExpiryTime { get; set; }
