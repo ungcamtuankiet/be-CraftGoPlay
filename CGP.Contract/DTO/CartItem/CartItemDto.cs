@@ -1,4 +1,6 @@
-﻿using CGP.Contract.DTO.ProductImage;
+﻿using CGP.Contract.DTO.Product;
+using CGP.Contract.DTO.ProductImage;
+using CGP.Contract.DTO.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +18,6 @@ namespace CGP.Contract.DTO.CartItem
         public int Quantity { get; set; }
         public decimal TotalPrice => UnitPrice * Quantity;
         public List<ProductImageDTO> ProductImages { get; set; } = new();
+        public ViewArtisanInfoCartitemDTO User { get; set; } = new();
     }
 }

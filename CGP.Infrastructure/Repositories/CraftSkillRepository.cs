@@ -31,6 +31,13 @@ namespace CGP.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<CraftSkill>> GetByIdsAsyncs(List<Guid> ids)
+        {
+            return await _dbContext.CraftSkill
+                .Where(m => ids.Contains(m.Id))
+                .ToListAsync();
+        }
+
         public async Task<CraftSkill> GetByNameAsync(string name)
         {
             return await _dbContext.CraftSkill

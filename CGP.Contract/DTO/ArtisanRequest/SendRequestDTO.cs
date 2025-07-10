@@ -14,5 +14,6 @@ namespace CGP.Contract.DTO.ArtisanRequest
         public Guid UserId { get; set; }
         public int YearsOfExperience { get; set; }
         public string Description { get; set; }
+        public List<Guid> CraftIds { get; set; }
     }
 }

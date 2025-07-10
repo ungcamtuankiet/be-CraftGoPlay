@@ -9,6 +9,6 @@ namespace CGP.Domain.Entities
     public class CraftSkill : BaseEntity
     {
         public string Name { get; set; }
-        public ICollection<ApplicationUser> Artisans { get; set; } = new List<ApplicationUser>();
+        public ICollection<ArtisanRequest> Artisans { get; set; } = new List<ArtisanRequest>();
     }
 }
