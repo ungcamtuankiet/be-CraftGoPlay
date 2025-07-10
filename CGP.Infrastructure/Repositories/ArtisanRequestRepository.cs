@@ -32,6 +32,7 @@ namespace CGP.Infrastructure.Repositories
             return await _dbContext.ArtisanRequest
                 .Include(r => r.User)
                 .Include(r => r.CraftVillages)
+                .Include(r => r.CraftSkills)
                 .ToListAsync();
         }
 
@@ -40,6 +41,7 @@ namespace CGP.Infrastructure.Repositories
             return await _dbContext.ArtisanRequest
                 .Include(r => r.User)
                 .Include(r => r.CraftVillages)
+                .Include(r => r.CraftSkills)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
@@ -48,6 +50,7 @@ namespace CGP.Infrastructure.Repositories
             var query =  _dbContext.ArtisanRequest
                 .Include(r => r.User)
                 .Include(r => r.CraftVillages)
+                .Include(r => r.CraftSkills)
                 .Where(r => r.Status == status);
 
             if (!string.IsNullOrWhiteSpace(status.ToString()))
@@ -88,6 +91,9 @@ namespace CGP.Infrastructure.Repositories
         public async Task<ArtisanRequest?> GetPendingRequestByUserId(Guid userId)
         {
             return await _dbContext.ArtisanRequest
+                .Include(r => r.User)
+                .Include(r => r.CraftVillages)
+                .Include(r => r.CraftSkills)
                 .Where(r => r.UserId == userId && r.Status == RequestArtisanStatus.Pending)
                 .FirstOrDefaultAsync();
         }
@@ -117,6 +123,9 @@ namespace CGP.Infrastructure.Repositories
         public async Task<ArtisanRequest?> GetLatestRequestByUserId(Guid userId)
         {
             return await _dbContext.ArtisanRequest
+                .Include(r => r.User)
+                .Include(r => r.CraftVillages)
+                .Include(r => r.CraftSkills)
                 .Where(r => r.UserId == userId)
                 .OrderByDescending(r => r.Status)
                 .FirstOrDefaultAsync();
@@ -124,6 +133,9 @@ namespace CGP.Infrastructure.Repositories
         public async Task<ArtisanRequest?> GetRequestByIdAndUserId(Guid requestId, Guid userId)
         {
             return await _dbContext.ArtisanRequest
+                .Include(r => r.User)
+                .Include(r => r.CraftVillages)
+                .Include(r => r.CraftSkills)
                 .FirstOrDefaultAsync(r => r.Id == requestId && r.UserId == userId);
         }
     }

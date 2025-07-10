@@ -21,5 +21,6 @@ namespace CGP.Domain.Entities
         public ApplicationUser User { get; set; }
         [ForeignKey("CraftVillageId")]
         public CraftVillage CraftVillages { get; set; }
+        public ICollection<CraftSkill> CraftSkills { get; set; } = new List<CraftSkill>();
     }
 }

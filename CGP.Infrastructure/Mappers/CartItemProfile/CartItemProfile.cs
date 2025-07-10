@@ -16,6 +16,7 @@ namespace CGP.Infrastructure.Mappers.CartItemProfile
             CreateMap<CartItem, CartItemDto>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
             .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.Product.ProductImages))
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.Product.User))
             .ReverseMap();
 
             CreateMap<AddCartItemDto, CartItem>()
