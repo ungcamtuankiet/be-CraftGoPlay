@@ -33,6 +33,7 @@ namespace CGP.Domain.Entities
         public Wallet Wallet { get; set; }
         public ArtisanRequest ArtisanRequest { get; set; }
         public ICollection<Product> Products { get; set; } = new List<Product>();
+        public ICollection<CraftSkill> CraftSkills { get; set; } = new List<CraftSkill>();
         public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
         public ICollection<Cart> Carts { get; set; } = new List<Cart>();
         public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();

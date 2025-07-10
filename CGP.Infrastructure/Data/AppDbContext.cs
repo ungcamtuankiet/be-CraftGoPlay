@@ -31,6 +31,7 @@ public class AppDbContext : DbContext
     public DbSet<Order> Order { get; set; }
     public DbSet<OrderItem> OrderItem { get; set; }
     public DbSet<Payment> Payment { get; set; }
+    public DbSet<CraftSkill> CraftSkill { get; set; }
     #endregion
 
 
@@ -294,5 +295,6 @@ public class AppDbContext : DbContext
             .WithOne(p => p.Order)
             .HasForeignKey<Payment>(p => p.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
+
     }
 }
