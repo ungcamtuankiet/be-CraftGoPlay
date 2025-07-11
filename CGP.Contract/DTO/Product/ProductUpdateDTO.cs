@@ -35,7 +35,7 @@ namespace CGP.Contract.DTO.Product
         [Required(ErrorMessage = "Artisan_id là bắt buộc.")]
         public Guid? Artisan_id { get; set; }
         public List<IFormFile>? ImagesToAdd { get; set; }
-        public List<Guid>? ImagesToMove { get; set; } = new();
+        public List<Guid>? ImagesToRemove { get; set; } = new();
         public List<Guid>? MeterialIdsToAdd { get; set; } = new();   
         public List<Guid>? MeterialIdsToRemove { get; set; } = new(); 
     }
