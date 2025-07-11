@@ -26,6 +26,7 @@ namespace CGP.Application
         IPaymentRepository paymentRepository { get; }
         IOrderItemRepository orderItemRepository { get; }
         IOrderRepository orderRepository { get; }
+        ICraftSkillRepository craftSkillRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

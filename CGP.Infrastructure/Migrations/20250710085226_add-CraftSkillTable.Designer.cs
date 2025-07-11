@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250710085226_add-CraftSkillTable")]
+    partial class addCraftSkillTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace CGP.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ArtisanRequestCraftSkill", b =>
+            modelBuilder.Entity("ApplicationUserCraftSkill", b =>
                 {
                     b.Property<Guid>("ArtisansId")
                         .HasColumnType("uniqueidentifier");
@@ -34,7 +37,7 @@ namespace CGP.Infrastructure.Migrations
 
                     b.HasIndex("CraftSkillsId");
 
-                    b.ToTable("ArtisanRequestCraftSkill");
+                    b.ToTable("ApplicationUserCraftSkill");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.ApplicationUser", b =>
@@ -133,7 +136,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8973),
+                            CreationDate = new DateTime(2025, 7, 10, 15, 52, 26, 69, DateTimeKind.Local).AddTicks(45),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -146,7 +149,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8993),
+                            CreationDate = new DateTime(2025, 7, 10, 15, 52, 26, 69, DateTimeKind.Local).AddTicks(64),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -159,7 +162,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8996),
+                            CreationDate = new DateTime(2025, 7, 10, 15, 52, 26, 69, DateTimeKind.Local).AddTicks(68),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -172,7 +175,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8999),
+                            CreationDate = new DateTime(2025, 7, 10, 15, 52, 26, 69, DateTimeKind.Local).AddTicks(114),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -1044,9 +1047,9 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("MeterialProduct");
                 });
 
-            modelBuilder.Entity("ArtisanRequestCraftSkill", b =>
+            modelBuilder.Entity("ApplicationUserCraftSkill", b =>
                 {
-                    b.HasOne("CGP.Domain.Entities.ArtisanRequest", null)
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("ArtisansId")
                         .OnDelete(DeleteBehavior.Cascade)

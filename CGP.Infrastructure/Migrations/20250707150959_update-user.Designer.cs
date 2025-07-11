@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250707150959_update-user")]
+    partial class updateuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace CGP.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ArtisanRequestCraftSkill", b =>
-                {
-                    b.Property<Guid>("ArtisansId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CraftSkillsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ArtisansId", "CraftSkillsId");
-
-                    b.HasIndex("CraftSkillsId");
-
-                    b.ToTable("ArtisanRequestCraftSkill");
-                });
 
             modelBuilder.Entity("CGP.Domain.Entities.ApplicationUser", b =>
                 {
@@ -133,7 +121,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8973),
+                            CreationDate = new DateTime(2025, 7, 7, 22, 9, 58, 505, DateTimeKind.Local).AddTicks(9044),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -146,7 +134,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8993),
+                            CreationDate = new DateTime(2025, 7, 7, 22, 9, 58, 505, DateTimeKind.Local).AddTicks(9066),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -159,7 +147,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8996),
+                            CreationDate = new DateTime(2025, 7, 7, 22, 9, 58, 505, DateTimeKind.Local).AddTicks(9070),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -172,7 +160,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 7, 10, 21, 16, 8, 410, DateTimeKind.Local).AddTicks(8999),
+                            CreationDate = new DateTime(2025, 7, 7, 22, 9, 58, 505, DateTimeKind.Local).AddTicks(9072),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -384,42 +372,6 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("Category", (string)null);
                 });
 
-            modelBuilder.Entity("CGP.Domain.Entities.CraftSkill", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ModificationBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModificationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CraftSkill");
-                });
-
             modelBuilder.Entity("CGP.Domain.Entities.CraftVillage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -563,6 +515,9 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<Guid?>("ApplicationUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ArtisanId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -603,6 +558,8 @@ namespace CGP.Infrastructure.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
+                    b.HasIndex("ArtisanId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Order");
@@ -612,9 +569,6 @@ namespace CGP.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ArtisanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CreatedBy")
@@ -1044,21 +998,6 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("MeterialProduct");
                 });
 
-            modelBuilder.Entity("ArtisanRequestCraftSkill", b =>
-                {
-                    b.HasOne("CGP.Domain.Entities.ArtisanRequest", null)
-                        .WithMany()
-                        .HasForeignKey("ArtisansId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CGP.Domain.Entities.CraftSkill", null)
-                        .WithMany()
-                        .HasForeignKey("CraftSkillsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("CGP.Domain.Entities.ApplicationUser", b =>
                 {
                     b.HasOne("CGP.Domain.Entities.CraftVillage", "CraftVillage")
@@ -1151,11 +1090,19 @@ namespace CGP.Infrastructure.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("ApplicationUserId");
 
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "Artisan")
+                        .WithMany()
+                        .HasForeignKey("ArtisanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Artisan");
 
                     b.Navigation("User");
                 });

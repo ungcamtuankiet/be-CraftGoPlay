@@ -45,19 +45,19 @@ namespace CGP.Application.Services
 
             var orders = new List<Order>();
 
-            var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
-            foreach (var group in grouped)
+            if (paymentMethod == PaymentMethodEnum.Online)
             {
+                //Tạo 1 Order duy nhất
                 var order = new Order
                 {
                     UserId = userId,
-                    ArtisanId = group.Key,
-                    Status = paymentMethod == PaymentMethodEnum.Online ? OrderStatusEnum.WaitingForPayment : OrderStatusEnum.Pending,
+                    Status = OrderStatusEnum.WaitingForPayment,
                     PaymentMethod = paymentMethod,
                     CreationDate = DateTime.UtcNow,
-                    OrderItems = group.Select(i => new OrderItem
+                    OrderItems = selectedItems.Select(i => new OrderItem
                     {
                         ProductId = i.ProductId,
+                        ArtisanId = i.Product.Artisan_id,
                         Quantity = i.Quantity,
                         UnitPrice = i.UnitPrice
                     }).ToList()
@@ -66,9 +66,39 @@ namespace CGP.Application.Services
                 orders.Add(order);
                 await _unitOfWork.orderRepository.AddAsync(order);
 
-                foreach (var item in group)
+                foreach (var item in selectedItems)
                 {
                     item.IsDeleted = true;
+                }
+            }
+            else
+            {
+                // Với thanh toán tiền mặt, chia theo Artisan
+                var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
+                foreach (var group in grouped)
+                {
+                    var order = new Order
+                    {
+                        UserId = userId,
+                        Status = OrderStatusEnum.Pending,
+                        PaymentMethod = paymentMethod,
+                        CreationDate = DateTime.UtcNow,
+                        OrderItems = group.Select(i => new OrderItem
+                        {
+                            ProductId = i.ProductId,
+                            ArtisanId = i.Product.Artisan_id,
+                            Quantity = i.Quantity,
+                            UnitPrice = i.UnitPrice
+                        }).ToList()
+                    };
+                    order.TotalPrice = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                    orders.Add(order);
+                    await _unitOfWork.orderRepository.AddAsync(order);
+
+                    foreach (var item in group)
+                    {
+                        item.IsDeleted = true;
+                    }
                 }
             }
 
@@ -82,6 +112,7 @@ namespace CGP.Application.Services
                 Data = orderIds
             };
         }
+
 
         public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, CreateDirectOrderDto dto)
         {
@@ -97,7 +128,6 @@ namespace CGP.Application.Services
             var order = new Order
             {
                 UserId = userId,
-                ArtisanId = product.Artisan_id,
                 CreationDate = DateTime.UtcNow,
                 Status = dto.PaymentMethod == PaymentMethodEnum.Online ? OrderStatusEnum.WaitingForPayment : OrderStatusEnum.Pending,
                 PaymentMethod = dto.PaymentMethod,
@@ -106,6 +136,7 @@ namespace CGP.Application.Services
                 new OrderItem
                 {
                     ProductId = dto.ProductId,
+                    ArtisanId = product.Artisan_id,
                     Quantity = dto.Quantity,
                     UnitPrice = product.Price
                 }

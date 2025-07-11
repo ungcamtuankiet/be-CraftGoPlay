@@ -81,7 +81,6 @@ namespace CGP.Application.Services
 
         public async Task<Result<ViewRequestDTO>> SendRequestAsync(SendRequestDTO requestDto)
         {
-            // Kiểm tra xem user đã gửi request chưa
             var existing = await _unitOfWork.artisanRequestRepository.GetPendingRequestByUserId(requestDto.UserId);
             if (existing != null)
             {
@@ -97,9 +96,13 @@ namespace CGP.Application.Services
 
             var image = await _cloudinaryService.UploadProductImage(requestDto.Image, FOLDER);
             request.Image = image.SecureUrl.ToString();
-
+            if (requestDto.CraftIds != null && requestDto.CraftIds.Any())
+            {
+                var craftSkills = await _unitOfWork.craftSkillRepository.GetByIdsAsyncs(requestDto.CraftIds);
+                request.CraftSkills = craftSkills;
+            }
             await _unitOfWork.artisanRequestRepository.SendNewRequest(request);
-            await _unitOfWork.SaveChangeAsync(); // Đừng quên dòng này nếu bạn chưa có
+            await _unitOfWork.SaveChangeAsync();
 
             return new Result<ViewRequestDTO>
             {
@@ -128,7 +131,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // ✅ Kiểm tra trạng thái phải là Pending
             if (getRequest.Status != RequestArtisanStatus.Pending)
             {
                 return new Result<object>
@@ -140,6 +142,7 @@ namespace CGP.Application.Services
             }
 
             var getUser = await _unitOfWork.userRepository.GetUserById(getRequest.UserId);
+            getUser.CraftVillage_Id = getRequest.CraftVillageId;
             await _unitOfWork.artisanRequestRepository.AcceptRequest(getRequest);
             getUser.RoleId = 3;
             await _unitOfWork.userRepository.UpdateAsync(getUser);
