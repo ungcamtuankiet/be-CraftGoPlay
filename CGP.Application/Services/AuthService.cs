@@ -162,7 +162,7 @@ namespace CGP.Application.Services
                     };
                 }
                 var otp = GenerateOtp();
-                var uploadResult = await _cloudinaryService.UploadProductImage(userRegistrationDto.Thumbnail, FOLDER);
+                //var uploadResult = await _cloudinaryService.UploadProductImage(userRegistrationDto.Thumbnail, FOLDER);
                 var user = new ApplicationUser
                 {
                     UserName = userRegistrationDto.UserName,
