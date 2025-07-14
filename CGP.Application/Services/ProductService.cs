@@ -265,10 +265,10 @@ namespace CGP.Application.Services
                         }
                     }
                 }
-                if (request.ImagesToMove?.Any() == true)
+                if (request.ImagesToRemove?.Any() == true)
                 {
                     var imagesToMove = getProduct.ProductImages
-                        .Where(i => request.ImagesToMove.Contains(i.Id))
+                        .Where(i => request.ImagesToRemove.Contains(i.Id))
                         .ToList();
                     foreach (var image in imagesToMove)
                     {
