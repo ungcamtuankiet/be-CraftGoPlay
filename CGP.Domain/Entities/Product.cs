@@ -16,6 +16,10 @@ namespace CGP.Domain.Entities
         public ProductStatusEnum Status { get; set; }
         public int Quantity { get; set; }
         public int QuantitySold { get; set; }
+        public int Weight { get; set; }
+        public int Length { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         //Relationships
         public Guid Artisan_id { get; set; }
         [ForeignKey("Artisan_id")]

@@ -14,5 +14,6 @@ namespace CGP.Domain.Entities
         public Guid User_Id { get; set; }
         [ForeignKey("User_Id")]
         public ApplicationUser User { get; set; }
+        public ICollection<Transaction> Transactions { get; set; }
     }
 }

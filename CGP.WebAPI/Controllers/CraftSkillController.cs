@@ -63,7 +63,7 @@ namespace CGP.WebAPI.Controllers
             return BadRequest(result);
         }
 
-        [HttpPut("DeleteCraftSkill/{id}")]
+        [HttpDelete("DeleteCraftSkill/{id}")]
         [Authorize(Policy = "AdminOrStaffPolicy")]
         public async Task<IActionResult> DeleteCraftSkill(Guid id)
         {

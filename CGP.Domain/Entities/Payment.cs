@@ -18,5 +18,6 @@ namespace CGP.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Order Order { get; set; }
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

@@ -32,6 +32,9 @@ public class AppDbContext : DbContext
     public DbSet<OrderItem> OrderItem { get; set; }
     public DbSet<Payment> Payment { get; set; }
     public DbSet<CraftSkill> CraftSkill { get; set; }
+    public DbSet<OrderVoucher> OrderVoucher { get; set; }
+    public DbSet<Voucher> Voucher { get; set; }
+    public DbSet<Transaction> Transaction { get; set; }
     #endregion
 
 
@@ -272,8 +275,14 @@ public class AppDbContext : DbContext
         //Order
         modelBuilder.Entity<Order>()
             .HasOne(o => o.User)
-            .WithMany()
+            .WithMany(o => o.Orders)
             .HasForeignKey(o => o.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.UserAddress)
+            .WithMany(o => o.Orders)
+            .HasForeignKey(o => o.UserAddressId)
             .OnDelete(DeleteBehavior.Restrict);
 
         //OrderItem
@@ -296,5 +305,84 @@ public class AppDbContext : DbContext
             .HasForeignKey<Payment>(p => p.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        //Voucher
+        modelBuilder.Entity<Voucher>(e =>
+        {
+            e.ToTable("Voucher");
+            e.HasKey(v => v.Id);
+            e.Property(v => v.Code)
+            .IsRequired()
+            .HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Voucher>()
+            .Property(v => v.Type)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (VoucherTypeEnum)Enum.Parse(typeof(VoucherTypeEnum), v));
+
+        modelBuilder.Entity<Voucher>()
+            .Property(v => v.DiscountType)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (VoucherDiscountTypeEnum)Enum.Parse(typeof(VoucherDiscountTypeEnum), v));
+
+        modelBuilder.Entity<Voucher>()
+            .Property(v => v.PaymentMethod)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (PaymentMethodEnum)Enum.Parse(typeof(PaymentMethodEnum), v));
+
+        //OrderVoucher
+        modelBuilder.Entity<OrderVoucher>(e =>
+        {
+            e.ToTable("OrderVoucher");
+            e.HasKey(ov => ov.Id);
+            e.HasOne(ov => ov.Order)
+            .WithMany(o => o.OrderVouchers)
+            .HasForeignKey(ov => ov.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(ov => ov.Voucher)
+            .WithMany(v => v.OrderVouchers)
+            .HasForeignKey(ov => ov.VoucherId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Transaction
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.ToTable("Transaction");
+            e.HasKey(t => t.Id);
+            e.HasOne(t => t.Order)
+            .WithOne(t => t.Transaction)
+            .HasForeignKey<Transaction>(t => t.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.HasOne(t => t.Wallet)
+            .WithMany(t => t.Transactions)
+            .HasForeignKey(t => t.WalletId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.HasOne(t => t.Payment)
+            .WithMany(t => t.Transactions)
+            .HasForeignKey(t => t.PaymentId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.HasOne(t => t.Voucher)
+            .WithMany(t => t.Transactions)
+            .HasForeignKey(t => t.VoucherId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Transaction>()
+            .Property(v => v.TransactionStatus)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (TransactionStatusEnum)Enum.Parse(typeof(TransactionStatusEnum), v));
     }
 }
