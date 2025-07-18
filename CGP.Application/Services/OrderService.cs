@@ -1,4 +1,5 @@
-﻿using CGP.Application.Interfaces;
+﻿using AutoMapper;
+using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Order;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
@@ -16,11 +17,74 @@ namespace CGP.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPayoutService _payoutService;
+        private readonly IMapper _mapper;
 
-        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService)
+        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _payoutService = payoutService;
+            _mapper = mapper;
+        }
+
+        public async Task<Result<List<ViewOrderDTO>>> GetOrdersAsync()
+        {
+            var orders = await _unitOfWork.orderRepository.GetListOrderAsync();
+            var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders);
+
+            return new Result<List<ViewOrderDTO>>()
+            {
+                Error = 0,
+                Message = "Lấy danh sách đơn hàng thành công",
+                Data = orderDtos
+            };
+        }
+
+        public async Task<Result<ViewOrderDTO>> GetOrderByIdAssync(Guid id)
+        {
+            var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(id);
+            if (order == null)
+            {
+                return new Result<ViewOrderDTO>()
+                {
+                    Error = 1,
+                    Message = "Đơn hàng không tồn tại",
+                    Data = null
+                };
+            }
+
+            var orderDto = _mapper.Map<ViewOrderDTO>(order); // Use AutoMapper
+            return new Result<ViewOrderDTO>()
+            {
+                Error = 0,
+                Message = "Lấy thông tin đơn hàng thành công",
+                Data = orderDto
+            };
+        }
+
+        public async Task<Result<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId)
+        {
+            var orders = await _unitOfWork.orderRepository.GetOrdersByUserIdAsync(userId);
+            var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders); // Use AutoMapper
+
+            return new Result<List<ViewOrderDTO>>()
+            {
+                Error = 0,
+                Message = "Lấy danh sách đơn hàng theo người dùng thành công",
+                Data = orderDtos
+            };
+        }
+
+        public async Task<Result<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId)
+        {
+            var orders = await _unitOfWork.orderRepository.GetOrdersByArtisanIdAsync(artisanId);
+            var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders); // Use AutoMapper
+
+            return new Result<List<ViewOrderDTO>>()
+            {
+                Error = 0,
+                Message = "Lấy danh sách đơn hàng theo artisan thành công",
+                Data = orderDtos
+            };
         }
 
         public async Task<Result<List<Guid>>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, PaymentMethodEnum paymentMethod)
@@ -220,16 +284,31 @@ namespace CGP.Application.Services
             };
         }
 
-        public Task<Result<ViewOrderDTO>> GetOrderByIdAssync(Guid id)
+        public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto statusDto)
         {
-            throw new NotImplementedException();
-        }
+            var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                return new Result<bool>()
+                {
+                    Error = 1,
+                    Message = "Đơn hàng không tồn tại",
+                    Data = false
+                };
+            }
 
-        public Task<Result<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId)
-        {
-            throw new NotImplementedException();
-        }
+            // Optional: Add validation for valid status transitions
+            order.Status = statusDto.Status;
+            order.ModificationDate = DateTime.UtcNow.AddHours(7);
 
-        
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<bool>()
+            {
+                Error = 0,
+                Message = "Cập nhật trạng thái đơn hàng thành công",
+                Data = true
+            };
+        }
     }
 }

@@ -17,6 +17,45 @@ namespace CGP.WebAPI.Controllers
             _orderService = orderService;
         }
 
+        [HttpGet("VnpayUrl/{orderId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> CreateVnPayUrl(Guid orderId)
+        {
+            var result = await _orderService.CreateVnPayUrlAsync(orderId, HttpContext);
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
+        [HttpGet("vnpay-return")]
+        public async Task<IActionResult> VnPayReturn()
+        {
+            var result = await _orderService.HandleVnPayReturnAsync(Request.Query);
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
+        [HttpGet("GetOrdersByUserId/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetOrdersByUserId(Guid userId)
+        {
+            var result = await _orderService.GetOrdersByUserIdAsync(userId);
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
+        [HttpGet("GetOrdersByArtisanId/{artisanId}")]
+        [Authorize(Policy = "ArtisanPolicy")] // Assuming artisan policy exists
+        public async Task<IActionResult> GetOrdersByArtisanId(Guid artisanId)
+        {
+            var result = await _orderService.GetOrdersByArtisanIdAsync(artisanId);
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
+        [HttpGet("GetOrderByOrderId/{orderId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetOrderByOrderId(Guid orderId)
+        {
+            var result = await _orderService.GetOrderByIdAssync(orderId);
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
         [HttpPost("CreateFromCart")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
@@ -33,18 +72,11 @@ namespace CGP.WebAPI.Controllers
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
-        [HttpGet("VnpayUrl/{orderId}")]
-        [Authorize(Policy = "UserPolicy")]
-        public async Task<IActionResult> CreateVnPayUrl(Guid orderId)
+        [HttpPut("status/{orderId}")]
+        [Authorize(Policy = "ArtisanPolicy")]
+        public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromForm] UpdateOrderStatusDto statusDto)
         {
-            var result = await _orderService.CreateVnPayUrlAsync(orderId, HttpContext);
-            return StatusCode(result.Error == 0 ? 200 : 400, result);
-        }
-
-        [HttpGet("vnpay-return")]
-        public async Task<IActionResult> VnPayReturn()
-        {
-            var result = await _orderService.HandleVnPayReturnAsync(Request.Query);
+            var result = await _orderService.UpdateOrderStatusAsync(orderId, statusDto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
     }

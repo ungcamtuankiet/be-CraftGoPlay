@@ -1,4 +1,5 @@
 ﻿using CGP.Application.Interfaces;
+using CGP.Application.Services;
 using CGP.Contract.DTO.User;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Enums;
@@ -13,10 +14,12 @@ namespace CGP.WebAPI.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IOrderService _orderService;
 
-        public AdminController(IUserService userService)
+        public AdminController(IUserService userService, IOrderService orderService)
         {
             _userService = userService;
+            _orderService = orderService;
         }
 
         [HttpGet("GetAllAccountByStatus")]
@@ -29,6 +32,14 @@ namespace CGP.WebAPI.Controllers
                 return NotFound(result);
             }
             return Ok(result);
+        }
+
+        [HttpGet("GetOrders")]
+        [Authorize(Policy = "AdminOrStaffPolicy")] // Assuming admin access for all orders
+        public async Task<IActionResult> GetOrders()
+        {
+            var result = await _orderService.GetOrdersAsync();
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
         [HttpPost("CreateNewAccount")]
