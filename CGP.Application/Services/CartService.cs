@@ -123,6 +123,7 @@ namespace CGP.Application.Services
                 {
                     ProductId = dto.ProductId,
                     Quantity = dto.Quantity,
+                    UserId = userId,
                     UnitPrice = product.Price,
                     Cart = cart
                 };

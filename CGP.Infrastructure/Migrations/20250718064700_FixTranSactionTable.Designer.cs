@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250718064700_FixTranSactionTable")]
+    partial class FixTranSactionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,7 +151,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7954),
+                            CreationDate = new DateTime(2025, 7, 18, 13, 46, 59, 832, DateTimeKind.Local).AddTicks(8634),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -161,7 +164,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7974),
+                            CreationDate = new DateTime(2025, 7, 18, 13, 46, 59, 832, DateTimeKind.Local).AddTicks(8657),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -174,7 +177,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7982),
+                            CreationDate = new DateTime(2025, 7, 18, 13, 46, 59, 832, DateTimeKind.Local).AddTicks(8752),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -187,7 +190,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7985),
+                            CreationDate = new DateTime(2025, 7, 18, 13, 46, 59, 832, DateTimeKind.Local).AddTicks(8758),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
