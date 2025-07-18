@@ -13,8 +13,9 @@ namespace CGP.Domain.Entities
         public Guid ProductId { get; set; } 
 
         public int Quantity { get; set; }
+        public Guid UserId { get; set; }
 
-        public decimal UnitPrice { get; set; } // giá tại thời điểm thêm vào giỏ
+        public decimal UnitPrice { get; set; } 
 
         public decimal TotalPrice => UnitPrice * Quantity;
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;

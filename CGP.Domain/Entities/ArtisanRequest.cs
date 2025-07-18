@@ -13,9 +13,18 @@ namespace CGP.Domain.Entities
         public string Image { get; set; }
         public Guid CraftVillageId { get; set; }
         public Guid UserId { get; set; }
+        public string PhoneNumber { get; set; }
+        public string FullAddress { get; set; }
         public int YearsOfExperience { get; set; }
         public string Description { get; set; }
         public string? Reason { get; set; }
+        public int ProviceId { get; set; }
+        public string ProviceName { get; set; }
+        public int DistrictId { get; set; }
+        public string DistrictName { get; set; }
+        public string WardCode { get; set; }
+        public string WardName { get; set; }
+        public string HomeNumber { get; set; }
         public RequestArtisanStatus Status { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }

@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace CGP.Domain.Enums
 {
-    public enum OrderStatusEnum
+    public enum TransactionStatusEnum
     {
         Pending,
-        Accepted,
-        Rejected,
-        Paid,
+        Processing,
+        Success,
+        Failed,
         Cancelled,
-        Shipped,
-        Refund,
-        WaitingForPayment
+        Refunded,
+        Expired,
+        Verifying,
+        OnHold
     }
 }

@@ -15,11 +15,17 @@ namespace CGP.Domain.Entities
         public TypeAddressEnum AddressType { get; set; }
         public bool IsDefault { get; set; } 
         public string FullAddress { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public int ProviceId { get; set; }
+        public string ProviceName { get; set; }
+        public int DistrictId { get; set; }
+        public string DistrictName { get; set; }
+        public string WardCode { get; set; }
+        public string WardName { get; set; }
+        public string HomeNumber { get; set; }
         public Guid UserId { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
-            
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+
     }
 }
