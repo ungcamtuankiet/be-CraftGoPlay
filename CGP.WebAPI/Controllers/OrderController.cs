@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Order;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,21 +17,24 @@ namespace CGP.WebAPI.Controllers
             _orderService = orderService;
         }
 
-        [HttpPost("create-from-cart")]
+        [HttpPost("CreateFromCart")]
+        [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
             var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, request.PaymentMethod);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
-        [HttpPost("create-direct")]
+        [HttpPost("CreateDirect/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateDirect([FromForm] CreateDirectOrderDto dto, Guid userId)
         {
             var result = await _orderService.CreateDirectOrderAsync(userId, dto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
-        [HttpGet("vnpay-url/{orderId}")]
+        [HttpGet("VnpayUrl/{orderId}")]
+        [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateVnPayUrl(Guid orderId)
         {
             var result = await _orderService.CreateVnPayUrlAsync(orderId, HttpContext);

@@ -21,6 +21,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetFavourites/{userId}")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> GetCraftVillageById(Guid userId)
         {
             var result = await _favouriteService.GetFavourites(userId);
@@ -46,6 +47,7 @@ namespace CGP.WebAPI.Controllers
             var result = await _favouriteService.AddFavourite(favourite);
             return Ok(result);
         }
+
         [HttpDelete("DeleteFavourite")]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> DeleteFavourite([FromQuery] Guid userId, [FromQuery] Guid productId)
