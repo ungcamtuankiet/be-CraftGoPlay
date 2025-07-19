@@ -19,10 +19,11 @@ namespace CGP.Contract.DTO.UserAddress
 
         [Required(ErrorMessage = "Số điện thoại là bắt buộc.")]
         public string PhoneNumber { get; set; }
+
         public TypeAddressEnum AddressType { get; set; }
         public bool IsDefault { get; set; }
 
-        [Required(ErrorMessage = "Mã tỉnh( Thành phố) là bắt buộc.")]
+        [Required(ErrorMessage = "Mã tỉnh(Thành phố) là bắt buộc.")]
         public int ProviceId { get; set; }
 
         [Required(ErrorMessage = "Tên tỉnh(Thành phố) là bắt buộc.")]
@@ -30,23 +31,23 @@ namespace CGP.Contract.DTO.UserAddress
         public string ProviceName { get; set; }
 
         [Required(ErrorMessage = "Mã quận(huyện) là bắt buộc.")]
-        [MaxLength(50, ErrorMessage = "Tên quận(huyện) phải ít hơn 50 ký tự.")]
-        public int DistrictId { get; set; }
+        public int DistrictId { get; set; } // ✅ bỏ MaxLength vì đây là int
 
-        [Required(ErrorMessage = "Tên quận( huyện) là bắt buộc.")]
-        [MaxLength(50, ErrorMessage = "Tên quận( huyện) phải ít hơn 50 ký tự.")]
+        [Required(ErrorMessage = "Tên quận(huyện) là bắt buộc.")]
+        [MaxLength(50, ErrorMessage = "Tên quận(huyện) phải ít hơn 50 ký tự.")]
         public string DistrictName { get; set; }
 
-        [Required(ErrorMessage = "Mã xã( phường) là bắt buộc.")]
-        [MaxLength(50, ErrorMessage = "Mã xã(phương) phải ít hơn 50 ký tự.")]
+        [Required(ErrorMessage = "Mã xã(phường) là bắt buộc.")]
+        [MaxLength(50, ErrorMessage = "Mã xã(phường) phải ít hơn 50 ký tự.")]
         public string WardCode { get; set; }
 
-        [Required(ErrorMessage = "Tên xã( phường) là bắt buộc.")]
-        [MaxLength(50, ErrorMessage = "Tên xã( phường) phải ít hơn 50 ký tự.")]
+        [Required(ErrorMessage = "Tên xã(phường) là bắt buộc.")]
+        [MaxLength(50, ErrorMessage = "Tên xã(phường) phải ít hơn 50 ký tự.")]
         public string WardName { get; set; }
 
         [Required(ErrorMessage = "Số nhà và tên đường là bắt buộc.")]
         [MaxLength(50, ErrorMessage = "Số nhà và tên đường phải ít hơn 50 ký tự.")]
         public string HomeNumber { get; set; }
     }
+
 }
