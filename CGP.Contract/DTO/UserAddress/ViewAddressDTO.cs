@@ -16,7 +16,5 @@ namespace CGP.Contract.DTO.UserAddress
         public string AddressType { get; set; }
         public bool IsDefault { get; set; }
         public string FullAddress { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
     }
 }

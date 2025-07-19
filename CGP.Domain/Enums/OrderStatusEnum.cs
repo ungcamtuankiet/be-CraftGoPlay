@@ -15,6 +15,8 @@ namespace CGP.Domain.Enums
         Cancelled,
         Shipped,
         Refund,
-        WaitingForPayment
+        WaitingForPayment,
+        Processing,
+        Completed
     }
 }

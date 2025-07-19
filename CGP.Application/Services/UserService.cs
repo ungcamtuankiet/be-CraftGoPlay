@@ -136,7 +136,7 @@ namespace CGP.Application.Services
         public async Task<Result<object>> AddNewAddress(AddNewAddressDTO userAddress)
         {
             var address = _mapper.Map<UserAddress>(userAddress);
-
+            address.FullAddress = $"{address.HomeNumber}, {address.WardName}, {address.ProviceName}, {address.DistrictName}";
             await _unitOfWork.userAddressRepository.AddNewAddress(address);
             return new Result<object>()
             {
