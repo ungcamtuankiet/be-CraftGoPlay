@@ -22,7 +22,7 @@ namespace CGP.WebAPI.Controllers
             _artisanRequestService = artisanRequestService;
         }
 
-        [HttpGet("get-current-user")]
+        [HttpGet("GetCurrentUser")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {

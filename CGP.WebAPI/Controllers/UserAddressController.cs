@@ -19,7 +19,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetAddress/{userId}")]
-        [Authorize]
+        [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> GetAddress(Guid userId)
         {
             var getAddress = await _userService.GetListAddressByUserId(userId);
@@ -27,7 +27,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPost("AddNewAddress")]
-        [Authorize]
+        [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> AddNewAddress([FromForm] AddNewAddressDTO userAddress)
         {
             if(!ModelState.IsValid)
@@ -44,7 +44,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPatch("UpdateAddress/{addressId}")]
-        [Authorize]
+        [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> UpdateAddress(Guid addressId, [FromForm] UpdateAddressDTO userAddress)
         {
             if (!ModelState.IsValid)
@@ -61,7 +61,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpDelete("DeleteAddress/{id}")]
-        [Authorize]
+        [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> DeleteAddress(Guid id)
         {
             var result = await _userService.DeleteAddress(id);
