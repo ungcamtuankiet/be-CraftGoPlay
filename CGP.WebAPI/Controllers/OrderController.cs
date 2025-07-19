@@ -19,7 +19,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("create-from-cart")]
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
-            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, request.PaymentMethod);
+            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds,request.AddressId, request.PaymentMethod);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
