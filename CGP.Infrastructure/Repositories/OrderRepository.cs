@@ -18,9 +18,7 @@ namespace CGP.Infrastructure.Repositories
         public OrderRepository(AppDbContext dbContext,
             ICurrentTime timeService,
             IClaimsService claimsService)
-            : base(dbContext,
-                  timeService,
-                  claimsService)
+            : base(dbContext, timeService, claimsService)
         {
             _dbContext = dbContext;
         }
@@ -31,6 +29,8 @@ namespace CGP.Infrastructure.Repositories
                 .Include(o => o.User)
                 .Include(o => o.Payment)
                 .Include(o => o.OrderItems)
+                .ThenInclude(o => o.Product)
+                .ThenInclude(o => o.ProductImages)
                 .ToListAsync();
         }
 
@@ -40,6 +40,8 @@ namespace CGP.Infrastructure.Repositories
                .Include(o => o.User)
                .Include(o => o.Payment)
                .Include(o => o.OrderItems)
+               .ThenInclude(o => o.Product)
+               .ThenInclude(o => o.ProductImages)
                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
@@ -49,8 +51,22 @@ namespace CGP.Infrastructure.Repositories
                .Include(o => o.User)
                .Include(o => o.Payment)
                .Include(o => o.OrderItems)
+               .ThenInclude(o => o.Product)
+               .ThenInclude(o => o.ProductImages)
                .Where(o => o.UserId == userId)
                .ToListAsync();
+        }
+
+        public async Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId)
+        {
+            return await _dbContext.Order
+                .Include(o => o.User)
+                .Include(o => o.Payment)
+                .Include(o => o.OrderItems)
+                .ThenInclude(o => o.Product)
+                .ThenInclude(o => o.ProductImages)
+                .Where(o => o.OrderItems.Any(oi => oi.ArtisanId == artisanId))
+                .ToListAsync();
         }
     }
 }
