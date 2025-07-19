@@ -127,9 +127,13 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<List<Guid>>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, PaymentMethodEnum paymentMethod)
+        public async Task<Result<List<Guid>>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Guid address, PaymentMethodEnum paymentMethod)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
+            var transactionId = Guid.NewGuid();
+            var getUserAddress = await _unitOfWork.userAddressRepository.GetUserAddressesByUserId(userId);
+            var getAddressByUserId = await _unitOfWork.userAddressRepository.GetByIdAsync(address);
+            var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
             if (cart == null || !cart.Items.Any())
                 return new Result<List<Guid>>()
                 {
@@ -152,9 +156,24 @@ namespace CGP.Application.Services
             if (paymentMethod == PaymentMethodEnum.Online)
             {
                 //Tạo 1 Order duy nhất
+                if(address == null)
+                {
+                    address = getAddressDefault.Id;
+                }
+                if(getAddressByUserId.Id != address)
+                {
+                    return new Result<List<Guid>>()
+                    {
+                        Error = 1,
+                        Message = "Mã địa chỉ không hợp lệ",
+                        Data = null
+                    };
+                }
                 var order = new Order
                 {
                     UserId = userId,
+                    TransactionId = transactionId,
+                    UserAddressId = address,
                     Status = OrderStatusEnum.WaitingForPayment,
                     PaymentMethod = paymentMethod,
                     CreationDate = DateTime.UtcNow,
@@ -178,6 +197,19 @@ namespace CGP.Application.Services
             else
             {
                 // Với thanh toán tiền mặt, chia theo Artisan
+                if (address == null)
+                {
+                    address = getAddressDefault.Id;
+                }
+                if (getAddressByUserId.Id != address)
+                {
+                    return new Result<List<Guid>>()
+                    {
+                        Error = 1,
+                        Message = "Mã địa chỉ không hợp lệ",
+                        Data = null
+                    };
+                }
                 var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
                 foreach (var group in grouped)
                 {
@@ -185,6 +217,8 @@ namespace CGP.Application.Services
                     {
                         UserId = userId,
                         Status = OrderStatusEnum.Pending,
+                        TransactionId = transactionId,
+                        UserAddressId = address,
                         PaymentMethod = paymentMethod,
                         CreationDate = DateTime.UtcNow,
                         OrderItems = group.Select(i => new OrderItem
