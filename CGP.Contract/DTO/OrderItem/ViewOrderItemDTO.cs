@@ -13,6 +13,7 @@ namespace CGP.Contract.DTO.OrderItem
         public Guid OrderId { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
+        public string ArtisanName { get; set; }
         public ViewProductOrderDTO Product { get; set; }
     }
 }

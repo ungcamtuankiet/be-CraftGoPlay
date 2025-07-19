@@ -18,12 +18,14 @@ namespace CGP.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPayoutService _payoutService;
         private readonly IMapper _mapper;
+        private readonly IClaimsService _claimsService;
 
-        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService, IMapper mapper)
+        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService, IMapper mapper, IClaimsService claimsService)
         {
             _unitOfWork = unitOfWork;
             _payoutService = payoutService;
             _mapper = mapper;
+            _claimsService = claimsService;
         }
 
         public async Task<Result<List<ViewOrderDTO>>> GetOrdersAsync()
@@ -52,6 +54,18 @@ namespace CGP.Application.Services
                 };
             }
 
+            var currentUserId = _claimsService.GetCurrentUserId;
+            // Kiểm tra quyền sở hữu
+            if (order.UserId != currentUserId)
+            {
+                return new Result<ViewOrderDTO>()
+                {
+                    Error = 2,
+                    Message = "Bạn không có quyền truy cập đơn hàng này",
+                    Data = null
+                };
+            }
+
             var orderDto = _mapper.Map<ViewOrderDTO>(order); // Use AutoMapper
             return new Result<ViewOrderDTO>()
             {
@@ -63,6 +77,19 @@ namespace CGP.Application.Services
 
         public async Task<Result<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId)
         {
+            var currentUserId = _claimsService.GetCurrentUserId;
+
+            // Kiểm tra quyền: Chỉ cho phép người dùng xem đơn hàng của chính họ
+            if (userId != currentUserId)
+            {
+                return new Result<List<ViewOrderDTO>>()
+                {
+                    Error = 2,
+                    Message = "Bạn không có quyền xem đơn hàng của người dùng này",
+                    Data = null
+                };
+            }
+
             var orders = await _unitOfWork.orderRepository.GetOrdersByUserIdAsync(userId);
             var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders); // Use AutoMapper
 
@@ -76,6 +103,19 @@ namespace CGP.Application.Services
 
         public async Task<Result<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId)
         {
+            var currentArtisanId = _claimsService.GetCurrentUserId;
+
+            // Kiểm tra quyền: Chỉ cho phép người dùng xem đơn hàng của chính họ
+            if (artisanId != currentArtisanId)
+            {
+                return new Result<List<ViewOrderDTO>>()
+                {
+                    Error = 2,
+                    Message = "Bạn không có quyền xem đơn hàng của người dùng này",
+                    Data = null
+                };
+            }
+
             var orders = await _unitOfWork.orderRepository.GetOrdersByArtisanIdAsync(artisanId);
             var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders); // Use AutoMapper
 

@@ -17,6 +17,54 @@ namespace CGP.WebAPI.Controllers
             _orderService = orderService;
         }
 
+        [HttpGet("GetOrdersByUserId/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetOrdersByUserId(Guid userId)
+        {
+            var result = await _orderService.GetOrdersByUserIdAsync(userId);
+            if (result.Error == 1)
+            {
+                return NotFound(result);
+            }
+            if (result.Error == 2)
+            {
+                return Forbid();
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("GetOrdersByArtisanId/{artisanId}")]
+        [Authorize(Policy = "ArtisanPolicy")] // Assuming artisan policy exists
+        public async Task<IActionResult> GetOrdersByArtisanId(Guid artisanId)
+        {
+            var result = await _orderService.GetOrdersByArtisanIdAsync(artisanId);
+            if (result.Error == 1)
+            {
+                return NotFound(result);
+            }
+            if (result.Error == 2)
+            {
+                return Forbid();
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("GetOrderByOrderId/{orderId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetOrderByOrderId(Guid orderId)
+        {
+            var result = await _orderService.GetOrderByIdAssync(orderId);
+            if (result.Error == 1)
+            {
+                return NotFound(result);
+            }
+            if (result.Error == 2)
+            {
+                return Forbid();
+            }
+            return Ok(result);
+        }
+
         [HttpGet("VnpayUrl/{orderId}")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateVnPayUrl(Guid orderId)
@@ -29,30 +77,6 @@ namespace CGP.WebAPI.Controllers
         public async Task<IActionResult> VnPayReturn()
         {
             var result = await _orderService.HandleVnPayReturnAsync(Request.Query);
-            return StatusCode(result.Error == 0 ? 200 : 400, result);
-        }
-
-        [HttpGet("GetOrdersByUserId/{userId}")]
-        [Authorize(Policy = "UserPolicy")]
-        public async Task<IActionResult> GetOrdersByUserId(Guid userId)
-        {
-            var result = await _orderService.GetOrdersByUserIdAsync(userId);
-            return StatusCode(result.Error == 0 ? 200 : 400, result);
-        }
-
-        [HttpGet("GetOrdersByArtisanId/{artisanId}")]
-        [Authorize(Policy = "ArtisanPolicy")] // Assuming artisan policy exists
-        public async Task<IActionResult> GetOrdersByArtisanId(Guid artisanId)
-        {
-            var result = await _orderService.GetOrdersByArtisanIdAsync(artisanId);
-            return StatusCode(result.Error == 0 ? 200 : 400, result);
-        }
-
-        [HttpGet("GetOrderByOrderId/{orderId}")]
-        [Authorize(Policy = "UserPolicy")]
-        public async Task<IActionResult> GetOrderByOrderId(Guid orderId)
-        {
-            var result = await _orderService.GetOrderByIdAssync(orderId);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 

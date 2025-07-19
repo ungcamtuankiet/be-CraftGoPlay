@@ -40,6 +40,8 @@ namespace CGP.Infrastructure.Repositories
                .Include(o => o.User)
                .Include(o => o.Payment)
                .Include(o => o.OrderItems)
+               .ThenInclude(o => o.Product)
+               .ThenInclude(o => o.ProductImages)
                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
@@ -49,6 +51,8 @@ namespace CGP.Infrastructure.Repositories
                .Include(o => o.User)
                .Include(o => o.Payment)
                .Include(o => o.OrderItems)
+               .ThenInclude(o => o.Product)
+               .ThenInclude(o => o.ProductImages)
                .Where(o => o.UserId == userId)
                .ToListAsync();
         }
@@ -59,6 +63,8 @@ namespace CGP.Infrastructure.Repositories
                 .Include(o => o.User)
                 .Include(o => o.Payment)
                 .Include(o => o.OrderItems)
+                .ThenInclude(o => o.Product)
+                .ThenInclude(o => o.ProductImages)
                 .Where(o => o.OrderItems.Any(oi => oi.ArtisanId == artisanId))
                 .ToListAsync();
         }
