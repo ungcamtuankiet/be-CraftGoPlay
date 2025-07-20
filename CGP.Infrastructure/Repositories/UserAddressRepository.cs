@@ -64,5 +64,6 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.User)
                 .FirstOrDefaultAsync(x => x.UserId == userId && x.IsDefault == true);
         }
+
     }
 }
