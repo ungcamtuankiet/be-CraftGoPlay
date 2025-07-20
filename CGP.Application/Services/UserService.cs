@@ -170,6 +170,42 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<object>> SetDefaultAddress(Guid addressId)
+        {
+            var address = await _unitOfWork.userAddressRepository.GetByIdAsync(addressId);
+            if (address == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Địa chỉ không tồn tại!",
+                    Data = null
+                };
+            }
+
+            // Lấy tất cả địa chỉ của người dùng và đặt IsDefault = false
+            var userAddresses = await _unitOfWork.userAddressRepository.GetUserAddressesByUserId(address.UserId);
+            foreach (var userAddress in userAddresses)
+            {
+                if (userAddress.Id != addressId && userAddress.IsDefault)
+                {
+                    userAddress.IsDefault = false;
+                    await _unitOfWork.userAddressRepository.UpdateAddress(userAddress);
+                }
+            }
+
+            // Đặt địa chỉ được chọn thành IsDefault = true
+            address.IsDefault = true;
+            await _unitOfWork.userAddressRepository.UpdateAddress(address);
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Đặt địa chỉ mặc định thành công.",
+                Data = _mapper.Map<ViewAddressDTO>(address)
+            };
+        }
+
         public async Task<Result<object>> DeleteAddress(Guid id)
         {
             var getUser = await _unitOfWork.userAddressRepository.GetByIdAsync(id);
