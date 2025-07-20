@@ -60,6 +60,14 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPatch("SetDefaultAddress/{addressId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> SetDefaultAddress(Guid addressId)
+        {
+            var result = await _userService.SetDefaultAddress(addressId);
+            return Ok(result);
+        }
+
         [HttpDelete("DeleteAddress/{id}")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> DeleteAddress(Guid id)
