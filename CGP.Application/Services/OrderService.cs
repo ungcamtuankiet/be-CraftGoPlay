@@ -117,6 +117,13 @@ namespace CGP.Application.Services
             }
 
             var orders = await _unitOfWork.orderRepository.GetOrdersByArtisanIdAsync(artisanId);
+            var filteredOrders = orders.Select(order =>
+            {
+                // Lọc OrderItems chỉ giữ lại các item thuộc artisanId
+                order.OrderItems = order.OrderItems.Where(oi => oi.ArtisanId == artisanId).ToList();
+                return order;
+            }).Where(order => order.OrderItems.Any()).ToList();
+
             var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders); // Use AutoMapper
 
             return new Result<List<ViewOrderDTO>>()
