@@ -19,7 +19,7 @@ namespace CGP.Application.Interfaces
         Task<Result<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId);
         Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto statusDto);
         Task<Result<List<Guid>>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Guid address, PaymentMethodEnum paymentMethod);
-        Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, CreateDirectOrderDto dto);
+        Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, CreateDirectOrderDto dto);
         Task<Result<string>> CreateVnPayUrlAsync(Guid orderId, HttpContext httpContext);
         Task<Result<string>> HandleVnPayReturnAsync(IQueryCollection query);
     }

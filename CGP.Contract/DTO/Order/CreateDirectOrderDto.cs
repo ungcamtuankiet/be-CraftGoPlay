@@ -10,6 +10,7 @@ namespace CGP.Contract.DTO.Order
     public class CreateDirectOrderDto
     {
         public Guid ProductId { get; set; }
+        public Guid AddressId { get; set; }
         public Guid UserId { get; set; }
         public int Quantity { get; set; }
         public PaymentMethodEnum PaymentMethod { get; set; }

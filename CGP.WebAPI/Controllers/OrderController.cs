@@ -92,7 +92,7 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateDirect([FromForm] CreateDirectOrderDto dto, Guid userId)
         {
-            var result = await _orderService.CreateDirectOrderAsync(userId, dto);
+            var result = await _orderService.CreateDirectOrderAsync(userId,dto.AddressId, dto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 

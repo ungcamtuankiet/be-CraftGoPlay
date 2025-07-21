@@ -4,12 +4,14 @@ using CGP.Contract.DTO.Order;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
+using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace CGP.Application.Services
 {
@@ -141,6 +143,7 @@ namespace CGP.Application.Services
             var getUserAddress = await _unitOfWork.userAddressRepository.GetUserAddressesByUserId(userId);
             var getAddressByUserId = await _unitOfWork.userAddressRepository.GetByIdAsync(address);
             var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
+            bool isValidAddress = await _unitOfWork.userAddressRepository.CheckAddressUser(address, userId);
             if (cart == null || !cart.Items.Any())
                 return new Result<List<Guid>>()
                 {
@@ -162,17 +165,16 @@ namespace CGP.Application.Services
 
             if (paymentMethod == PaymentMethodEnum.Online)
             {
-                //Tạo 1 Order duy nhất
                 if(address == null)
                 {
                     address = getAddressDefault.Id;
                 }
-                if(getAddressByUserId.Id != address)
+                if(!isValidAddress)
                 {
                     return new Result<List<Guid>>()
                     {
                         Error = 1,
-                        Message = "Mã địa chỉ không hợp lệ",
+                        Message = "Địa chỉ không hợp lệ.",
                         Data = null
                     };
                 }
@@ -203,17 +205,16 @@ namespace CGP.Application.Services
             }
             else
             {
-                // Với thanh toán tiền mặt, chia theo Artisan
                 if (address == null)
                 {
                     address = getAddressDefault.Id;
                 }
-                if (getAddressByUserId.Id != address)
+                if (!isValidAddress)
                 {
                     return new Result<List<Guid>>()
                     {
                         Error = 1,
-                        Message = "Mã địa chỉ không hợp lệ",
+                        Message = "Địa chỉ không hợp lệ.",
                         Data = null
                     };
                 }
@@ -259,9 +260,15 @@ namespace CGP.Application.Services
         }
 
 
-        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, CreateDirectOrderDto dto)
+        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, CreateDirectOrderDto dto)
         {
             var product = await _unitOfWork.productRepository.GetByIdAsync(dto.ProductId);
+            var transactionId = Guid.NewGuid();
+            var getUserAddress = await _unitOfWork.userAddressRepository.GetUserAddressesByUserId(userId);
+            var getAddressByUserId = await _unitOfWork.userAddressRepository.GetByIdAsync(address);
+            var getProduct = await _unitOfWork.productRepository.GetProductByProductId(dto.ProductId);
+            var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
+            bool isValidAddress = await _unitOfWork.userAddressRepository.CheckAddressUser(address, userId);
             if (product == null || product.Quantity < dto.Quantity)
                 return new Result<Guid>()
                 {
@@ -269,8 +276,90 @@ namespace CGP.Application.Services
                     Message = "Sản phẩm không tồn tại hoặc số lượng không đủ",
                     Data = Guid.Empty
                 };
+            var order = new Order();
+            if (dto.PaymentMethod == PaymentMethodEnum.Online)
+            {
+                if (address == null)
+                {
+                    address = getAddressDefault.Id;
+                }
+                if (!isValidAddress)
+                {
+                    return new Result<Guid>()
+                    {
+                        Error = 1,
+                        Message = "Địa chỉ không hợp lệ.",
+                    };
+                }
+                order.UserId = userId;
+                order.Status = OrderStatusEnum.WaitingForPayment;
+                order.TransactionId = transactionId;
+                order.UserAddressId = address;
+                order.PaymentMethod = dto.PaymentMethod;
+                order.CreationDate = DateTime.UtcNow;
+                order.Product_Amount = (double)(getProduct.Price * dto.Quantity);
+                order.Delivery_Amount = 25000;
+                order.OrderItems = new List<OrderItem>
+                {
+                    new OrderItem
+                    {
+                        ProductId = dto.ProductId,
+                        ArtisanId = product.Artisan_id,
+                        Quantity = dto.Quantity,
+                        UnitPrice = product.Price
+                    }
+                };
+                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount);
+                await _unitOfWork.orderRepository.AddAsync(order);
+            }
+            else
+            {
+                if (address == null)
+                {
+                    address = getAddressDefault.Id;
+                }
+                if (!isValidAddress)
+                {
+                    return new Result<Guid>()
+                    {
+                        Error = 1,
+                        Message = "Địa chỉ không hợp lệ."
+                    };
+                }
+                order.UserId = userId;
+                order.Status = OrderStatusEnum.Pending;
+                order.TransactionId = transactionId;
+                order.UserAddressId = address;
+                order.PaymentMethod = dto.PaymentMethod;
+                order.CreationDate = DateTime.UtcNow;
+                order.Product_Amount = (double)(getProduct.Price * dto.Quantity);
+                order.Delivery_Amount = 25000;
+                order.OrderItems = new List<OrderItem>
+                {
+                    new OrderItem
+                    {
+                        ProductId = dto.ProductId,
+                        ArtisanId = product.Artisan_id,
+                        Quantity = dto.Quantity,
+                        UnitPrice = product.Price
+                    }
+                };
+                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount); 
+                getProduct.Quantity -= dto.Quantity;
+                await _unitOfWork.productRepository.UpdateProduct(getProduct);
+                await _unitOfWork.orderRepository.AddAsync(order);
+            }
 
-            var order = new Order
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<Guid>()
+            {
+                Error = 0,
+                Message = "Đặt hàng thành công",
+                Data = order.Id
+            };
+
+
+/*            var order = new Order
             {
                 UserId = userId,
                 CreationDate = DateTime.UtcNow,
@@ -297,7 +386,7 @@ namespace CGP.Application.Services
                 Error = 0,
                 Message = "Đặt hàng thành công",
                 Data = order.Id
-            };
+            };*/
         }
 
         public async Task<Result<string>> CreateVnPayUrlAsync(Guid orderId, HttpContext httpContext)
