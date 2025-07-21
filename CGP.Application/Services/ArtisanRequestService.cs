@@ -95,6 +95,7 @@ namespace CGP.Application.Services
             var request = _mapper.Map<ArtisanRequest>(requestDto);
 
             var image = await _cloudinaryService.UploadProductImage(requestDto.Image, FOLDER);
+            request.FullAddress = $"{requestDto.HomeNumber}, {requestDto.WardName}, {requestDto.DistrictName}, {requestDto.ProviceName}";
             request.Image = image.SecureUrl.ToString();
             if (requestDto.CraftIds != null && requestDto.CraftIds.Any())
             {
@@ -102,7 +103,6 @@ namespace CGP.Application.Services
                 request.CraftSkills = craftSkills;
             }
             await _unitOfWork.artisanRequestRepository.SendNewRequest(request);
-            await _unitOfWork.SaveChangeAsync();
 
             return new Result<ViewRequestDTO>
             {

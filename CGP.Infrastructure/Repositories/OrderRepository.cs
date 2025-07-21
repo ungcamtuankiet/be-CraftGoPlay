@@ -48,11 +48,13 @@ namespace CGP.Infrastructure.Repositories
         public async Task<List<Order>> GetOrdersByUserIdAsync(Guid userId)
         {
             return await _dbContext.Order
-               .Include(o => o.User)
                .Include(o => o.Payment)
                .Include(o => o.OrderItems)
                .ThenInclude(o => o.Product)
                .ThenInclude(o => o.ProductImages)
+               .Include(o => o.OrderItems)
+               .ThenInclude(o => o.Product)
+               .ThenInclude(o => o.User)
                .Where(o => o.UserId == userId)
                .ToListAsync();
         }
