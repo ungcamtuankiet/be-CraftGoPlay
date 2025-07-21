@@ -65,5 +65,10 @@ namespace CGP.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.UserId == userId && x.IsDefault == true);
         }
 
+        public async Task<bool> CheckAddressUser(Guid addressId, Guid userId)
+        {
+            return await _dbContext.UserAddress
+                .AnyAsync(x => x.Id == addressId && x.UserId == userId && !x.IsDeleted);
+        }
     }
 }

@@ -62,7 +62,7 @@ namespace CGP.Infrastructure.Repositories
         {
             return await _context.Meterial
                 .Include(m => m.Products)
-                .FirstOrDefaultAsync(m => m.Name.Equals(materialName, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefaultAsync(m => m.Name.ToLower() == materialName.ToLower());
         }
     }
 }
