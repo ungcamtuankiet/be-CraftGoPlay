@@ -15,6 +15,7 @@ namespace CGP.Infrastructure.Mappers.OrderItemProfile
         {
             CreateMap<OrderItem, ViewOrderItemDTO>()
                 .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+                .ForMember(dest => dest.ArtisanName, opt => opt.MapFrom(src => src.Product.User.UserName))
                 .ReverseMap();
         }
     }
