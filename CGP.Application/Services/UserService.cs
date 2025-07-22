@@ -133,10 +133,58 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<ViewAddressDTO>> GetDefaultAddressByUserId(Guid userId)
+        {
+            var getUser = await _unitOfWork.userRepository.GetUserById(userId);
+            if (getUser == null)
+            {
+                return new Result<ViewAddressDTO>()
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại.",
+                    Data = null
+                };
+            }
+
+            var defaultAddress = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
+            if (defaultAddress == null)
+            {
+                return new Result<ViewAddressDTO>()
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy địa chỉ mặc định.",
+                    Data = null
+                };
+            }
+
+            var result = _mapper.Map<ViewAddressDTO>(defaultAddress);
+            return new Result<ViewAddressDTO>()
+            {
+                Error = 0,
+                Message = "Lấy địa chỉ mặc định thành công.",
+                Data = result
+            };
+        }
+
         public async Task<Result<object>> AddNewAddress(AddNewAddressDTO userAddress)
         {
             var address = _mapper.Map<UserAddress>(userAddress);
             address.FullAddress = $"{address.HomeNumber}, {address.WardName}, {address.DistrictName}, {address.ProviceName}";
+
+            // If the new address is set as default, reset other addresses' IsDefault to false
+            if (address.IsDefault)
+            {
+                var userAddresses = await _unitOfWork.userAddressRepository.GetUserAddressesByUserId(address.UserId);
+                foreach (var existingAddress in userAddresses)
+                {
+                    if (existingAddress.IsDefault)
+                    {
+                        existingAddress.IsDefault = false;
+                        await _unitOfWork.userAddressRepository.UpdateAddress(existingAddress);
+                    }
+                }
+            }
+
             await _unitOfWork.userAddressRepository.AddNewAddress(address);
             return new Result<object>()
             {
