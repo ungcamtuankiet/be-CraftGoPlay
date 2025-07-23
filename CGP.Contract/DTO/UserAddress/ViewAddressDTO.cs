@@ -16,5 +16,8 @@ namespace CGP.Contract.DTO.UserAddress
         public string AddressType { get; set; }
         public bool IsDefault { get; set; }
         public string FullAddress { get; set; }
+        public int ProviceId { get; set; }
+        public int DistrictId { get; set; }
+        public string WardCode { get; set; }
     }
 }
