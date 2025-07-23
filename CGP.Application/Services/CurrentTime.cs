@@ -9,6 +9,12 @@ namespace CGP.Application.Services
 {
     public class CurrentTime : ICurrentTime
     {
-        public DateTime GetCurrentTime() => DateTime.UtcNow;
+        public DateTime GetCurrentTime()
+        {
+            // Lấy thời gian UTC và chuyển sang UTC+7
+            var utcNow = DateTime.UtcNow;
+            var utcPlus7 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); // Múi giờ UTC+7
+            return TimeZoneInfo.ConvertTimeFromUtc(utcNow, utcPlus7);
+        }
     }
 }

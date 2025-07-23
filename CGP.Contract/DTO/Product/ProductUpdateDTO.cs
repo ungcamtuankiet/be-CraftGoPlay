@@ -34,6 +34,21 @@ namespace CGP.Contract.DTO.Product
 
         [Required(ErrorMessage = "Artisan_id là bắt buộc.")]
         public Guid? Artisan_id { get; set; }
+        [Required(ErrorMessage = "Cân nặng sản phẩm là bắt buộc.")]
+        [Range(0, 1600000, ErrorMessage = "Cân nặng phải ít hơn 1.600.000 (gram).")]
+        public int Weight { get; set; }
+
+        [Required(ErrorMessage = "Chiều dài sản phẩm là bắt buộc.")]
+        [Range(0, 200, ErrorMessage = "Chiều dài tối đa là 200 (cm).")]
+        public int Length { get; set; }
+
+        [Required(ErrorMessage = "Chiều rộng sản phẩm là bắt buộc.")]
+        [Range(0, 200, ErrorMessage = "Chiều rộng tối đa là 200 (cm).")]
+        public int Width { get; set; }
+
+        [Required(ErrorMessage = "Chiều cao sản phẩm là bắt buộc.")]
+        [Range(0, 200, ErrorMessage = "Chiều cao tối đa là 200 (cm).")]
+        public int Height { get; set; }
         public List<IFormFile>? ImagesToAdd { get; set; }
         public List<Guid>? ImagesToRemove { get; set; } = new();
         public List<Guid>? MeterialIdsToAdd { get; set; } = new();   
