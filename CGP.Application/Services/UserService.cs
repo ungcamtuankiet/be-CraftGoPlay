@@ -2,6 +2,7 @@
 using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Application.Utils;
+using CGP.Contract.Abstractions.Shared;
 using CGP.Contract.DTO.Product;
 using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
@@ -56,13 +57,14 @@ namespace CGP.Application.Services
             return getUser;
         }
 
-        public async Task<Result<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)
+        public async Task<AccountResponse<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)
         {
             var getUser = _mapper.Map<List<UserDTO>>(await _unitOfWork.userRepository.GetAllAccountByStatusAsync(pageIndex, pageSize, status));
-            return new Result<List<UserDTO>>()
+            return new AccountResponse<List<UserDTO>>()
             {
                 Error = 0,
                 Message = "Lấy danh sách người dùng thành công.",
+                Count = getUser.Count,
                 Data = getUser
             };
         }
@@ -260,6 +262,7 @@ namespace CGP.Application.Services
             user.PasswordHash = HashPassword(createNewAccountDTO.PasswordHash);
             var uploadResult = await _cloudinaryService.UploadProductImage(createNewAccountDTO.Thumbnail, FOLDER);
             user.Thumbnail = uploadResult.SecureUrl.ToString();
+            user.RoleId = 2;
             await _unitOfWork.userRepository.AddAsync(user);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
@@ -299,7 +302,6 @@ namespace CGP.Application.Services
                 getUser.Email = updateAccountDTO.Email;
             }
 
-            // Kiểm tra số điện thoại trùng (trừ chính user này)
             if (!string.IsNullOrWhiteSpace(updateAccountDTO.PhoneNumber) && updateAccountDTO.PhoneNumber != getUser.PhoneNumber)
             {
                 var checkPhone = await _unitOfWork.userRepository.FindByPhoneNoAsync(updateAccountDTO.PhoneNumber); // <-- Hàm đúng
@@ -330,7 +332,6 @@ namespace CGP.Application.Services
             if (!string.IsNullOrWhiteSpace(updateAccountDTO.PasswordHash))
                 getUser.PasswordHash = HashPassword(updateAccountDTO.PasswordHash);
 
-            // ✅ Chỉ khi có ảnh mới thì mới cập nhật
             if (updateAccountDTO.Thumbnail != null)
             {
                 await _cloudinaryService.DeleteImageAsync(getUser.Thumbnail);

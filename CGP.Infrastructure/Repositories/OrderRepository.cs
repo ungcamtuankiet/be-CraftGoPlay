@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,14 +24,24 @@ namespace CGP.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<List<Order>> GetListOrderAsync()
+        public async Task<List<Order>> GetListOrderAsync(int pageIndex, int pageSize, OrderStatusEnum? status)
         {
-            return await _dbContext.Order
+            var query = _dbContext.Order
                 .Include(o => o.User)
                 .Include(o => o.Payment)
                 .Include(o => o.OrderItems)
-                .ThenInclude(o => o.Product)
-                .ThenInclude(o => o.ProductImages)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.ProductImages)
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.Status == status.Value);
+            }
+
+            return await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
 
@@ -45,30 +56,52 @@ namespace CGP.Infrastructure.Repositories
                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public async Task<List<Order>> GetOrdersByUserIdAsync(Guid userId)
+        public async Task<List<Order>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status)
         {
-            return await _dbContext.Order
-               .Include(o => o.Payment)
-               .Include(o => o.OrderItems)
-               .ThenInclude(o => o.Product)
-               .ThenInclude(o => o.ProductImages)
-               .Include(o => o.OrderItems)
-               .ThenInclude(o => o.Product)
-               .ThenInclude(o => o.User)
-               .Where(o => o.UserId == userId)
-               .ToListAsync();
+            var query = _dbContext.Order
+                .Include(o => o.Payment)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.ProductImages)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.User)
+                .Where(o => o.UserId == userId)
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.Status == status.Value);
+            }
+
+            return await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
-        public async Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId)
+
+        public async Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status)
         {
-            return await _dbContext.Order
+            var query = _dbContext.Order
                 .Include(o => o.User)
                 .Include(o => o.Payment)
                 .Include(o => o.OrderItems)
-                .ThenInclude(o => o.Product)
-                .ThenInclude(o => o.ProductImages)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.ProductImages)
                 .Where(o => o.OrderItems.Any(oi => oi.ArtisanId == artisanId))
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.Status == status.Value);
+            }
+
+            return await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
+
     }
 }

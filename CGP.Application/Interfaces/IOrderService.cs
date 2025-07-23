@@ -1,4 +1,5 @@
-﻿using CGP.Contract.DTO.Order;
+﻿using CGP.Contract.Abstractions.Shared;
+using CGP.Contract.DTO.Order;
 using CGP.Contract.DTO.Product;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Enums;
@@ -13,10 +14,10 @@ namespace CGP.Application.Interfaces
 {
     public interface IOrderService
     {
-        Task<Result<List<ViewOrderDTO>>> GetOrdersAsync();
+        Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersAsync(int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<Result<ViewOrderDTO>> GetOrderByIdAssync(Guid id);
-        Task<Result<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId);
-        Task<Result<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId);
+        Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status);
+        Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto statusDto);
         Task<Result<List<Guid>>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Guid address, PaymentMethodEnum paymentMethod);
         Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, CreateDirectOrderDto dto);

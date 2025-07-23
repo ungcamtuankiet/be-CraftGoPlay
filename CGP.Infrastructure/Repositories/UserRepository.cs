@@ -64,7 +64,7 @@ namespace CGP.Infrastructure.Repositories
                         case "inactive":
                             query = query.Where(x => x.Status == StatusEnum.Inactive);
                             break;
-                        case "reject":
+                        case "rejected":
                             query = query.Where(x => x.Status == StatusEnum.Rejected);
                             break;
                         default:

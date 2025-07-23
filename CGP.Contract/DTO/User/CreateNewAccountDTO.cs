@@ -39,9 +39,5 @@ namespace CGP.Contract.DTO.User
         [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         [EnumDataType(typeof(StatusEnum), ErrorMessage = "Trạng thái không hợp lệ.")]
         public StatusEnum Status { get; set; } = StatusEnum.Active;
-
-        [Required(ErrorMessage = "Quyền (Role) là bắt buộc.")]
-        [EnumDataType(typeof(RoleEnum), ErrorMessage = "Role không hợp lệ.")]
-        public RoleEnum RoleId { get; set; }
     }
 }

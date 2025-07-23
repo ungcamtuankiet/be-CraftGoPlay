@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Order;
+using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,9 +20,9 @@ namespace CGP.WebAPI.Controllers
 
         [HttpGet("GetOrdersByUserId/{userId}")]
         [Authorize(Policy = "UserPolicy")]
-        public async Task<IActionResult> GetOrdersByUserId(Guid userId)
+        public async Task<IActionResult> GetOrdersByUserId(Guid userId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
         {
-            var result = await _orderService.GetOrdersByUserIdAsync(userId);
+            var result = await _orderService.GetOrdersByUserIdAsync(userId, pageIndex, pageSize, status);
             if (result.Error == 1)
             {
                 return NotFound(result);
@@ -35,9 +36,9 @@ namespace CGP.WebAPI.Controllers
 
         [HttpGet("GetOrdersByArtisanId/{artisanId}")]
         [Authorize(Policy = "ArtisanPolicy")] // Assuming artisan policy exists
-        public async Task<IActionResult> GetOrdersByArtisanId(Guid artisanId)
+        public async Task<IActionResult> GetOrdersByArtisanId(Guid artisanId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
         {
-            var result = await _orderService.GetOrdersByArtisanIdAsync(artisanId);
+            var result = await _orderService.GetOrdersByArtisanIdAsync(artisanId, pageIndex, pageSize, status);
             if (result.Error == 1)
             {
                 return NotFound(result);

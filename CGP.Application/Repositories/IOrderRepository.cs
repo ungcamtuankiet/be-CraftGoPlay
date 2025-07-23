@@ -1,4 +1,5 @@
 ﻿using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,8 @@ namespace CGP.Application.Repositories
     public interface IOrderRepository : IGenericRepository<Order>
     {
         Task<Order> GetOrderByIdAsync(Guid id);
-        Task<List<Order>> GetOrdersByUserIdAsync(Guid userId);
-        Task<List<Order>> GetListOrderAsync();
-        Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId);
+        Task<List<Order>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status);
+        Task<List<Order>> GetListOrderAsync(int pageIndex, int pageSize, OrderStatusEnum? status);
+        Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status);
     }
 }
