@@ -36,15 +36,15 @@ namespace CGP.WebAPI.Controllers
 
         [HttpGet("GetOrders")]
         [Authorize(Policy = "AdminOrStaffPolicy")] // Assuming admin access for all orders
-        public async Task<IActionResult> GetOrders()
+        public async Task<IActionResult> GetOrders([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
         {
-            var result = await _orderService.GetOrdersAsync();
+            var result = await _orderService.GetOrdersAsync(pageIndex, pageSize, status);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
-        [HttpPost("CreateNewAccount")]
+        [HttpPost("CreateStaffAccount")]
         [Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> CreateNewAccount([FromForm] CreateNewAccountDTO createNewAccountDTO)
+        public async Task<IActionResult> CreateStaffAccount([FromForm] CreateNewAccountDTO createNewAccountDTO)
         {
             if (!ModelState.IsValid)
             {

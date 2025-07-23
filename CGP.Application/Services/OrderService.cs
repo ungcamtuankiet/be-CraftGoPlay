@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CGP.Application.Interfaces;
+using CGP.Contract.Abstractions.Shared;
 using CGP.Contract.DTO.Order;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
@@ -30,15 +31,17 @@ namespace CGP.Application.Services
             _claimsService = claimsService;
         }
 
-        public async Task<Result<List<ViewOrderDTO>>> GetOrdersAsync()
+        public async Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersAsync(int pageIndex, int pageSize, OrderStatusEnum? status)
         {
-            var orders = await _unitOfWork.orderRepository.GetListOrderAsync();
+            var orders = await _unitOfWork.orderRepository.GetListOrderAsync(pageIndex, pageSize,status);
             var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders);
 
-            return new Result<List<ViewOrderDTO>>()
+            return new ResponseOrder<List<ViewOrderDTO>>()
             {
                 Error = 0,
                 Message = "Lấy danh sách đơn hàng thành công",
+                TotalPrice = (double?)orderDtos.Sum(o => o.TotalPrice),
+                Count = orderDtos.Count,
                 Data = orderDtos
             };
         }
@@ -77,48 +80,54 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId)
+        public async Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status)
         {
             var currentUserId = _claimsService.GetCurrentUserId;
+            int count = 0;
 
-            // Kiểm tra quyền: Chỉ cho phép người dùng xem đơn hàng của chính họ
             if (userId != currentUserId)
             {
-                return new Result<List<ViewOrderDTO>>()
+                return new ResponseOrder<List<ViewOrderDTO>>()
                 {
                     Error = 2,
                     Message = "Bạn không có quyền xem đơn hàng của người dùng này",
+                    Count = 0,
+                    TotalPrice = 0,
                     Data = null
                 };
             }
 
-            var orders = await _unitOfWork.orderRepository.GetOrdersByUserIdAsync(userId);
-            var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders); // Use AutoMapper
+            var orders = await _unitOfWork.orderRepository.GetOrdersByUserIdAsync(userId,pageIndex, pageSize, status);
+            
+            var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders);
 
-            return new Result<List<ViewOrderDTO>>()
+            return new ResponseOrder<List<ViewOrderDTO>>()
             {
                 Error = 0,
                 Message = "Lấy danh sách đơn hàng theo người dùng thành công",
+                Count = orderDtos.Count,
+                TotalPrice = (double?)orderDtos.Sum(o => o.TotalPrice),
                 Data = orderDtos
             };
         }
 
-        public async Task<Result<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId)
+        public async Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status)
         {
             var currentArtisanId = _claimsService.GetCurrentUserId;
 
-            // Kiểm tra quyền: Chỉ cho phép người dùng xem đơn hàng của chính họ
             if (artisanId != currentArtisanId)
             {
-                return new Result<List<ViewOrderDTO>>()
+                return new ResponseOrder<List<ViewOrderDTO>>()
                 {
                     Error = 2,
                     Message = "Bạn không có quyền xem đơn hàng của người dùng này",
+                    Count = 0,
+                    TotalPrice = 0,
                     Data = null
                 };
             }
 
-            var orders = await _unitOfWork.orderRepository.GetOrdersByArtisanIdAsync(artisanId);
+            var orders = await _unitOfWork.orderRepository.GetOrdersByArtisanIdAsync(artisanId, pageIndex, pageSize, status);
             var filteredOrders = orders.Select(order =>
             {
                 // Lọc OrderItems chỉ giữ lại các item thuộc artisanId
@@ -128,10 +137,12 @@ namespace CGP.Application.Services
 
             var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders); // Use AutoMapper
 
-            return new Result<List<ViewOrderDTO>>()
+            return new ResponseOrder<List<ViewOrderDTO>>()
             {
                 Error = 0,
                 Message = "Lấy danh sách đơn hàng theo artisan thành công",
+                Count = orderDtos.Count,
+                TotalPrice = (double?)orderDtos.Sum(o => o.TotalPrice),
                 Data = orderDtos
             };
         }

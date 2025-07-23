@@ -17,6 +17,7 @@ namespace CGP.Application.Repositories
         public Task<IList<Product>> SearchProducts(string? search, int pageIndex, int pageSize, decimal from, decimal to, string sortOrder);
         public Task<IList<Product>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus);
         public Task<IList<Product>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum? productStatus);
+        public Task<IList<Product>> GetProductsBySubCategoryId(Guid subCategoryId, int pageIndex, int pageSize, ProductStatusEnum? productStatus);
         public Task<Product> GetProductById(Guid id);
         public Task CreateNewProduct(Product product);
         public Task UpdateProduct(Product product);
