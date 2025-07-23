@@ -214,5 +214,16 @@ namespace CGP.Infrastructure.Repositories
             _context.Product.Remove(product);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IList<Product>> GetProductsBySubCategoryId(Guid subCategoryId, int pageIndex, int pageSize, ProductStatusEnum? productStatus)
+        {
+            return await _context.Product
+                .Include(x => x.User)
+                .Include(x => x.Meterials)
+                .Include(x => x.SubCategory)
+                .Include(x => x.ProductImages)
+                .Where(x => x.SubCategoryId == subCategoryId)
+                .ToListAsync();
+        }
     }
 }

@@ -81,27 +81,29 @@ namespace CGP.Application.Services
         }
 
 
-        public async Task<Result<List<ViewProductDTO>>> SearchProducts(string? search, int pageIndex, int pageSize,  decimal from, decimal to, string sortOrder)
+        public async Task<ResponseProductsStatus<List<ViewProductDTO>>> SearchProducts(string? search, int pageIndex, int pageSize,  decimal from, decimal to, string sortOrder)
         {
             string cacheKey = $"product:search:{search}:{pageIndex}:{pageSize}:{from}:{to}:{sortOrder}";
             var cachedData = await _redisService.GetCacheAsync<List<ViewProductDTO>>(cacheKey);
 
             if (cachedData != null)
             {
-                return new Result<List<ViewProductDTO>>
+                return new ResponseProductsStatus<List<ViewProductDTO>>
                 {
                     Error = 0,
                     Message = "Lấy danh sách sản phẩm thành công (từ bộ nhớ đệm).",
+                    Count = cachedData.Count,
                     Data = cachedData
                 };
             }
 
             var result = _mapper.Map<List<ViewProductDTO>>(await _unitOfWork.productRepository.SearchProducts(search, pageIndex, pageSize, from, to, sortOrder));
             await _redisService.SetCacheAsync(cacheKey, result, TimeSpan.FromMinutes(10));
-            return new Result<List<ViewProductDTO>>
+            return new ResponseProductsStatus<List<ViewProductDTO>>
             {
                 Error = 0,
                 Message = "Lấy danh sách sản phẩm thành công.",
+                Count = result.Count,
                 Data = result
             };
         }
