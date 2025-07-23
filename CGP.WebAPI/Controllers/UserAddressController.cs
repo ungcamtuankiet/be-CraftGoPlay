@@ -26,6 +26,14 @@ namespace CGP.WebAPI.Controllers
             return Ok(getAddress);
         }
 
+        [HttpGet("GetDefaultAddress/{userId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetDefaultAddress(Guid userId)
+        {
+            var defaultAddress = await _userService.GetDefaultAddressByUserId(userId);
+            return Ok(defaultAddress);
+        }
+
         [HttpPost("AddNewAddress")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> AddNewAddress([FromForm] AddNewAddressDTO userAddress)
