@@ -78,7 +78,11 @@ namespace CGP.WebAPI.Controllers
         public async Task<IActionResult> VnPayReturn()
         {
             var result = await _orderService.HandleVnPayReturnAsync(Request.Query);
-            return StatusCode(result.Error == 0 ? 200 : 400, result);
+
+            var status = result.Error == 0 ? "success" : "failed";
+
+            // Redirect người dùng về giao diện FE
+            return Redirect($"http://localhost:5173/payment-success?status={status}");
         }
 
         [HttpPost("CreateFromCart")]
