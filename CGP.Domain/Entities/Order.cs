@@ -16,7 +16,7 @@ namespace CGP.Domain.Entities
         public double Product_Amount { get; set; }
         public double Delivery_Amount { get; set; }
         public decimal TotalPrice { get; set; } 
-        public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Pending;
+        public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Created;
         public PaymentMethodEnum PaymentMethod { get; set; }
         public bool IsPaid { get; set; } = false;
         public ApplicationUser User { get; set; }
