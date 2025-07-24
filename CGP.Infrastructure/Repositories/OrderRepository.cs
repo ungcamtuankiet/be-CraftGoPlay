@@ -30,8 +30,8 @@ namespace CGP.Infrastructure.Repositories
                 .Include(o => o.User)
                 .Include(o => o.Payment)
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
-                        .ThenInclude(p => p.ProductImages)
+                .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.ProductImages)
                 .AsQueryable();
 
             if (status.HasValue)
@@ -40,6 +40,7 @@ namespace CGP.Infrastructure.Repositories
             }
 
             return await query
+                .OrderByDescending(o => o.CreationDate)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -75,6 +76,7 @@ namespace CGP.Infrastructure.Repositories
             }
 
             return await query
+                .OrderByDescending(o => o.CreationDate)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -98,6 +100,7 @@ namespace CGP.Infrastructure.Repositories
             }
 
             return await query
+                .OrderByDescending(o => o.CreationDate)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

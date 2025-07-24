@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
+using CGP.Application.Services;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
@@ -16,10 +17,12 @@ namespace CGP.Infrastructure.Repositories
     public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
         private readonly AppDbContext _context;
+        private readonly ICurrentTime _currentTime;
 
         public ProductRepository(AppDbContext dataContext, ICurrentTime currentTime, IClaimsService claimsService) : base(dataContext, currentTime, claimsService)
         {
             _context = dataContext;
+            _currentTime = currentTime;
         }
 
         public async Task<ICollection<Product>> GetProducts()
@@ -196,11 +199,13 @@ namespace CGP.Infrastructure.Repositories
 
         public async Task CreateNewProduct(Product product)
         {
+            product.CreationDate = _currentTime.GetCurrentTime();
             await _context.Product.AddAsync(product);
             await _context.SaveChangesAsync();
         }
         public async Task UpdateProduct(Product product)
         {
+            product.ModificationDate = _currentTime.GetCurrentTime();
             _context.Product.Update(product);
             await _context.SaveChangesAsync();
         }

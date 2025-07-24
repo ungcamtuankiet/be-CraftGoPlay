@@ -306,6 +306,18 @@ namespace CGP.Application.Services
                     }
                 }
 
+                if (request.Weight != default)
+                    getProduct.Weight = (int)request.Weight;
+
+                if (request.Length != default)
+                    getProduct.Length = (int)request.Length;
+
+                if (request.Width != default)
+                    getProduct.Width = (int)request.Width;
+
+                if (request.Height != default)
+                    getProduct.Height = (int)request.Height;
+
                 await _unitOfWork.productRepository.UpdateProduct(getProduct);
                 await _unitOfWork.SaveChangeAsync();
                 await _redisService.RemoveCacheAsync("product:list");
