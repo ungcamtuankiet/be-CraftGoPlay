@@ -420,11 +420,11 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<string>> HandleVnPayReturnAsync(IQueryCollection query)
+        public async Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query)
         {
             var orderId = Guid.Parse(query["vnp_TxnRef"]);
             var order = await _unitOfWork.orderRepository.GetByIdAsync(orderId);
-            if (order == null) return new Result<string>()
+            if (order == null) return new Result<object>()
             {
                 Error = 1,
                 Message = "Đơn hàng không tồn tại",
@@ -449,7 +449,7 @@ namespace CGP.Application.Services
             if (isValid && responseCode == "00")
             {
                 order.IsPaid = true;
-                order.Status = OrderStatusEnum.Paid;
+                order.Status = OrderStatusEnum.Pending;
             }
             else
             {
@@ -457,11 +457,11 @@ namespace CGP.Application.Services
             }
 
             await _unitOfWork.SaveChangeAsync();
-            return new Result<string>
+            return new Result<object>
             {
                 Error = 0,
                 Message = isValid ? "Thanh toán thành công" : "Thanh toán không hợp lệ",
-                Data = null
+                Data = orderId
             };
         }
 

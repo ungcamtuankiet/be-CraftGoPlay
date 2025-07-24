@@ -22,6 +22,6 @@ namespace CGP.Application.Interfaces
         Task<Result<List<Guid>>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Guid address, PaymentMethodEnum paymentMethod);
         Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, CreateDirectOrderDto dto);
         Task<Result<string>> CreateVnPayUrlAsync(Guid orderId, HttpContext httpContext);
-        Task<Result<string>> HandleVnPayReturnAsync(IQueryCollection query);
+        Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query);
     }
 }
