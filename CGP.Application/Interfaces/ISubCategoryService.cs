@@ -14,6 +14,7 @@ namespace CGP.Application.Interfaces
         public Task<Result<List<ViewSubCategoryDTO>>> GetSubs();
         public Task<Result<object>> GetById(Guid Id);
         public Task<Result<object>> UpdateSubCategoryAsync(Guid Id, UpdateSubCategoryDTO request);
+        public Task<Result<List<ViewSubCategoryForArtisanDTO>>> GetSubCategoriesByArtisanIdAsync(Guid artisanId);
         public Task<Result<SubCategory>> GetSubByIdWithoutMap(Guid Id);
         public Task<Result<object>> Create(CreateSubCategoryDTO request);
         public Task<Result<object>> Update(Guid Id, string Name, int Status);

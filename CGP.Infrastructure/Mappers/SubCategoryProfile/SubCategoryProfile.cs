@@ -17,6 +17,8 @@ namespace CGP.Infrastructure.Mappers.SubCategoryProfile
                .ForMember(p => p.SubId, b => b.MapFrom(m => m.Id));
             CreateMap<CreateSubCategoryDTO, SubCategory>().ReverseMap();
             CreateMap<SubCategory, UpdateSubCategoryDTO>().ReverseMap();
+            CreateMap<SubCategory, ViewSubCategoryForArtisanDTO>().ReverseMap();
+
         }
     }
 }

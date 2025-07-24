@@ -31,6 +31,15 @@ namespace CGP.Infrastructure.Repositories
             return await _context.SubCategory.OrderBy(p => p.CreationDate).ToListAsync();
         }
 
+        public async Task<List<SubCategory>> GetSubCategoriesByArtisanIdAsync(Guid artisanId)
+        {
+            return await _context.Product
+                .Where(p => p.Artisan_id == artisanId)
+                .Select(p => p.SubCategory)
+                .Distinct()
+                .ToListAsync();
+        }
+
         public async Task<SubCategory> GetSubCategoryById(Guid id)
         {
             return await _context.SubCategory.Include(sc => sc.Category).FirstOrDefaultAsync(sc => sc.Id == id);
