@@ -27,5 +27,10 @@ namespace CGP.Domain.Entities
         public Transaction Transaction { get; set; }
         [ForeignKey("UserAddressId")]   
         public UserAddress? UserAddress { get; set; }
+
+        public static implicit operator string(Order v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -58,6 +58,17 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<List<ViewSubCategoryForArtisanDTO>>> GetSubCategoriesByArtisanIdAsync(Guid artisanId)
+        {
+            var result = _mapper.Map<List<ViewSubCategoryForArtisanDTO>>(await _subCategoryRepository.GetSubCategoriesByArtisanIdAsync(artisanId));
+            return new Result<List<ViewSubCategoryForArtisanDTO>>
+            {
+                Error = 0,
+                Message = "Lấy danh sách danh mục con theo nghệ nhân thành công.",
+                Data = result,
+            };
+        }
+
         public async Task<Result<object>> Update(Guid Id, string Name, int Status)
         {
             var subCategory = await _unitOfWork.subCategoryRepository.GetByIdAsync(Id);

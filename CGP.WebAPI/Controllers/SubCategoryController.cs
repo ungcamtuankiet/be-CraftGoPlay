@@ -36,6 +36,18 @@ namespace CGP.WebAPI.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("GetSubCategoryByArtisanId/{artisanId}")]
+        public async Task<IActionResult> GetSubCategoryByArtisanId(Guid artisanId)
+        {
+            var result = await _subCategoryService.GetSubCategoriesByArtisanIdAsync(artisanId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(result);
+        }
+
         [HttpPost("CreateSubCategory")]
         [ProducesResponseType(204, Type = typeof(Result<object>))]
         [ProducesResponseType(400, Type = typeof(Result<object>))]

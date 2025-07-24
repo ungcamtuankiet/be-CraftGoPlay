@@ -28,7 +28,8 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
                 .Include(x => x.ProductImages)
-                .Include(x => x.SubCategory).ToListAsync();
+                .Include(x => x.SubCategory)
+                .ToListAsync();
         }
 
         public async Task<Product> GetProductByProductId(Guid productId)
