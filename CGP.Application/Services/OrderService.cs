@@ -197,6 +197,7 @@ namespace CGP.Application.Services
                     Status = OrderStatusEnum.AwaitingPayment,
                     PaymentMethod = paymentMethod,
                     CreationDate = DateTime.UtcNow,
+                    Delivery_Amount = 25000,
                     OrderItems = selectedItems.Select(i => new OrderItem
                     {
                         ProductId = i.ProductId,
@@ -205,7 +206,8 @@ namespace CGP.Application.Services
                         UnitPrice = i.UnitPrice
                     }).ToList()
                 };
-                order.TotalPrice = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount);
                 orders.Add(order);
                 await _unitOfWork.orderRepository.AddAsync(order);
 
@@ -240,6 +242,7 @@ namespace CGP.Application.Services
                         UserAddressId = address,
                         PaymentMethod = paymentMethod,
                         CreationDate = DateTime.UtcNow,
+                        Delivery_Amount = 25000,
                         OrderItems = group.Select(i => new OrderItem
                         {
                             ProductId = i.ProductId,
@@ -248,8 +251,6 @@ namespace CGP.Application.Services
                             UnitPrice = i.UnitPrice
                         }).ToList()
                     };
-                    order.TotalPrice = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
-                    orders.Add(order);
                     await _unitOfWork.orderRepository.AddAsync(order);
 
                     foreach (var item in group)
@@ -268,13 +269,17 @@ namespace CGP.Application.Services
                                     Data = null
                                 };
                             }
+                            order.Product_Amount = (double)(product.Price * item.Quantity);
                             product.Quantity = product.Quantity - item.Quantity;
                             _unitOfWork.productRepository.Update(product);
                         }
                     }
+                    order.TotalPrice = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                    orders.Add(order);
                 }
             }
-
+            cart.IsCheckedOut = true;
+            _unitOfWork.cartRepository.Update(cart);
             await _unitOfWork.SaveChangeAsync();
 
             var orderIds = orders.Select(o => o.Id).ToList();
@@ -384,36 +389,6 @@ namespace CGP.Application.Services
                 Message = "Đặt hàng thành công",
                 Data = order.Id
             };
-
-
-            /*            var order = new Order
-                        {
-                            UserId = userId,
-                            CreationDate = DateTime.UtcNow,
-                            Status = dto.PaymentMethod == PaymentMethodEnum.Online ? OrderStatusEnum.AwaitingPayment : OrderStatusEnum.Created,
-                            PaymentMethod = dto.PaymentMethod,
-                            OrderItems = new List<OrderItem>
-                        {
-                            new OrderItem
-                            {
-                                ProductId = dto.ProductId,
-                                ArtisanId = product.Artisan_id,
-                                Quantity = dto.Quantity,
-                                UnitPrice = product.Price
-                            }
-                        },
-                            TotalPrice = product.Price * dto.Quantity
-                        };
-
-                        await _unitOfWork.orderRepository.AddAsync(order);
-                        await _unitOfWork.SaveChangeAsync();
-
-                        return new Result<Guid>()
-                        {
-                            Error = 0,
-                            Message = "Đặt hàng thành công",
-                            Data = order.Id
-                        };*/
         }
 
         public async Task<Result<string>> CreateVnPayUrlAsync(Guid orderId, HttpContext httpContext)
@@ -510,6 +485,7 @@ namespace CGP.Application.Services
         public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto statusDto)
         {
             var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(orderId);
+            var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
             if (order == null)
             {
                 return new Result<bool>()
@@ -522,10 +498,14 @@ namespace CGP.Application.Services
 
             order.Status = statusDto.Status;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
-
-            // Set IsPaid to true when status is Completed
             if (statusDto.Status == OrderStatusEnum.Completed)
             {
+                foreach (var item in orderItems)
+                {
+                    var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                    product.QuantitySold = product.QuantitySold + item.Quantity;
+                    _unitOfWork.productRepository.Update(product);
+                }
                 order.IsPaid = true;
             }
 
