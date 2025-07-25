@@ -82,7 +82,7 @@ namespace CGP.WebAPI.Controllers
             var status = result.Error == 0 ? "success" : "failed";
 
             // Redirect người dùng về giao diện FE
-            return Redirect($"http://localhost:5173/payment-success?status={status}");
+            return Redirect($"http://localhost:5173/payment-{status}");
         }
 
         [HttpPost("CreateFromCart")]
@@ -102,7 +102,6 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("status/{orderId}")]
-        [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromForm] UpdateOrderStatusDto statusDto)
         {
             var result = await _orderService.UpdateOrderStatusAsync(orderId, statusDto);

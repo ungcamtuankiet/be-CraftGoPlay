@@ -194,7 +194,7 @@ namespace CGP.Application.Services
                     UserId = userId,
                     TransactionId = transactionId,
                     UserAddressId = address,
-                    Status = OrderStatusEnum.WaitingForPayment,
+                    Status = OrderStatusEnum.AwaitingPayment,
                     PaymentMethod = paymentMethod,
                     CreationDate = DateTime.UtcNow,
                     OrderItems = selectedItems.Select(i => new OrderItem
@@ -235,7 +235,7 @@ namespace CGP.Application.Services
                     var order = new Order
                     {
                         UserId = userId,
-                        Status = OrderStatusEnum.Pending,
+                        Status = OrderStatusEnum.Created,
                         TransactionId = transactionId,
                         UserAddressId = address,
                         PaymentMethod = paymentMethod,
@@ -319,7 +319,7 @@ namespace CGP.Application.Services
                     };
                 }
                 order.UserId = userId;
-                order.Status = OrderStatusEnum.WaitingForPayment;
+                order.Status = OrderStatusEnum.AwaitingPayment;
                 order.TransactionId = transactionId;
                 order.UserAddressId = address;
                 order.PaymentMethod = dto.PaymentMethod;
@@ -354,7 +354,7 @@ namespace CGP.Application.Services
                     };
                 }
                 order.UserId = userId;
-                order.Status = OrderStatusEnum.Pending;
+                order.Status = OrderStatusEnum.Created;
                 order.TransactionId = transactionId;
                 order.UserAddressId = address;
                 order.PaymentMethod = dto.PaymentMethod;
@@ -386,34 +386,34 @@ namespace CGP.Application.Services
             };
 
 
-/*            var order = new Order
-            {
-                UserId = userId,
-                CreationDate = DateTime.UtcNow,
-                Status = dto.PaymentMethod == PaymentMethodEnum.Online ? OrderStatusEnum.WaitingForPayment : OrderStatusEnum.Pending,
-                PaymentMethod = dto.PaymentMethod,
-                OrderItems = new List<OrderItem>
-            {
-                new OrderItem
-                {
-                    ProductId = dto.ProductId,
-                    ArtisanId = product.Artisan_id,
-                    Quantity = dto.Quantity,
-                    UnitPrice = product.Price
-                }
-            },
-                TotalPrice = product.Price * dto.Quantity
-            };
+            /*            var order = new Order
+                        {
+                            UserId = userId,
+                            CreationDate = DateTime.UtcNow,
+                            Status = dto.PaymentMethod == PaymentMethodEnum.Online ? OrderStatusEnum.AwaitingPayment : OrderStatusEnum.Created,
+                            PaymentMethod = dto.PaymentMethod,
+                            OrderItems = new List<OrderItem>
+                        {
+                            new OrderItem
+                            {
+                                ProductId = dto.ProductId,
+                                ArtisanId = product.Artisan_id,
+                                Quantity = dto.Quantity,
+                                UnitPrice = product.Price
+                            }
+                        },
+                            TotalPrice = product.Price * dto.Quantity
+                        };
 
-            await _unitOfWork.orderRepository.AddAsync(order);
-            await _unitOfWork.SaveChangeAsync();
+                        await _unitOfWork.orderRepository.AddAsync(order);
+                        await _unitOfWork.SaveChangeAsync();
 
-            return new Result<Guid>()
-            {
-                Error = 0,
-                Message = "Đặt hàng thành công",
-                Data = order.Id
-            };*/
+                        return new Result<Guid>()
+                        {
+                            Error = 0,
+                            Message = "Đặt hàng thành công",
+                            Data = order.Id
+                        };*/
         }
 
         public async Task<Result<string>> CreateVnPayUrlAsync(Guid orderId, HttpContext httpContext)
@@ -489,7 +489,7 @@ namespace CGP.Application.Services
                 }
 
                 order.IsPaid = true;
-                order.Status = OrderStatusEnum.Pending;
+                order.Status = OrderStatusEnum.Created;
             }
             else
             {
@@ -522,6 +522,12 @@ namespace CGP.Application.Services
 
             order.Status = statusDto.Status;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
+
+            // Set IsPaid to true when status is Completed
+            if (statusDto.Status == OrderStatusEnum.Completed)
+            {
+                order.IsPaid = true;
+            }
 
             await _unitOfWork.SaveChangeAsync();
 
