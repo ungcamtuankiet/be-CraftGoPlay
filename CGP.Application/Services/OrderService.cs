@@ -255,6 +255,22 @@ namespace CGP.Application.Services
                     foreach (var item in group)
                     {
                         item.IsDeleted = true;
+
+                        var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                        if (product != null)
+                        {
+                            if (product.Quantity < item.Quantity)
+                            {
+                                return new Result<List<Guid>>()
+                                {
+                                    Error = 1,
+                                    Message = $"Sản phẩm {product.Name} không đủ hàng.",
+                                    Data = null
+                                };
+                            }
+                            product.Quantity = product.Quantity - item.Quantity;
+                            _unitOfWork.productRepository.Update(product);
+                        }
                     }
                 }
             }
@@ -356,7 +372,7 @@ namespace CGP.Application.Services
                     }
                 };
                 order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount); 
-                getProduct.Quantity -= dto.Quantity;
+                getProduct.Quantity = getProduct.Quantity - dto.Quantity;
                 await _unitOfWork.productRepository.UpdateProduct(getProduct);
                 await _unitOfWork.orderRepository.AddAsync(order);
             }
@@ -423,18 +439,22 @@ namespace CGP.Application.Services
         public async Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query)
         {
             var orderId = Guid.Parse(query["vnp_TxnRef"]);
+            var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
             var order = await _unitOfWork.orderRepository.GetByIdAsync(orderId);
-            if (order == null) return new Result<object>()
+
+            if (order == null)
             {
-                Error = 1,
-                Message = "Đơn hàng không tồn tại",
-                Data = null
-            };
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Đơn hàng không tồn tại",
+                    Data = null
+                };
+            }
 
             var isValid = await _payoutService.ValidateReturnData(query);
             var responseCode = query["vnp_ResponseCode"].ToString();
 
-            // Ghi log thanh toán
             var log = new Payment
             {
                 OrderId = order.Id,
@@ -448,6 +468,26 @@ namespace CGP.Application.Services
 
             if (isValid && responseCode == "00")
             {
+                foreach (var item in orderItems)
+                {
+                    var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                    if (product != null)
+                    {
+                        if (product.Quantity < item.Quantity)
+                        {
+                            return new Result<object>()
+                            {
+                                Error = 1,
+                                Message = $"Sản phẩm {product.Name} không đủ tồn kho.",
+                                Data = null
+                            };
+                        }
+
+                        product.Quantity -= item.Quantity;
+                        _unitOfWork.productRepository.Update(product);
+                    }
+                }
+
                 order.IsPaid = true;
                 order.Status = OrderStatusEnum.Created;
             }
@@ -457,6 +497,7 @@ namespace CGP.Application.Services
             }
 
             await _unitOfWork.SaveChangeAsync();
+
             return new Result<object>
             {
                 Error = 0,
@@ -464,6 +505,7 @@ namespace CGP.Application.Services
                 Data = orderId
             };
         }
+
 
         public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto statusDto)
         {
@@ -478,7 +520,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            // Optional: Add validation for valid status transitions
             order.Status = statusDto.Status;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
 
