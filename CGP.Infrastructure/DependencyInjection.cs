@@ -43,6 +43,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IPayoutService, PayoutService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ICraftSkillService, CraftSkillService>();
+            services.AddScoped<IDashBoardService, DashBoardService>();
 
             services.AddMemoryCache();
             //Repositories
