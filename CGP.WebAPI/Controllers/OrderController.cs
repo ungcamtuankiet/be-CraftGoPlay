@@ -1,5 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Order;
+using CGP.Contract.DTO.RefundRequest;
+using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -88,7 +90,7 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
-            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds,request.AddressId, request.PaymentMethod);
+            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, request.AddressId, request.PaymentMethod);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
@@ -96,7 +98,7 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateDirect([FromForm] CreateDirectOrderDto dto, Guid userId)
         {
-            var result = await _orderService.CreateDirectOrderAsync(userId,dto.AddressId, dto);
+            var result = await _orderService.CreateDirectOrderAsync(userId, dto.AddressId, dto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
@@ -106,6 +108,27 @@ namespace CGP.WebAPI.Controllers
         {
             var result = await _orderService.UpdateOrderStatusAsync(orderId, statusDto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
+        [HttpPost("ReturnRequest")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> RefundOrder([FromForm] SendRefundRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Dữ liệu không hợp lệ.",
+                    Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                });
+            }
+            var result = await _orderService.RefundOrderAsync(dto);
+            if(result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }

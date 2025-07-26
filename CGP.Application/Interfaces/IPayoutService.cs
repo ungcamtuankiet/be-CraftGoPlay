@@ -1,4 +1,5 @@
-﻿using CGP.Domain.Entities;
+﻿using CGP.Contracts.Abstractions.Shared;
+using CGP.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace CGP.Application.Interfaces
     {
         Task<string> CreatePaymentUrl(Order order, HttpContext context);
         Task<bool> ValidateReturnData(IQueryCollection query);
+        Task<Result<bool>> RefundAsync(Guid orderId);
     }
 }

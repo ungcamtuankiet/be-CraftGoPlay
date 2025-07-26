@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CGP.Application.Repositories
 {
-    public interface ITransacTionRepository : IGenericRepository<Transaction>
+    public interface ITransactionRepository : IGenericRepository<Transaction>
     {
         public Task<List<Transaction>> GetByUserIdAsync(Guid userId);
         public Task<List<Transaction>> GetTransactions();

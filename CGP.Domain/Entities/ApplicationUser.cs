@@ -32,12 +32,15 @@ namespace CGP.Domain.Entities
         public CraftVillage CraftVillage { get; set; }
         public Wallet Wallet { get; set; }
         public ArtisanRequest ArtisanRequest { get; set; }
+        public Point Point { get; set; }
         public ICollection<Product> Products { get; set; } = new List<Product>();
         public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
         public ICollection<Cart> Carts { get; set; } = new List<Cart>();
         public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
         public ICollection<Order> Orders { get; set; }
         public ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
-
+        public ICollection<Rating> Ratings { get; set; }
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public ICollection<ReturnRequest> ReturnRequests { get; set; }
     }
 }

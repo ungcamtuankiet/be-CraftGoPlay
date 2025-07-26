@@ -1,4 +1,5 @@
 ﻿using CGP.Contract.Abstractions.Shared;
+using CGP.Contract.DTO.ActivityLog;
 using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
 using CGP.Contracts.Abstractions.Shared;
@@ -10,6 +11,7 @@ namespace CGP.Application.Interfaces
     public interface IUserService
     {
         Task<IList<ApplicationUser>> GetALl();
+        Task<List<ViewActivityDTO>> ViewActivityDTOs(Guid userId, int pageIndex, int pageSize);
         Task<AccountResponse<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status);
         Task<Result<object>> CreateNewAccountAsync(CreateNewAccountDTO createNewAccountDTO);
         Task<Result<object>> UpdateAccountAsync(UpdateAccountDTO updateAccountDTO);

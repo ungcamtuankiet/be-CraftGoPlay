@@ -12,5 +12,6 @@ namespace CGP.Contract.Abstractions.VnPayService
         public string HashSecret { get; set; }
         public string ReturnUrl { get; set; }
         public string PaymentUrl { get; set; }
+        public string RefundUrl { get; set; }
     }
 }

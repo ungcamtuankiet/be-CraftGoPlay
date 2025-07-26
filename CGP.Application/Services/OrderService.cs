@@ -1,18 +1,30 @@
 ﻿using AutoMapper;
 using CGP.Application.Interfaces;
+using CGP.Application.Utils;
 using CGP.Contract.Abstractions.Shared;
+using CGP.Contract.Abstractions.VnPayService;
 using CGP.Contract.DTO.Order;
+using CGP.Contract.DTO.RefundRequest;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Transactions;
+using VNPAY.NET.Enums;
+using static System.Net.Mime.MediaTypeNames;
+using Transaction = CGP.Domain.Entities.Transaction;
 
 namespace CGP.Application.Services
 {
@@ -22,18 +34,23 @@ namespace CGP.Application.Services
         private readonly IPayoutService _payoutService;
         private readonly IMapper _mapper;
         private readonly IClaimsService _claimsService;
+        private readonly IConfiguration _configuration;
+        private readonly ICloudinaryService _cloudinaryService;
+        private static string FOLDER = "return-request";
 
-        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService, IMapper mapper, IClaimsService claimsService)
+        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService, IMapper mapper, IClaimsService claimsService, IConfiguration configuration, ICloudinaryService cloudinaryService)
         {
             _unitOfWork = unitOfWork;
             _payoutService = payoutService;
             _mapper = mapper;
             _claimsService = claimsService;
+            _configuration = configuration;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersAsync(int pageIndex, int pageSize, OrderStatusEnum? status)
         {
-            var orders = await _unitOfWork.orderRepository.GetListOrderAsync(pageIndex, pageSize,status);
+            var orders = await _unitOfWork.orderRepository.GetListOrderAsync(pageIndex, pageSize, status);
             var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders);
 
             return new ResponseOrder<List<ViewOrderDTO>>()
@@ -97,8 +114,8 @@ namespace CGP.Application.Services
                 };
             }
 
-            var orders = await _unitOfWork.orderRepository.GetOrdersByUserIdAsync(userId,pageIndex, pageSize, status);
-            
+            var orders = await _unitOfWork.orderRepository.GetOrdersByUserIdAsync(userId, pageIndex, pageSize, status);
+
             var orderDtos = _mapper.Map<List<ViewOrderDTO>>(orders);
 
             return new ResponseOrder<List<ViewOrderDTO>>()
@@ -151,6 +168,7 @@ namespace CGP.Application.Services
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
             var transactionId = Guid.NewGuid();
+            var paymentId = Guid.NewGuid();
             var getUserAddress = await _unitOfWork.userAddressRepository.GetUserAddressesByUserId(userId);
             var getAddressByUserId = await _unitOfWork.userAddressRepository.GetByIdAsync(address);
             var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
@@ -176,11 +194,11 @@ namespace CGP.Application.Services
 
             if (paymentMethod == PaymentMethodEnum.Online)
             {
-                if(address == null)
+                if (address == null)
                 {
                     address = getAddressDefault.Id;
                 }
-                if(!isValidAddress)
+                if (!isValidAddress)
                 {
                     return new Result<List<Guid>>()
                     {
@@ -210,7 +228,6 @@ namespace CGP.Application.Services
                 order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount);
                 orders.Add(order);
                 await _unitOfWork.orderRepository.AddAsync(order);
-
                 foreach (var item in selectedItems)
                 {
                     item.IsDeleted = true;
@@ -276,6 +293,31 @@ namespace CGP.Application.Services
                     }
                     order.TotalPrice = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
                     orders.Add(order);
+                    var log = new Payment
+                    {
+                        OrderId = order.Id,
+                        PaymentMethod = PaymentMethodEnum.Cash,
+                    };
+                    await _unitOfWork.paymentRepository.AddAsync(log);
+                    var transaction = new Domain.Entities.Transaction
+                    {
+                        Id = transactionId,
+                        OrderId = order.Id,
+                        Amount = order.TotalPrice,
+                        Currency = "VND",
+                        PaymentId = log.Id,
+                        PaymentMethod = order.PaymentMethod,
+                        TransactionStatus = (TransactionStatusEnum)order.Status,
+                        TransactionDate = DateTime.UtcNow.AddHours(7),
+                        DiscountAmount = 0,
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        UpdatedAt = DateTime.UtcNow.AddHours(7),
+                        Notes = $"Đặt hàng từ giỏ hàng với mã đơn hàng là {order.Id} bằng thanh toán tiền mặt.",
+                        CreatedBy = order.UserId,
+                        IsDeleted = false,
+                        CreationDate = DateTime.UtcNow,
+                    };
+                    await _unitOfWork.transactionRepository.AddAsync(transaction);
                 }
             }
             cart.IsCheckedOut = true;
@@ -296,6 +338,7 @@ namespace CGP.Application.Services
         {
             var product = await _unitOfWork.productRepository.GetByIdAsync(dto.ProductId);
             var transactionId = Guid.NewGuid();
+            var paymentId = Guid.NewGuid();
             var getUserAddress = await _unitOfWork.userAddressRepository.GetUserAddressesByUserId(userId);
             var getAddressByUserId = await _unitOfWork.userAddressRepository.GetByIdAsync(address);
             var getProduct = await _unitOfWork.productRepository.GetProductByProductId(dto.ProductId);
@@ -376,10 +419,37 @@ namespace CGP.Application.Services
                         UnitPrice = product.Price
                     }
                 };
-                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount); 
+                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount);
                 getProduct.Quantity = getProduct.Quantity - dto.Quantity;
                 await _unitOfWork.productRepository.UpdateProduct(getProduct);
                 await _unitOfWork.orderRepository.AddAsync(order);
+                var log = new Payment
+                {
+                    Id = paymentId,
+                    OrderId = order.Id,
+                    PaymentMethod = PaymentMethodEnum.Cash,
+                };
+                var transaction = new Domain.Entities.Transaction
+                {
+                    Id = transactionId,
+                    UserId = order.UserId,
+                    OrderId = order.Id,
+                    Amount = order.TotalPrice,
+                    Currency = "VND",
+                    PaymentId = paymentId,
+                    PaymentMethod = order.PaymentMethod,
+                    TransactionStatus = (TransactionStatusEnum)order.Status,
+                    TransactionDate = DateTime.UtcNow.AddHours(7),
+                    DiscountAmount = 0,
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    UpdatedAt = DateTime.UtcNow.AddHours(7),
+                    Notes = $"Đặt hàng trực tiếp với mã đơn hàng là {order.Id} bằng thanh toán tiền mặt.",
+                    CreatedBy = order.UserId,
+                    IsDeleted = false,
+                    CreationDate = DateTime.UtcNow,
+                };
+                await _unitOfWork.transactionRepository.AddAsync(transaction);
+                await _unitOfWork.paymentRepository.AddAsync(log);
             }
 
             await _unitOfWork.SaveChangeAsync();
@@ -437,6 +507,8 @@ namespace CGP.Application.Services
                 BankCode = query["vnp_BankCode"],
                 ResponseCode = responseCode,
                 SecureHash = query["vnp_SecureHash"],
+                CreatedBy = order.UserId,
+                PaymentMethod = PaymentMethodEnum.Online,
                 RawData = string.Join("&", query.Select(x => $"{x.Key}={x.Value}"))
             };
             await _unitOfWork.paymentRepository.AddAsync(log);
@@ -470,7 +542,25 @@ namespace CGP.Application.Services
             {
                 order.Status = OrderStatusEnum.Cancelled;
             }
-
+            var transaction = new Domain.Entities.Transaction
+            {
+                Id = order.TransactionId,
+                OrderId = order.Id,
+                Amount = order.TotalPrice,
+                PaymentId = log.Id,
+                Currency = "VND",
+                PaymentMethod = order.PaymentMethod,
+                TransactionStatus = (TransactionStatusEnum)order.Status,
+                TransactionDate = DateTime.UtcNow.AddHours(7),
+                DiscountAmount = 0,
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+                UpdatedAt = DateTime.UtcNow.AddHours(7),
+                Notes = $"Đặt hàng từ giỏ hàng với mã đơn hàng là {order.Id} bằng thanh toán online.",
+                CreatedBy = order.UserId,
+                IsDeleted = false,
+                CreationDate = DateTime.UtcNow,
+            };
+            await _unitOfWork.transactionRepository.AddAsync(transaction);
             await _unitOfWork.SaveChangeAsync();
 
             return new Result<object>
@@ -515,6 +605,88 @@ namespace CGP.Application.Services
             {
                 Error = 0,
                 Message = "Cập nhật trạng thái đơn hàng thành công",
+                Data = true
+            };
+        }
+
+
+        public async Task<Result<bool>> RefundOrderAsync(SendRefundRequestDTO dto)
+        {
+            var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(dto.OrderId);
+            var returnRequest = _mapper.Map<ReturnRequest>(dto);
+            var uploadResult = await _cloudinaryService.UploadProductImage(dto.ImageUrl, FOLDER);
+
+            if(order.Status == OrderStatusEnum.Completed)
+            {
+                return new Result<bool>
+                {
+                    Error = 1,
+                    Message = "Đơn hàng đã được xác nhận là nhận đơn nên không thể hoàn hàng.",
+                    Data = false
+                };
+            }
+
+            if(order.Status != OrderStatusEnum.Delivered)
+            {
+                return new Result<bool>
+                {
+                    Error = 1,
+                    Message = "Đơn hàng chưa được giao đến tay bạn nên không thể hoàn hàng.",
+                    Data = false
+                };
+            }
+
+            if (order == null || order.Payment == null)
+            {
+                return new Result<bool>
+                {
+                    Error = 1,
+                    Message = "Đơn hàng không tồn tại hoặc chưa thanh toán.",
+                    Data = false
+                };
+            }
+
+            if (order.Payment.IsRefunded)
+            {
+                return new Result<bool>
+                {
+                    Error = 1,
+                    Message = "Đơn hàng đã được hoàn tiền trước đó.",
+                    Data = false
+                };
+            }
+            if (uploadResult == null || string.IsNullOrEmpty(uploadResult.SecureUrl.ToString()))
+            {
+                return new Result<bool>
+                {
+                    Error = 1,
+                    Message = "Tải lên hình ảnh hoàn hàng thất bại.",
+                    Data = false
+                };
+            }
+
+            if(dto.ImageUrl == null)
+            {
+                return new Result<bool>
+                {
+                    Error = 1,
+                    Message = "Vui lòng cung cấp hình ảnh sản phẩm để hoàn hàng.",
+                    Data = false
+                };
+            }
+
+            returnRequest.ImageUrl = uploadResult.SecureUrl.ToString();
+            await _unitOfWork.returnRequestRepository.AddAsync(returnRequest);
+
+            order.Status = OrderStatusEnum.ReturnRequested;
+
+            
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<bool>
+            {
+                Error = 0,
+                Message = "Đã gửi yêu cầu hoàn trả hàng thành công.",
                 Data = true
             };
         }

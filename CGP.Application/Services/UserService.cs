@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Application.Utils;
 using CGP.Contract.Abstractions.Shared;
+using CGP.Contract.DTO.ActivityLog;
 using CGP.Contract.DTO.Product;
 using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
@@ -55,6 +56,12 @@ namespace CGP.Application.Services
         {
             var getUser = await _unitOfWork.userRepository.GetAllAsync();
             return getUser;
+        }
+
+        public async Task<List<ViewActivityDTO>> ViewActivityDTOs(Guid userId, int pageIndex, int pageSize)
+        {
+            var result = _mapper.Map<List<ViewActivityDTO>>(await _unitOfWork.activityLogRepository.GetByUserIdAsync(userId, pageIndex, pageSize));
+            return result;
         }
 
         public async Task<AccountResponse<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)

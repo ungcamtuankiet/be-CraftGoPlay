@@ -35,6 +35,10 @@ public class AppDbContext : DbContext
     public DbSet<OrderVoucher> OrderVoucher { get; set; }
     public DbSet<Voucher> Voucher { get; set; }
     public DbSet<Transaction> Transaction { get; set; }
+    public DbSet<Point> Point { get; set; }
+    public DbSet<Rating> Rating { get; set; }
+    public DbSet<ReturnRequest> ReturnRequest { get; set; }
+    public DbSet<ActivityLog> ActivityLog { get; set; }
     #endregion
 
 
@@ -305,6 +309,10 @@ public class AppDbContext : DbContext
             .HasForeignKey<Payment>(p => p.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.PaymentMethod)
+            .HasConversion(v => v.ToString(), v => (PaymentMethodEnum)Enum.Parse(typeof(PaymentMethodEnum), v));
+
         //Voucher
         modelBuilder.Entity<Voucher>(e =>
         {
@@ -380,9 +388,68 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.HasOne(t => t.User)
+            .WithMany(t => t.Transactions)
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Transaction>()
             .Property(v => v.TransactionStatus)
             .IsRequired()
             .HasConversion(v => v.ToString(), v => (TransactionStatusEnum)Enum.Parse(typeof(TransactionStatusEnum), v));
+
+        //Point
+        modelBuilder.Entity<Point>(e =>
+        {
+            e.ToTable("Point");
+            e.HasKey(p => p.Id);
+            e.HasOne(p => p.User)
+            .WithOne(u => u.Point)
+            .HasForeignKey<Point>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Rating
+        modelBuilder.Entity<Rating>(entity =>
+        {
+            entity.ToTable("Ratings");
+
+            entity.HasKey(r => r.Id);
+
+            entity.HasOne(r => r.User)
+                  .WithMany(u => u.Ratings)
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.Product)
+                  .WithMany(p => p.Ratings)
+                  .HasForeignKey(r => r.ProductId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(r => new { r.UserId, r.ProductId }).IsUnique();
+        });
+
+        //ReturnRequest
+        modelBuilder.Entity<ReturnRequest>(e =>
+        {
+            e.ToTable("ReturnRequest");
+            e.HasKey(r => r.Id);
+            e.Property(r => r.Status)
+            .IsRequired()
+            .HasConversion(v => v.ToString(), v => (ReturnStatusEnum)Enum.Parse(typeof(ReturnStatusEnum), v));
+            e.Property(r => r.Reason)
+            .HasConversion(v => v.ToString(), v => (ReturnReasonEnum)Enum.Parse(typeof(ReturnReasonEnum), v));
+            e.HasOne(r => r.Order)
+            .WithMany(o => o.ReturnRequests)
+            .HasForeignKey(r => r.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(r => r.User)
+            .WithMany(o => o.ReturnRequests)
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }
