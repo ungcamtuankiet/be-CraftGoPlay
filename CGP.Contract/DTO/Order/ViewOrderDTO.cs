@@ -17,6 +17,7 @@ namespace CGP.Contract.DTO.Order
         public decimal TotalPrice { get; set; }
         public OrderStatusEnum Status { get; set; }
         public PaymentMethodEnum PaymentMethod { get; set; }
+        public double Delivery_Amount { get; set; }
         public bool IsPaid { get; set; } = false;
         public DateTime CreationDate { get; set; }
         public List<ViewOrderItemDTO> OrderItems { get; set; } = new List<ViewOrderItemDTO>();
