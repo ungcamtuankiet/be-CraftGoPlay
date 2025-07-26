@@ -26,3 +26,4 @@ obj/
 .json
 TemplateEngineHost/vs/
 
+/CGP.WebAPI/appsettings.json
