@@ -97,6 +97,14 @@ namespace CGP.Application.Utils
 
             return data.ToString();
         }
+
+        public string HmacSHA512(string key, string input)
+        {
+            var keyBytes = Encoding.UTF8.GetBytes(key);
+            using var hmac = new HMACSHA512(keyBytes);
+            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(input));
+            return BitConverter.ToString(hash).Replace("-", "").ToLower();
+        }
         #endregion
 
     }

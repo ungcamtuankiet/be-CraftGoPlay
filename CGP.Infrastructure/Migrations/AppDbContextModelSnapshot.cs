@@ -52,6 +52,62 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("ArtisanRequestCraftSkill");
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.ActivityLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("EntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActivityLog");
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -148,7 +204,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7954),
+                            CreationDate = new DateTime(2025, 7, 26, 10, 46, 56, 567, DateTimeKind.Local).AddTicks(7552),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -161,7 +217,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7974),
+                            CreationDate = new DateTime(2025, 7, 26, 10, 46, 56, 567, DateTimeKind.Local).AddTicks(7620),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -174,7 +230,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7982),
+                            CreationDate = new DateTime(2025, 7, 26, 10, 46, 56, 567, DateTimeKind.Local).AddTicks(7629),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -187,7 +243,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 7, 18, 13, 50, 2, 496, DateTimeKind.Local).AddTicks(7985),
+                            CreationDate = new DateTime(2025, 7, 26, 10, 46, 56, 567, DateTimeKind.Local).AddTicks(7636),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -769,8 +825,70 @@ namespace CGP.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BankCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRefunded")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaymentMethod")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RawData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResponseCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecureHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Payment");
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.Point", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -796,31 +914,18 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("OrderId")
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("RawData")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResponseCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SecureHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransactionNo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId")
+                    b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Payment");
+                    b.ToTable("Point", (string)null);
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Product", b =>
@@ -941,6 +1046,130 @@ namespace CGP.Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductImage", (string)null);
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.Rating", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("RatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Star")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("Ratings", (string)null);
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.ReturnRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRefunded")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OtherReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReceivedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ReturnRequest", (string)null);
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Role", b =>
@@ -1082,7 +1311,7 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PaymentId")
+                    b.Property<Guid?>("PaymentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("PaymentMethod")
@@ -1101,6 +1330,9 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("VoucherId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1113,6 +1345,8 @@ namespace CGP.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("PaymentId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("VoucherId");
 
@@ -1529,6 +1763,17 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.Point", b =>
+                {
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
+                        .WithOne("Point")
+                        .HasForeignKey("CGP.Domain.Entities.Point", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.Product", b =>
                 {
                     b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
@@ -1559,6 +1804,44 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.Rating", b =>
+                {
+                    b.HasOne("CGP.Domain.Entities.Product", "Product")
+                        .WithMany("Ratings")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("Ratings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.ReturnRequest", b =>
+                {
+                    b.HasOne("CGP.Domain.Entities.Order", "Order")
+                        .WithMany("ReturnRequests")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("ReturnRequests")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.SubCategory", b =>
                 {
                     b.HasOne("CGP.Domain.Entities.Category", "Category")
@@ -1582,6 +1865,11 @@ namespace CGP.Infrastructure.Migrations
                     b.HasOne("CGP.Domain.Entities.Payment", "Payment")
                         .WithMany("Transactions")
                         .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("Transactions")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1598,6 +1886,8 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Payment");
+
+                    b.Navigation("User");
 
                     b.Navigation("Voucher");
 
@@ -1652,7 +1942,16 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Navigation("Orders");
 
+                    b.Navigation("Point")
+                        .IsRequired();
+
                     b.Navigation("Products");
+
+                    b.Navigation("Ratings");
+
+                    b.Navigation("ReturnRequests");
+
+                    b.Navigation("Transactions");
 
                     b.Navigation("UserAddresses");
 
@@ -1685,6 +1984,8 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Navigation("Payment");
 
+                    b.Navigation("ReturnRequests");
+
                     b.Navigation("Transaction")
                         .IsRequired();
                 });
@@ -1703,6 +2004,8 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("ProductImages");
+
+                    b.Navigation("Ratings");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Role", b =>

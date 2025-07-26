@@ -30,6 +30,18 @@ namespace CGP.WebAPI.Controllers
             return Ok(getUser);
         }
 
+        [HttpGet("GetActivityByUserId/{userId}")]
+        [Authorize]
+        public async Task<IActionResult> GetActivityByUserId(Guid userId, int pageIndex = 0, int pageSize = 10)
+        {
+            var activities = await _userService.ViewActivityDTOs(userId, pageIndex, pageSize);
+            if (activities == null || !activities.Any())
+            {
+                return NotFound(new { message = "Không tìm thấy hoạt động nào." });
+            }
+            return Ok(activities);
+        }
+
         [HttpGet("CheckRequestSent/{userId}")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CheckAlreadySentRequest(Guid userId)

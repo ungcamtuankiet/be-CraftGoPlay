@@ -9,8 +9,9 @@ namespace CGP.Domain.Entities
 {
     public class Transaction : BaseEntity
     {
+        public Guid UserId { get; set; }
         public Guid OrderId { get; set; }
-        public Guid PaymentId { get; set; }
+        public Guid? PaymentId { get; set; }
         public Guid? VoucherId { get; set; }
         public Guid? WalletId { get; set; }
         public decimal Amount { get; set; }
@@ -29,5 +30,6 @@ namespace CGP.Domain.Entities
         public Wallet? Wallet { get; set; }
         public Payment Payment { get; set; }
         public Voucher? Voucher { get; set; }
+        public ApplicationUser User { get; set; }
     }
 }

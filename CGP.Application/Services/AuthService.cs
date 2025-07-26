@@ -37,12 +37,13 @@ namespace CGP.Application.Services
         private readonly IOtpService _otpService;
         private readonly IRedisService _redisService;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IUnitOfWork _unitOfWork;
         private static string FOLDER = "thumbnail";
 
         public AuthService(IAuthRepository authRepository, TokenGenerators tokenGenerators,
             IUserRepository userRepository, IHttpContextAccessor httpContextAccessor,
             IEmailService emailService, IConfiguration configuration, IOtpService otpService,
-            IMapper mapper, IRedisService redisService, ICloudinaryService cloudinaryService)
+            IMapper mapper, IRedisService redisService, ICloudinaryService cloudinaryService, IUnitOfWork unitOfWork)
         {
             _authRepository = authRepository;
             _tokenGenerators = tokenGenerators;
@@ -54,6 +55,7 @@ namespace CGP.Application.Services
             _mapper = mapper;
             _redisService = redisService;
             _cloudinaryService = cloudinaryService;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -84,6 +86,15 @@ namespace CGP.Application.Services
 
                 // Generate JWT token
                 var token = await GenerateJwtToken(user);
+                await _unitOfWork.activityLogRepository.AddAsync(new Domain.Entities.ActivityLog
+                {
+                    UserId = user.Id,
+                    Action = "Bạn đã đăng nhập vào hệ thống",
+                    EntityType = "Auth",
+                    Description = "Bạn đã đăng nhập vào hệ thống thành công.",
+                    EntityId = user.Id,
+                });
+                await _unitOfWork.SaveChangeAsync();
                 return token;
             }
             catch (KeyNotFoundException ex)

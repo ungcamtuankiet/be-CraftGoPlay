@@ -32,5 +32,6 @@ namespace CGP.Domain.Entities
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
         public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
         public ICollection<OrderItem> OrderItems { get; set; }
+        public ICollection<Rating> Ratings { get; set; }
     }
 }

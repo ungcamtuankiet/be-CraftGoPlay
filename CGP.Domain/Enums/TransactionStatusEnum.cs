@@ -13,6 +13,7 @@ namespace CGP.Domain.Enums
         Success,
         Failed,
         Cancelled,
+        PendingRefund,
         Refunded,
         Expired,
         Verifying,

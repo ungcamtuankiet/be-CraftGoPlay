@@ -1,6 +1,7 @@
 ﻿using CGP.Contract.Abstractions.Shared;
 using CGP.Contract.DTO.Order;
 using CGP.Contract.DTO.Product;
+using CGP.Contract.DTO.RefundRequest;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Http;
@@ -23,5 +24,6 @@ namespace CGP.Application.Interfaces
         Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, CreateDirectOrderDto dto);
         Task<Result<string>> CreateVnPayUrlAsync(Guid orderId, HttpContext httpContext);
         Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query);
+        Task<Result<bool>> RefundOrderAsync(SendRefundRequestDTO dto);
     }
 }
