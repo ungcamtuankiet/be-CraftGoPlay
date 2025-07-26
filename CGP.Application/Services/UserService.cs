@@ -4,6 +4,7 @@ using CGP.Application.Repositories;
 using CGP.Application.Utils;
 using CGP.Contract.Abstractions.Shared;
 using CGP.Contract.DTO.ActivityLog;
+using CGP.Contract.DTO.ArtisanRequest;
 using CGP.Contract.DTO.Product;
 using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
@@ -281,6 +282,28 @@ namespace CGP.Application.Services
                 Error = 0,
                 Message = "Xóa địa chỉ thành công.",
                 Data = null
+            };
+        }
+
+        public async Task<Result<ViewAddressOfArtisanDTO>> GetAddressOfArtisan(Guid artisanId)
+        {
+            var artisanRequest = await _unitOfWork.artisanRequestRepository.GetLatestRequestByUserId(artisanId);
+            if (artisanRequest == null || artisanRequest.Status != RequestArtisanStatus.Approved)
+            {
+                return new Result<ViewAddressOfArtisanDTO>
+                {
+                    Error = 1,
+                    Message = "Người dùng không phải là thợ thủ công hoặc chưa được phê duyệt.",
+                    Data = null
+                };
+            }
+
+            var address = _mapper.Map<ViewAddressOfArtisanDTO>(artisanRequest);
+            return new Result<ViewAddressOfArtisanDTO>
+            {
+                Error = 0,
+                Message = "Lấy địa chỉ nghệ nhân thành công.",
+                Data = address
             };
         }
 

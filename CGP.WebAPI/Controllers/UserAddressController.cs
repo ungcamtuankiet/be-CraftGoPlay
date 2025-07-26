@@ -34,6 +34,22 @@ namespace CGP.WebAPI.Controllers
             return Ok(defaultAddress);
         }
 
+        [HttpGet("GetAddressOfArtisan/{artisanId}")]
+        public async Task<IActionResult> GetAddressOfArtisan(Guid artisanId)
+        {
+            var artisanAddress = await _userService.GetAddressOfArtisan(artisanId);
+            if (artisanAddress == null)
+            {
+                return NotFound(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy địa chỉ của thợ thủ công.",
+                    Data = null
+                });
+            }
+            return Ok(artisanAddress);
+        }
+
         [HttpPost("AddNewAddress")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> AddNewAddress([FromForm] AddNewAddressDTO userAddress)

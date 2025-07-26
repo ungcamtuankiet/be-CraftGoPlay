@@ -20,6 +20,7 @@ namespace CGP.Infrastructure.Mappers.ArtisanRequestProfile
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => RequestArtisanStatus.Rejected))
                 .ForMember(dest => dest.Reason, opt => opt.MapFrom(src => src.Reason));
             CreateMap<ArtisanRequest, ViewRequestDTO>().ReverseMap();
+            CreateMap<ArtisanRequest, ViewAddressOfArtisanDTO>().ReverseMap();
         }
     }
 }
