@@ -11,6 +11,7 @@ namespace CGP.Application.Repositories
     public interface IOrderRepository : IGenericRepository<Order>
     {
         Task<Order> GetOrderByIdAsync(Guid id);
+        Task<List<Order>> GetOrdersByTransactionIdAsync(Guid transactionId);
         Task<List<Order>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<List<Order>> GetListOrderAsync(int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status);

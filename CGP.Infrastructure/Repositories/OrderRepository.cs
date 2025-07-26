@@ -57,6 +57,18 @@ namespace CGP.Infrastructure.Repositories
                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
+        public async Task<List<Order>> GetOrdersByTransactionIdAsync(Guid transactionId)
+        {
+            return await _dbContext.Order
+               .Include(o => o.User)
+               .Include(o => o.Payment)
+               .Include(o => o.OrderItems)
+               .ThenInclude(o => o.Product)
+               .ThenInclude(o => o.ProductImages)
+               .Where(o => o.TransactionId == transactionId)
+               .ToListAsync();
+        }
+
         public async Task<List<Order>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status)
         {
             var query = _dbContext.Order
