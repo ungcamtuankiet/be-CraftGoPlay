@@ -207,30 +207,49 @@ namespace CGP.Application.Services
                         Data = null
                     };
                 }
-                var order = new Order
+                var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
+                foreach (var group in grouped)
                 {
-                    UserId = userId,
-                    TransactionId = transactionId,
-                    UserAddressId = address,
-                    Status = OrderStatusEnum.AwaitingPayment,
-                    PaymentMethod = paymentMethod,
-                    CreationDate = DateTime.UtcNow,
-                    Delivery_Amount = 25000,
-                    OrderItems = selectedItems.Select(i => new OrderItem
+                    var order = new Order
                     {
-                        ProductId = i.ProductId,
-                        ArtisanId = i.Product.Artisan_id,
-                        Quantity = i.Quantity,
-                        UnitPrice = i.UnitPrice
-                    }).ToList()
-                };
-                order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
-                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount);
-                orders.Add(order);
-                await _unitOfWork.orderRepository.AddAsync(order);
-                foreach (var item in selectedItems)
-                {
-                    item.IsDeleted = true;
+                        UserId = userId,
+                        TransactionId = transactionId,
+                        UserAddressId = address,
+                        Status = OrderStatusEnum.AwaitingPayment,
+                        PaymentMethod = paymentMethod,
+                        CreationDate = DateTime.UtcNow,
+                        Delivery_Amount = 25000,
+                        OrderItems = group.Select(i => new OrderItem // Chỉ lấy các mục thuộc Artisan_id của group
+                        {
+                            ProductId = i.ProductId,
+                            ArtisanId = i.Product.Artisan_id,
+                            Quantity = i.Quantity,
+                            UnitPrice = i.UnitPrice
+                        }).ToList()
+                    };
+                    order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                    order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount);
+                    orders.Add(order);
+                    await _unitOfWork.orderRepository.AddAsync(order);
+                    foreach (var item in group) // Chỉ xử lý các mục trong group
+                    {
+                        item.IsDeleted = true;
+                        var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                        if (product != null)
+                        {
+                            if (product.Quantity < item.Quantity)
+                            {
+                                return new Result<List<Guid>>()
+                                {
+                                    Error = 1,
+                                    Message = $"Sản phẩm {product.Name} không đủ hàng.",
+                                    Data = null
+                                };
+                            }
+                            product.Quantity = product.Quantity - item.Quantity;
+                            _unitOfWork.productRepository.Update(product);
+                        }
+                    }
                 }
             }
             else
@@ -559,6 +578,7 @@ namespace CGP.Application.Services
                 CreatedBy = order.UserId,
                 IsDeleted = false,
                 CreationDate = DateTime.UtcNow,
+                UserId = order.UserId
             };
             await _unitOfWork.transactionRepository.AddAsync(transaction);
             await _unitOfWork.SaveChangeAsync();
