@@ -90,7 +90,7 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
-            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, request.AddressId, request.PaymentMethod);
+            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds,request.DeliveryAmount, request.AddressId, request.PaymentMethod);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
@@ -98,7 +98,7 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateDirect([FromForm] CreateDirectOrderDto dto, Guid userId)
         {
-            var result = await _orderService.CreateDirectOrderAsync(userId, dto.AddressId, dto);
+            var result = await _orderService.CreateDirectOrderAsync(userId, dto.AddressId,dto.DeliveryAmount, dto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 

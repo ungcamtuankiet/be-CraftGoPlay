@@ -164,7 +164,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Guid address, PaymentMethodEnum paymentMethod)
+        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, double Delivery_Amount, Guid address, PaymentMethodEnum paymentMethod)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
             var transactionId = Guid.NewGuid();
@@ -215,7 +215,7 @@ namespace CGP.Application.Services
                         Status = OrderStatusEnum.AwaitingPayment,
                         PaymentMethod = paymentMethod,
                         CreationDate = DateTime.UtcNow,
-                        Delivery_Amount = 25000,
+                        Delivery_Amount = Delivery_Amount,
                         OrderItems = group.Select(i => new OrderItem // Chỉ lấy các mục thuộc Artisan_id của group
                         {
                             ProductId = i.ProductId,
@@ -273,7 +273,7 @@ namespace CGP.Application.Services
                         UserAddressId = address,
                         PaymentMethod = paymentMethod,
                         CreationDate = DateTime.UtcNow,
-                        Delivery_Amount = 25000,
+                        Delivery_Amount = Delivery_Amount,
                         OrderItems = group.Select(i => new OrderItem
                         {
                             ProductId = i.ProductId,
@@ -348,7 +348,7 @@ namespace CGP.Application.Services
         }
 
 
-        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, CreateDirectOrderDto dto)
+        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, CreateDirectOrderDto dto)
         {
             var product = await _unitOfWork.productRepository.GetByIdAsync(dto.ProductId);
             var transactionId = Guid.NewGuid();
@@ -387,7 +387,7 @@ namespace CGP.Application.Services
                 order.PaymentMethod = dto.PaymentMethod;
                 order.CreationDate = DateTime.UtcNow;
                 order.Product_Amount = (double)(getProduct.Price * dto.Quantity);
-                order.Delivery_Amount = 25000;
+                order.Delivery_Amount = Delivery_Amount;
                 order.OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -422,7 +422,7 @@ namespace CGP.Application.Services
                 order.PaymentMethod = dto.PaymentMethod;
                 order.CreationDate = DateTime.UtcNow;
                 order.Product_Amount = (double)(getProduct.Price * dto.Quantity);
-                order.Delivery_Amount = 25000;
+                order.Delivery_Amount = Delivery_Amount;
                 order.OrderItems = new List<OrderItem>
                 {
                     new OrderItem
