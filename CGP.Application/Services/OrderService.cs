@@ -236,11 +236,10 @@ namespace CGP.Application.Services
                         {
                             if (product.Quantity < item.Quantity)
                             {
-                                return new Result<List<Guid>>()
+                                return new Result<Guid>()
                                 {
                                     Error = 1,
-                                    Message = $"Sản phẩm {product.Name} không đủ hàng.",
-                                    Data = null
+                                    Message = $"Sản phẩm {product.Name} không đủ hàng."
                                 };
                             }
                             product.Quantity = product.Quantity - item.Quantity;
@@ -315,7 +314,8 @@ namespace CGP.Application.Services
                     await _unitOfWork.paymentRepository.AddAsync(log);
                     var transaction = new Domain.Entities.Transaction
                     {
-                        Id = transactionId,
+                        Id = Guid.NewGuid(),
+                        UserId = order.UserId,
                         OrderId = order.Id,
                         Amount = order.TotalPrice,
                         Currency = "VND",
@@ -501,95 +501,109 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query)
         {
-            var orderId = Guid.Parse(query["vnp_TxnRef"]);
-            var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
-            var order = await _unitOfWork.orderRepository.GetByIdAsync(orderId);
+            // Lấy TransactionId thay vì OrderId
+            var transactionId = Guid.Parse(query["vnp_TxnRef"]);
 
-            if (order == null)
+            // Lấy tất cả đơn hàng theo TransactionId
+            var orders = await _unitOfWork.orderRepository.GetOrdersByTransactionIdAsync(transactionId);
+            if (orders == null || !orders.Any())
             {
-                return new Result<object>()
+                return new Result<object>
                 {
                     Error = 1,
-                    Message = "Đơn hàng không tồn tại",
+                    Message = "Không tìm thấy đơn hàng nào cho TransactionId.",
                     Data = null
                 };
             }
 
             var isValid = await _payoutService.ValidateReturnData(query);
             var responseCode = query["vnp_ResponseCode"].ToString();
+            var userId = orders.First().UserId;
 
-            var log = new Payment
+            // Ghi log Payment (1 lần cho cả transaction)
+            var payment = new Payment
             {
-                OrderId = order.Id,
+                OrderId = orders.First().Id, // lấy đại diện
                 TransactionNo = query["vnp_TransactionNo"],
                 BankCode = query["vnp_BankCode"],
                 ResponseCode = responseCode,
                 SecureHash = query["vnp_SecureHash"],
-                CreatedBy = order.UserId,
+                CreatedBy = userId,
                 PaymentMethod = PaymentMethodEnum.Online,
                 RawData = string.Join("&", query.Select(x => $"{x.Key}={x.Value}"))
             };
-            await _unitOfWork.paymentRepository.AddAsync(log);
+            await _unitOfWork.paymentRepository.AddAsync(payment);
+
+            decimal totalAmount = 0;
 
             if (isValid && responseCode == "00")
             {
-                foreach (var item in orderItems)
+                foreach (var order in orders)
                 {
-                    var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
-                    if (product != null)
+                    var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(order.Id);
+
+                    foreach (var item in orderItems)
                     {
-                        if (product.Quantity < item.Quantity)
+                        var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                        if (product != null)
                         {
-                            return new Result<object>()
+                            if (product.Quantity < item.Quantity)
                             {
-                                Error = 1,
-                                Message = $"Sản phẩm {product.Name} không đủ tồn kho.",
-                                Data = null
-                            };
+                                return new Result<object>
+                                {
+                                    Error = 1,
+                                    Message = $"Sản phẩm {product.Name} không đủ tồn kho.",
+                                    Data = null
+                                };
+                            }
+
+                            product.Quantity -= item.Quantity;
+                            _unitOfWork.productRepository.Update(product);
                         }
-
-                        product.Quantity -= item.Quantity;
-                        _unitOfWork.productRepository.Update(product);
                     }
-                }
 
-                order.IsPaid = true;
-                order.Status = OrderStatusEnum.Created;
+                    order.IsPaid = true;
+                    order.Status = OrderStatusEnum.Created;
+                    totalAmount += order.TotalPrice;
+                    var transaction = new Domain.Entities.Transaction
+                    {
+                        Id = Guid.NewGuid(),
+                        Amount = totalAmount,
+                        UserId = userId,
+                        OrderId = order.Id,
+                        PaymentId = payment.Id,
+                        Currency = "VND",
+                        PaymentMethod = PaymentMethodEnum.Online,
+                        TransactionStatus = TransactionStatusEnum.Success,
+                        TransactionDate = DateTime.UtcNow.AddHours(7),
+                        DiscountAmount = 0,
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        UpdatedAt = DateTime.UtcNow.AddHours(7),
+                        Notes = $"Thanh toán đơn hàng từ giỏ hàng, tổng cộng {orders.Count} đơn.",
+                        CreatedBy = userId,
+                        IsDeleted = false,
+                        CreationDate = DateTime.UtcNow
+                    };
+                    await _unitOfWork.transactionRepository.AddAsync(transaction);
+                }
             }
             else
             {
-                order.Status = OrderStatusEnum.Cancelled;
+                foreach (var order in orders)
+                {
+                    order.Status = OrderStatusEnum.Cancelled;
+                }
             }
-            var transaction = new Domain.Entities.Transaction
-            {
-                Id = order.TransactionId,
-                OrderId = order.Id,
-                Amount = order.TotalPrice,
-                UserId = order.UserId,
-                PaymentId = log.Id,
-                Currency = "VND",
-                PaymentMethod = order.PaymentMethod,
-                TransactionStatus = (TransactionStatusEnum)order.Status,
-                TransactionDate = DateTime.UtcNow.AddHours(7),
-                DiscountAmount = 0,
-                CreatedAt = DateTime.UtcNow.AddHours(7),
-                UpdatedAt = DateTime.UtcNow.AddHours(7),
-                Notes = $"Đặt hàng từ giỏ hàng với mã đơn hàng là {order.Id} bằng thanh toán online.",
-                CreatedBy = order.UserId,
-                IsDeleted = false,
-                CreationDate = DateTime.UtcNow,
-                UserId = order.UserId
-            };
-            await _unitOfWork.transactionRepository.AddAsync(transaction);
             await _unitOfWork.SaveChangeAsync();
 
             return new Result<object>
             {
                 Error = 0,
-                Message = isValid ? "Thanh toán thành công" : "Thanh toán không hợp lệ",
-                Data = orderId
+                Message = isValid ? "Thanh toán thành công" : "Thanh toán thất bại hoặc không hợp lệ.",
+                Data = transactionId
             };
         }
+
 
 
         public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto statusDto)
