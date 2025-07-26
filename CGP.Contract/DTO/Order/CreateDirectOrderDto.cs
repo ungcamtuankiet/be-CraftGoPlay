@@ -11,6 +11,7 @@ namespace CGP.Contract.DTO.Order
     {
         public Guid ProductId { get; set; }
         public Guid AddressId { get; set; }
+        public double DeliveryAmount { get; set; }
         public Guid UserId { get; set; }
         public int Quantity { get; set; }
         public PaymentMethodEnum PaymentMethod { get; set; }
