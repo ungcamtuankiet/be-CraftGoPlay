@@ -31,25 +31,34 @@ namespace CGP.Infrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> CreatePaymentUrl(Order order, HttpContext context)
+        public async Task<string> CreatePaymentUrl(Guid transactionId, decimal totalAmount, HttpContext context)
         {
             var vnpay = new VnPayLibrary();
+
             vnpay.AddRequestData("vnp_Version", "2.1.0");
             vnpay.AddRequestData("vnp_Command", "pay");
             vnpay.AddRequestData("vnp_TmnCode", _settings.TmnCode);
-            vnpay.AddRequestData("vnp_Amount", ((int)(order.TotalPrice * 100)).ToString());
+
+            // Tổng số tiền nhân 100 theo yêu cầu của VNPay
+            vnpay.AddRequestData("vnp_Amount", ((int)(totalAmount * 100)).ToString());
+
             vnpay.AddRequestData("vnp_CreateDate", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", "VND");
             vnpay.AddRequestData("vnp_IpAddr", context.Connection.RemoteIpAddress?.ToString());
             vnpay.AddRequestData("vnp_Locale", "vn");
-            vnpay.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang {order.Id}");
+
+            vnpay.AddRequestData("vnp_OrderInfo", $"Thanh toán đơn hàng với TransactionId {transactionId}");
             vnpay.AddRequestData("vnp_OrderType", "other");
+
             vnpay.AddRequestData("vnp_ReturnUrl", _settings.ReturnUrl);
-            vnpay.AddRequestData("vnp_TxnRef", order.Id.ToString());
+
+            // ⚠️ Đây là thay đổi quan trọng: dùng TransactionId thay vì OrderId
+            vnpay.AddRequestData("vnp_TxnRef", transactionId.ToString());
 
             var paymentUrl = vnpay.CreateRequestUrl(_settings.PaymentUrl, _settings.HashSecret);
             return paymentUrl;
         }
+
 
         public async Task<Result<bool>> RefundAsync(Guid orderId)
         {

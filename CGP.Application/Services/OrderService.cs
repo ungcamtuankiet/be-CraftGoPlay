@@ -164,7 +164,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<List<Guid>>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Guid address, PaymentMethodEnum paymentMethod)
+        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Guid address, PaymentMethodEnum paymentMethod)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
             var transactionId = Guid.NewGuid();
@@ -174,20 +174,18 @@ namespace CGP.Application.Services
             var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
             bool isValidAddress = await _unitOfWork.userAddressRepository.CheckAddressUser(address, userId);
             if (cart == null || !cart.Items.Any())
-                return new Result<List<Guid>>()
+                return new Result<Guid>
                 {
                     Error = 1,
-                    Message = "Giỏ hàng không tồn tại hoặc không có sản phẩm nào",
-                    Data = null
+                    Message = "Giỏ hàng không tồn tại hoặc không có sản phẩm nào"
                 };
 
             var selectedItems = cart.Items.Where(i => selectedCartItemIds.Contains(i.Id)).ToList();
             if (!selectedItems.Any())
-                return new Result<List<Guid>>
+                return new Result<Guid>
                 {
                     Error = 1,
-                    Message = "Không có sản phẩm nào được chọn từ giỏ hàng",
-                    Data = null
+                    Message = "Không có sản phẩm nào được chọn từ giỏ hàng"
                 };
 
             var orders = new List<Order>();
@@ -200,11 +198,10 @@ namespace CGP.Application.Services
                 }
                 if (!isValidAddress)
                 {
-                    return new Result<List<Guid>>()
+                    return new Result<Guid>
                     {
                         Error = 1,
-                        Message = "Địa chỉ không hợp lệ.",
-                        Data = null
+                        Message = "Địa chỉ không hợp lệ."
                     };
                 }
                 var order = new Order
@@ -241,11 +238,10 @@ namespace CGP.Application.Services
                 }
                 if (!isValidAddress)
                 {
-                    return new Result<List<Guid>>()
+                    return new Result<Guid>
                     {
                         Error = 1,
-                        Message = "Địa chỉ không hợp lệ.",
-                        Data = null
+                        Message = "Địa chỉ không hợp lệ."
                     };
                 }
                 var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
@@ -279,11 +275,10 @@ namespace CGP.Application.Services
                         {
                             if (product.Quantity < item.Quantity)
                             {
-                                return new Result<List<Guid>>()
+                                return new Result<Guid>()
                                 {
                                     Error = 1,
                                     Message = $"Sản phẩm {product.Name} không đủ hàng.",
-                                    Data = null
                                 };
                             }
                             order.Product_Amount = (double)(product.Price * item.Quantity);
@@ -325,11 +320,11 @@ namespace CGP.Application.Services
             await _unitOfWork.SaveChangeAsync();
 
             var orderIds = orders.Select(o => o.Id).ToList();
-            return new Result<List<Guid>>()
+            return new Result<Guid>()
             {
                 Error = 0,
                 Message = "Đặt hàng thành công",
-                Data = orderIds
+                Data = transactionId
             };
         }
 
@@ -461,18 +456,22 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<string>> CreateVnPayUrlAsync(Guid orderId, HttpContext httpContext)
+        public async Task<Result<string>> CreateVnPayUrlAsync(Guid transactionId, HttpContext httpContext)
         {
-            var order = await _unitOfWork.orderRepository.GetByIdAsync(orderId);
-            if (order == null || order.PaymentMethod != PaymentMethodEnum.Online)
+            var orders = await _unitOfWork.orderRepository.GetOrdersByTransactionIdAsync(transactionId);
+            if (orders == null || !orders.Any())
+            {
                 return new Result<string>
                 {
                     Error = 1,
-                    Message = "Đơn hàng không tồn tại hoặc không phải là đơn hàng trực tuyến",
+                    Message = "Không tìm thấy đơn hàng với TransactionId tương ứng",
                     Data = null
                 };
+            }
 
-            var url = await _payoutService.CreatePaymentUrl(order, httpContext);
+            var totalAmount = orders.Sum(o => o.TotalPrice);
+
+            var url = await _payoutService.CreatePaymentUrl(transactionId, totalAmount, httpContext);
             return new Result<string>()
             {
                 Error = 0,
@@ -547,6 +546,7 @@ namespace CGP.Application.Services
                 Id = order.TransactionId,
                 OrderId = order.Id,
                 Amount = order.TotalPrice,
+                UserId = order.UserId,
                 PaymentId = log.Id,
                 Currency = "VND",
                 PaymentMethod = order.PaymentMethod,
