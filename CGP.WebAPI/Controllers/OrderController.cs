@@ -83,7 +83,7 @@ namespace CGP.WebAPI.Controllers
 
             var status = result.Error == 0 ? "success" : "failed";
 
-            return Redirect($"https://fe-craft-go-play.vercel.app/payment-{status}");
+            return Redirect($"http://localhost:5173/payment-{status}");
         }
 
         [HttpPost("CreateFromCart")]
