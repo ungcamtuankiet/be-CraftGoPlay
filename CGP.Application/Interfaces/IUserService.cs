@@ -1,5 +1,6 @@
 ﻿using CGP.Contract.Abstractions.Shared;
 using CGP.Contract.DTO.ActivityLog;
+using CGP.Contract.DTO.ArtisanRequest;
 using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;
 using CGP.Contracts.Abstractions.Shared;
@@ -27,5 +28,6 @@ namespace CGP.Application.Interfaces
         Task<Result<object>> SetDefaultAddress(Guid addressId);
         Task<Result<object>> DeleteAddress(Guid id);
         Task<Result<object>> UpdateUserInfoAsync(UpdateInfoUserDTO updateDto);
+        Task<Result<ViewAddressOfArtisanDTO>> GetAddressOfArtisan(Guid userId);
     }
 }

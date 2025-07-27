@@ -471,7 +471,7 @@ namespace CGP.Application.Services
             {
                 Error = 0,
                 Message = "Đặt hàng thành công",
-                Data = order.Id
+                Data = transactionId
             };
         }
 
