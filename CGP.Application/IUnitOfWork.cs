@@ -33,6 +33,7 @@ namespace CGP.Application
         IReturnRequestRepository returnRequestRepository { get; }
         IActivityLogRepository activityLogRepository { get; }
         IWalletRepository walletRepository { get; }
+        IWalletTransactionRepository walletTransactionRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

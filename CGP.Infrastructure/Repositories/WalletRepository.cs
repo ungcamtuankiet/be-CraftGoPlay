@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,7 +24,15 @@ namespace CGP.Infrastructure.Repositories
         public async Task<Wallet> GetWalletByUserIdAsync(Guid userId)
         {
             return await _context.Wallet
-                .FirstOrDefaultAsync(w => w.User_Id == userId);
+                .Include(w => w.WalletTransactions)
+                .FirstOrDefaultAsync(w => w.User_Id == userId && w.Type == WalletTypeEnum.User);
         }
+        public async Task<Wallet> GetWalletByArtisanIdAsync(Guid artianId)
+        {
+            return await _context.Wallet
+                .Include(w => w.WalletTransactions)
+                .FirstOrDefaultAsync(w => w.User_Id == artianId && w.Type == WalletTypeEnum.Artisan);
+        }
+
     }
 }

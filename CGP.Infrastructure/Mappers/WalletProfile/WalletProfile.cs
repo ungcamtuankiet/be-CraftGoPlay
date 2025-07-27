@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using CGP.Contract.DTO.Wallet;
+using CGP.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace CGP.Infrastructure.Mappers.WalletProfile
     {
         public WalletProfile()
         {
-            
+            CreateMap<Wallet, ViewWalletDTO>().ReverseMap();
         }
     }
 }
