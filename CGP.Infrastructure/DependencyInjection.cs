@@ -45,6 +45,7 @@ namespace CGP.Infrastructure
             services.AddScoped<ICraftSkillService, CraftSkillService>();
             services.AddScoped<IDashBoardService, DashBoardService>();
             services.AddScoped<IRatingService, RatingService>();
+            services.AddScoped<IWalletService, WalletService>();
 
             services.AddMemoryCache();
             //Repositories
@@ -71,6 +72,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IReturnRequestRepository, ReturnRequestRepository>();
             services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
             services.AddScoped<IWalletRepository, WalletRepository>();
+            services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
             //Database
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))

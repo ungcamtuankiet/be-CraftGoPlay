@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 
 namespace CGP.Application.Repositories
 {
-    public interface IWalletRepository : IGenericRepository<Wallet>
+    public interface IWalletTransactionRepository : IGenericRepository<WalletTransaction>
     {
-        Task<Wallet> GetWalletByUserIdAsync(Guid userId);
-        Task<Wallet> GetWalletByArtisanIdAsync(Guid artianId);
     }
 }
