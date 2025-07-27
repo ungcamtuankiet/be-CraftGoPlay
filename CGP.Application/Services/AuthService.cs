@@ -189,6 +189,13 @@ namespace CGP.Application.Services
 
                 await _userRepository.AddAsync(user);
                 await _emailService.SendOtpEmailAsync(user.Email, otp);
+                var wallet = new Wallet()
+                {
+                    User_Id = user.Id,
+                    Balance = 0,
+                    Type = WalletTypeEnum.User
+                };
+                await _unitOfWork.walletRepository.AddAsync(wallet);
                 return new Result<object>
                 {
                     Error = 0,

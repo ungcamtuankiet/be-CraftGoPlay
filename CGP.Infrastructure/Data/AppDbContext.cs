@@ -39,6 +39,7 @@ public class AppDbContext : DbContext
     public DbSet<Rating> Rating { get; set; }
     public DbSet<ReturnRequest> ReturnRequest { get; set; }
     public DbSet<ActivityLog> ActivityLog { get; set; }
+    public DbSet<WalletTransaction> WalletTransaction { get; set; }
     #endregion
 
 
@@ -91,6 +92,11 @@ public class AppDbContext : DbContext
             .HasForeignKey<Wallet>(p => p.User_Id)
             .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<Wallet>()
+            .HasData(
+            new Wallet { Id = Guid.NewGuid(), Balance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), Type = WalletTypeEnum.System }
+            );
 
         //Category
         modelBuilder.Entity<Category>(e =>
@@ -449,6 +455,17 @@ public class AppDbContext : DbContext
             e.HasOne(r => r.User)
             .WithMany(o => o.ReturnRequests)
             .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //WalletTransaction
+        modelBuilder.Entity<WalletTransaction>(e =>
+        {
+            e.ToTable("WalletTransaction");
+            e.HasKey(wt => wt.Id);
+            e.HasOne(wt => wt.Wallet)
+            .WithMany(w => w.WalletTransactions)
+            .HasForeignKey(wt => wt.Wallet_Id)
             .OnDelete(DeleteBehavior.Restrict);
         });
     }
