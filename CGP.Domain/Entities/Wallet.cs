@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGP.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -9,11 +10,12 @@ namespace CGP.Domain.Entities
 {
     public class Wallet : BaseEntity
     {
-        public string Name { get; set; }
-        public float Balance { get; set; }
+        public float Balance { get; set; } = 0;
+        public WalletTypeEnum Type { get; set; }
         public Guid User_Id { get; set; }
         [ForeignKey("User_Id")]
         public ApplicationUser User { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
+        public ICollection<WalletTransaction> WalletTransactions { get; set; }
     }
 }

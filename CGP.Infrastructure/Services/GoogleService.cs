@@ -1,4 +1,5 @@
-﻿using CGP.Application.Interfaces;
+﻿using CGP.Application;
+using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Contract.DTO.Auth;
 using CGP.Contracts.Abstractions.Shared;
@@ -23,13 +24,15 @@ namespace CGP.Infrastructure.Services
         private readonly IRedisService _redisService;
         private readonly IUserRepository _userRepository;
         private readonly IAuthRepository _authRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GoogleService(IConfiguration configuration, IRedisService redisService, IUserRepository userRepository, IAuthRepository authRepository)
+        public GoogleService(IConfiguration configuration, IRedisService redisService, IUserRepository userRepository, IAuthRepository authRepository, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _redisService = redisService;
             _userRepository = userRepository;
             _authRepository = authRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> GoogleCallback(string code)
@@ -139,6 +142,14 @@ namespace CGP.Infrastructure.Services
                 };
                 await _userRepository.AddAsync(user);
             }
+
+            var wallet = new Wallet()
+            {
+                User_Id = user.Id,
+                Balance = 0,
+                Type = WalletTypeEnum.User
+            };
+            await _unitOfWork.walletRepository.AddAsync(wallet);
 
             return new Result<object>
             {

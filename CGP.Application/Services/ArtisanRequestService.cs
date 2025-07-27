@@ -121,6 +121,7 @@ namespace CGP.Application.Services
         public async Task<Result<object>> ApprovedRequest(Guid id)
         {
             var getRequest = await _unitOfWork.artisanRequestRepository.GetArtisanRequestById(id);
+            var getWallet = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(getRequest.UserId);
             if (getRequest == null)
             {
                 return new Result<object>
@@ -146,6 +147,8 @@ namespace CGP.Application.Services
             await _unitOfWork.artisanRequestRepository.AcceptRequest(getRequest);
             getUser.RoleId = 3;
             await _unitOfWork.userRepository.UpdateAsync(getUser);
+            getWallet.Type = WalletTypeEnum.Artisan;
+            _unitOfWork.walletRepository.Update(getWallet);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
             {

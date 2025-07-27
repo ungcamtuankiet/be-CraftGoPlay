@@ -70,7 +70,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IRatingRepository, RatingRepository>();
             services.AddScoped<IReturnRequestRepository, ReturnRequestRepository>();
             services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
-
+            services.AddScoped<IWalletRepository, WalletRepository>();
             //Database
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))

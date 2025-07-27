@@ -32,6 +32,7 @@ namespace CGP.Application
         IRatingRepository ratingRepository { get; }
         IReturnRequestRepository returnRequestRepository { get; }
         IActivityLogRepository activityLogRepository { get; }
+        IWalletRepository walletRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }
