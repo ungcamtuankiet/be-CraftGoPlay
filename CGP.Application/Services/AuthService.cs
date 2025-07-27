@@ -189,13 +189,6 @@ namespace CGP.Application.Services
 
                 await _userRepository.AddAsync(user);
                 await _emailService.SendOtpEmailAsync(user.Email, otp);
-                var wallet = new Wallet()
-                {
-                    User_Id = user.Id,
-                    Balance = 0,
-                    Type = WalletTypeEnum.User
-                };
-                await _unitOfWork.walletRepository.AddAsync(wallet);
                 return new Result<object>
                 {
                     Error = 0,
@@ -317,6 +310,15 @@ namespace CGP.Application.Services
                 user.Status = StatusEnum.Active; // Update status to Active
 
                 await _userRepository.UpdateAsync(user);
+
+                var wallet = new Wallet()
+                {
+                    User_Id = user.Id,
+                    Balance = 0,
+                    Type = WalletTypeEnum.User
+                };
+                await _unitOfWork.walletRepository.AddAsync(wallet);
+                await _unitOfWork.SaveChangeAsync();
                 return true;
             }
             catch (KeyNotFoundException ex)
