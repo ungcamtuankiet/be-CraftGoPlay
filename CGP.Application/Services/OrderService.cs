@@ -682,7 +682,6 @@ namespace CGP.Application.Services
                     };
                 }
                 var getPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(order.Id);
-                var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
                 var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
                 
                 var payent = new Payment()
@@ -719,7 +718,7 @@ namespace CGP.Application.Services
                     IsDeleted = false,
                     CreationDate = DateTime.UtcNow.AddHours(7),
                 };
-                await _unitOfWork.transactionRepository.AddAsync(transaction);*/
+                await _unitOfWork.transactionRepository.AddAsync(transaction);
 
                 getWalletSystem.Balance = getWalletSystem.Balance - (float)order.TotalPrice;
                 _unitOfWork.walletRepository.Update(getWalletSystem);
