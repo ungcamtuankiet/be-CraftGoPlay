@@ -42,6 +42,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
                 .Include(x => x.ProductImages)
+                .Include(x => x.OrderItems)
                 .FirstOrDefaultAsync(x => x.Id == productId);
         }
 

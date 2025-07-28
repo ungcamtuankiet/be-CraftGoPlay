@@ -81,6 +81,7 @@ namespace CGP.Infrastructure
             //Cloundinary
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
+
             //VnPay
             services.Configure<VnPaySettings>(configuration.GetSection("VnPay"));
 

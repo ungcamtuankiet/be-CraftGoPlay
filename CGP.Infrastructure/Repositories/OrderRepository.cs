@@ -54,6 +54,9 @@ namespace CGP.Infrastructure.Repositories
                .Include(o => o.OrderItems)
                .ThenInclude(o => o.Product)
                .ThenInclude(o => o.ProductImages)
+               .Include(o => o.OrderItems)
+               .Include(o => o.User)
+               .ThenInclude(o => o.ArtisanRequest)
                .FirstOrDefaultAsync(o => o.Id == id);
         }
 

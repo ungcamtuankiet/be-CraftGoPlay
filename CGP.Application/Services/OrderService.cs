@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Application.Utils;
 using CGP.Contract.Abstractions.Shared;
 using CGP.Contract.Abstractions.VnPayService;
+using CGP.Contract.DTO.GHN;
 using CGP.Contract.DTO.Order;
 using CGP.Contract.DTO.RefundRequest;
 using CGP.Contracts.Abstractions.Shared;
@@ -173,6 +174,8 @@ namespace CGP.Application.Services
             var getAddressByUserId = await _unitOfWork.userAddressRepository.GetByIdAsync(address);
             var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
             bool isValidAddress = await _unitOfWork.userAddressRepository.CheckAddressUser(address, userId);
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
+
             if (cart == null || !cart.Items.Any())
                 return new Result<Guid>
                 {
@@ -216,7 +219,7 @@ namespace CGP.Application.Services
                         PaymentMethod = paymentMethod,
                         CreationDate = DateTime.UtcNow,
                         Delivery_Amount = Delivery_Amount,
-                        OrderItems = group.Select(i => new OrderItem // Chỉ lấy các mục thuộc Artisan_id của group
+                        OrderItems = group.Select(i => new OrderItem 
                         {
                             ProductId = i.ProductId,
                             ArtisanId = i.Product.Artisan_id,
@@ -358,6 +361,8 @@ namespace CGP.Application.Services
             var getProduct = await _unitOfWork.productRepository.GetProductByProductId(dto.ProductId);
             var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
             bool isValidAddress = await _unitOfWork.userAddressRepository.CheckAddressUser(address, userId);
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
+
             if (product == null || product.Quantity < dto.Quantity)
                 return new Result<Guid>()
                 {
@@ -503,6 +508,7 @@ namespace CGP.Application.Services
         {
             // Lấy TransactionId thay vì OrderId
             var transactionId = Guid.Parse(query["vnp_TxnRef"]);
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
 
             // Lấy tất cả đơn hàng theo TransactionId
             var orders = await _unitOfWork.orderRepository.GetOrdersByTransactionIdAsync(transactionId);
@@ -585,6 +591,21 @@ namespace CGP.Application.Services
                         CreationDate = DateTime.UtcNow
                     };
                     await _unitOfWork.transactionRepository.AddAsync(transaction);
+
+                    getWalletSystem.Balance = getWalletSystem.Balance + (float)order.TotalPrice;
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                    var addMoneyToWalletSystem = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = order.TotalPrice,
+                        Type = WalletTransactionTypeEnum.Purchase,
+                        Description = $"Thanh toán đơn hàng {order.Id} từ giỏ hàng với giá: {order.TotalPrice}.",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
                 }
             }
             else
@@ -618,6 +639,19 @@ namespace CGP.Application.Services
                     Message = "Đơn hàng không tồn tại",
                     Data = false
                 };
+            }
+
+            if(order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
+            {
+                if(order.Status != OrderStatusEnum.Created)
+                {
+                    return new Result<bool>()
+                    {
+                        Error = 1,
+                        Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
+                        Data = false
+                    };
+                }
             }
 
             order.Status = statusDto.Status;
