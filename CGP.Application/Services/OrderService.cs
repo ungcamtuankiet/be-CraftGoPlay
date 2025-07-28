@@ -165,7 +165,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, double Delivery_Amount, Guid address, PaymentMethodEnum paymentMethod)
+        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Dictionary<Guid, double> deliveryAmounts, Guid address, PaymentMethodEnum paymentMethod)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
             var transactionId = Guid.NewGuid();
@@ -191,6 +191,15 @@ namespace CGP.Application.Services
                     Message = "Không có sản phẩm nào được chọn từ giỏ hàng"
                 };
 
+            // Kiểm tra xem phí giao hàng có được cung cấp cho tất cả Artisan_id không
+            var artisanIds = selectedItems.Select(i => i.Product.Artisan_id).Distinct().ToList();
+            if (artisanIds.Any(id => !deliveryAmounts.ContainsKey(id)))
+                return new Result<Guid>
+                {
+                    Error = 1,
+                    Message = "Phí giao hàng không được cung cấp cho tất cả các shop."
+                };
+
             var orders = new List<Order>();
 
             if (paymentMethod == PaymentMethodEnum.Online)
@@ -210,6 +219,9 @@ namespace CGP.Application.Services
                 var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
                 foreach (var group in grouped)
                 {
+                    var artisanId = group.Key;
+                    var deliveryAmount = deliveryAmounts[artisanId];
+
                     var order = new Order
                     {
                         UserId = userId,
@@ -218,7 +230,7 @@ namespace CGP.Application.Services
                         Status = OrderStatusEnum.AwaitingPayment,
                         PaymentMethod = paymentMethod,
                         CreationDate = DateTime.UtcNow,
-                        Delivery_Amount = Delivery_Amount,
+                        Delivery_Amount = deliveryAmount,
                         OrderItems = group.Select(i => new OrderItem 
                         {
                             ProductId = i.ProductId,
@@ -268,6 +280,8 @@ namespace CGP.Application.Services
                 var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
                 foreach (var group in grouped)
                 {
+                    var artisanId = group.Key;
+                    var deliveryAmount = deliveryAmounts[artisanId];
                     var order = new Order
                     {
                         UserId = userId,
@@ -276,7 +290,7 @@ namespace CGP.Application.Services
                         UserAddressId = address,
                         PaymentMethod = paymentMethod,
                         CreationDate = DateTime.UtcNow,
-                        Delivery_Amount = Delivery_Amount,
+                        Delivery_Amount = deliveryAmount,
                         OrderItems = group.Select(i => new OrderItem
                         {
                             ProductId = i.ProductId,
@@ -302,12 +316,14 @@ namespace CGP.Application.Services
                                     Message = $"Sản phẩm {product.Name} không đủ hàng.",
                                 };
                             }
-                            order.Product_Amount = (double)(product.Price * item.Quantity);
+                            //order.Product_Amount = (double)(product.Price * item.Quantity);
                             product.Quantity = product.Quantity - item.Quantity;
                             _unitOfWork.productRepository.Update(product);
                         }
                     }
-                    order.TotalPrice = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                    order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                    order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount);
+                    //order.TotalPrice = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
                     orders.Add(order);
                     var log = new Payment
                     {

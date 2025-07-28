@@ -6,6 +6,7 @@ using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CGP.WebAPI.Controllers
 {
@@ -90,7 +91,8 @@ namespace CGP.WebAPI.Controllers
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
-            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds,request.DeliveryAmount, request.AddressId, request.PaymentMethod);
+            var deliveryAmounts = JsonSerializer.Deserialize<Dictionary<Guid, double>>(request.DeliveryAmounts);
+            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, deliveryAmounts, request.AddressId, request.PaymentMethod);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
