@@ -616,7 +616,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletSystem.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Purchase,
-                        Description = $"Thanh toán đơn hàng {order.Id} từ giỏ hàng với giá: {order.TotalPrice}.",
+                        Description = $"Thanh toán đơn hàng {order.Id} có mức giá: {order.TotalPrice} với phương thức thanh toán VNPay.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -647,6 +647,7 @@ namespace CGP.Application.Services
         {
             var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(orderId);
             var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
             if (order == null)
             {
                 return new Result<bool>()
@@ -657,6 +658,18 @@ namespace CGP.Application.Services
                 };
             }
 
+            //if(order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
+            //{
+            //    if(order.Status != OrderStatusEnum.Created)
+            //    {
+            //        return new Result<bool>()
+            //        {
+            //            Error = 1,
+            //            Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
+            //            Data = false
+            //        };
+            //    }
+            //}
             if(order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
             {
                 if(order.Status != OrderStatusEnum.Created)
@@ -669,9 +682,8 @@ namespace CGP.Application.Services
                     };
                 }
                 var getPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(order.Id);
-                var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
                 var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
-/*
+                
                 var payent = new Payment()
                 {
                     OrderId = order.Id,
@@ -706,7 +718,7 @@ namespace CGP.Application.Services
                     IsDeleted = false,
                     CreationDate = DateTime.UtcNow.AddHours(7),
                 };
-                await _unitOfWork.transactionRepository.AddAsync(transaction);*/
+                await _unitOfWork.transactionRepository.AddAsync(transaction);
 
                 getWalletSystem.Balance = getWalletSystem.Balance - (float)order.TotalPrice;
                 _unitOfWork.walletRepository.Update(getWalletSystem);
@@ -761,6 +773,24 @@ namespace CGP.Application.Services
                     var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
                     product.QuantitySold = product.QuantitySold + item.Quantity;
                     _unitOfWork.productRepository.Update(product);
+                }
+
+                if (order.PaymentMethod == PaymentMethodEnum.Cash && order.IsPaid == false)
+                {
+                    getWalletSystem.Balance = getWalletSystem.Balance + (float)order.TotalPrice;
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                    var addMoneyToWalletSystem = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = order.TotalPrice,
+                        Type = WalletTransactionTypeEnum.Purchase,
+                        Description = $"Thanh toán đơn hàng {order.Id} có mức giá: {order.TotalPrice} với phương thức thanh toán COD.",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
                 }
                 order.IsPaid = true;
             }
