@@ -39,5 +39,17 @@ namespace CGP.WebAPI.Controllers
             }
             return Ok(result);
         }
+
+        [HttpGet("GetWalletSystem")]
+        [Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> GetWalletSystem()
+        {
+            var result = await _walletService.GetWalletSystem();
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }

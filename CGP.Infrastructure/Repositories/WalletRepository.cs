@@ -34,5 +34,11 @@ namespace CGP.Infrastructure.Repositories
                 .FirstOrDefaultAsync(w => w.User_Id == artianId && w.Type == WalletTypeEnum.Artisan);
         }
 
+        public async Task<Wallet> GetWalletSystem()
+        {
+            return await _context.Wallet
+                .Include(w => w.WalletTransactions)
+                .FirstOrDefaultAsync(w =>w.Type == WalletTypeEnum.System);
+        }
     }
 }

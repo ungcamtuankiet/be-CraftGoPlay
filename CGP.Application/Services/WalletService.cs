@@ -42,5 +42,16 @@ namespace CGP.Application.Services
                 Data = result
             };
         }
+
+        public async Task<Result<ViewWalletDTO>> GetWalletSystem()
+        {
+            var result = _mapper.Map<ViewWalletDTO>(await _unitOfWork.walletRepository.GetWalletSystem());
+            return new Result<ViewWalletDTO>
+            {
+                Error = 0,
+                Message = "Lấy thông tin ví thành công.",
+                Data = result
+            };
+        }
     }
 }

@@ -10,6 +10,6 @@ namespace CGP.Application.Interfaces
 {
     public interface IGhnService
     {
-        public Task<int> CalculateShippingFeeAsync(Order order, List<GhnItemDto> itmes);
+        public Task<double> CalculateShippingFeeAsync(Guid orderId, Guid artisanId, List<GhnItemDto> itmes);
     }
 }

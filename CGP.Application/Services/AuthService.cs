@@ -310,14 +310,6 @@ namespace CGP.Application.Services
                 user.Status = StatusEnum.Active; // Update status to Active
 
                 await _userRepository.UpdateAsync(user);
-
-                var wallet = new Wallet()
-                {
-                    User_Id = user.Id,
-                    Balance = 0,
-                    Type = WalletTypeEnum.User
-                };
-                await _unitOfWork.walletRepository.AddAsync(wallet);
                 await _unitOfWork.SaveChangeAsync();
                 return true;
             }
@@ -345,7 +337,13 @@ namespace CGP.Application.Services
             user.Status = user.RoleId == 2 ? StatusEnum.Pending : StatusEnum.Active;
             user.Otp = "";
             user.OtpExpiryTime = null;
-
+            var wallet = new Wallet()
+            {
+                User_Id = user.Id,
+                Balance = 0,
+                Type = WalletTypeEnum.User
+            };
+            await _unitOfWork.walletRepository.AddAsync(wallet);
             await _userRepository.UpdateAsync(user);
             return true;
         }

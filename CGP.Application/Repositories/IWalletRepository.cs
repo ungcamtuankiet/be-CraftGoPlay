@@ -11,5 +11,6 @@ namespace CGP.Application.Repositories
     {
         Task<Wallet> GetWalletByUserIdAsync(Guid userId);
         Task<Wallet> GetWalletByArtisanIdAsync(Guid artianId);
+        Task<Wallet> GetWalletSystem();
     }
 }
