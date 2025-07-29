@@ -9,5 +9,6 @@ namespace CGP.Application.Repositories
 {
     public interface IPaymentRepository : IGenericRepository<Payment>
     {
+        Task<Payment> GetPaymentByOrderId(Guid orderId);
     }
 }
