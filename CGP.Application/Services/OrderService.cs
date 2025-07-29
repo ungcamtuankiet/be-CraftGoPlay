@@ -643,11 +643,13 @@ namespace CGP.Application.Services
 
 
 
-        public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto statusDto)
+        public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, OrderStatusEnum statusDto)
         {
             var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(orderId);
             var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
+            var getPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(order.Id);
+            var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
             if (order == null)
             {
                 return new Result<bool>()
@@ -658,115 +660,240 @@ namespace CGP.Application.Services
                 };
             }
 
-            //if(order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
-            //{
-            //    if(order.Status != OrderStatusEnum.Created)
-            //    {
-            //        return new Result<bool>()
-            //        {
-            //            Error = 1,
-            //            Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
-            //            Data = false
-            //        };
-            //    }
-            //}
-            if(order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
+            if(statusDto == OrderStatusEnum.Cancelled)
             {
+                if (statusDto == OrderStatusEnum.Rejected)
+                {
+                    return new Result<bool>()
+                    {
+                        Error = 1,
+                        Message = "Đơn đang đã bị nghệ nhân từ chối.",
+                        Data = false
+                    };
+                }
+                
+                if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
+                {
+                    if (order.Status != OrderStatusEnum.Created || order.Status != OrderStatusEnum.Confirmed || order.Status != OrderStatusEnum.Preparing)
+                    {
+                        return new Result<bool>()
+                        {
+                            Error = 1,
+                            Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
+                            Data = false
+                        };
+                    }
+                }
+
+                if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
+                {
+                    if (order.Status != OrderStatusEnum.Created)
+                    {
+                        return new Result<bool>()
+                        {
+                            Error = 1,
+                            Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
+                            Data = false
+                        };
+                    }
+
+                    var payent = new Payment()
+                    {
+                        OrderId = order.Id,
+                        TransactionNo = getPayment.TransactionNo,
+                        BankCode = getPayment.BankCode,
+                        ResponseCode = "00",
+                        SecureHash = getPayment.SecureHash,
+                        PaymentMethod = PaymentMethodEnum.Online,
+                        RawData = getPayment.RawData,
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false,
+                        IsRefunded = true
+                    };
+                    await _unitOfWork.paymentRepository.AddAsync(payent);
+
+                    var transaction = new Transaction
+                    {
+                        Id = order.TransactionId,
+                        UserId = order.UserId,
+                        OrderId = order.Id,
+                        Amount = order.TotalPrice,
+                        PaymentId = payent.Id,
+                        Currency = "VND",
+                        PaymentMethod = order.PaymentMethod,
+                        TransactionStatus = (TransactionStatusEnum)order.Status,
+                        TransactionDate = DateTime.UtcNow.AddHours(7),
+                        DiscountAmount = 0,
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        UpdatedAt = DateTime.UtcNow.AddHours(7),
+                        Notes = $"Hủy đơn hàng với mã đơn hàng là: {order.Id} với số tiền: {order.TotalPrice}.",
+                        CreatedBy = order.UserId,
+                        IsDeleted = false,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                    };
+                    await _unitOfWork.transactionRepository.AddAsync(transaction);
+
+                    getWalletSystem.Balance = getWalletSystem.Balance - (float)order.TotalPrice;
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                    getWalletUser.Balance = getWalletUser.Balance + (float)order.TotalPrice;
+                    _unitOfWork.walletRepository.Update(getWalletUser);
+
+                    var newWalletSystemTransaction = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletUser.Id,
+                        Amount = order.TotalPrice,
+                        Type = WalletTransactionTypeEnum.Refund,
+                        Description = $"Hoàn tiền cho đơn hàng {order.Id} với số tiền: {order.TotalPrice}.",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(newWalletSystemTransaction);
+
+                    var newWalletUserTransaction = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = order.TotalPrice,
+                        Type = WalletTransactionTypeEnum.Refund,
+                        Description = $"Hoàn tiền cho đơn hàng {order.Id} với số tiền: {order.TotalPrice}.",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
+
+                    await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
+                    order.Status = OrderStatusEnum.Cancelled;
+                    _unitOfWork.orderRepository.Update(order);
+                    order.ModificationDate = DateTime.UtcNow.AddHours(7);
+                    await _unitOfWork.SaveChangeAsync();
+
+                    return new Result<bool>()
+                    {
+                        Error = 0,
+                        Message = "Hủy đơn hàng thành công",
+                        Data = true
+                    };
+                }
+            }
+
+            if(statusDto == OrderStatusEnum.Rejected)
+            {
+                if (order.Status == OrderStatusEnum.Cancelled)
+                {
+                    return new Result<bool>()
+                    {
+                        Error = 1,
+                        Message = "Đơn hàng không thể bị người dùng hủy.",
+                        Data = false
+                    };
+                }
+
+                if(order.Status == OrderStatusEnum.Rejected)
+                {
+                    return new Result<bool>()
+                    {
+                        Error = 1,
+                        Message = "Đơn hàng đã được từ chối.",
+                        Data = false
+                    };
+                }
+
                 if(order.Status != OrderStatusEnum.Created)
                 {
                     return new Result<bool>()
                     {
                         Error = 1,
-                        Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
+                        Message = "Đơn hàng đang được vận chuyển hoặc đã giao thành công nên không thể từ chối.",
                         Data = false
                     };
                 }
-                var getPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(order.Id);
-                var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
-                
-                var payent = new Payment()
+
+                if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
                 {
-                    OrderId = order.Id,
-                    TransactionNo = getPayment.TransactionNo,
-                    BankCode = getPayment.BankCode,
-                    ResponseCode = "00",
-                    SecureHash = getPayment.SecureHash,
-                    PaymentMethod = PaymentMethodEnum.Online,
-                    RawData = getPayment.RawData,
-                    CreatedAt = DateTime.UtcNow.AddHours(7),
-                    IsDeleted = false,
-                    IsRefunded = true
-                };
-                await _unitOfWork.paymentRepository.AddAsync(payent);
+                    var payent = new Payment()
+                    {
+                        OrderId = order.Id,
+                        TransactionNo = getPayment.TransactionNo,
+                        BankCode = getPayment.BankCode,
+                        ResponseCode = "00",
+                        SecureHash = getPayment.SecureHash,
+                        PaymentMethod = PaymentMethodEnum.Online,
+                        RawData = getPayment.RawData,
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false,
+                        IsRefunded = true
+                    };
+                    await _unitOfWork.paymentRepository.AddAsync(payent);
 
-                var transaction = new Transaction
-                {
-                    Id = order.TransactionId,
-                    UserId = order.UserId,
-                    OrderId = order.Id,
-                    Amount = order.TotalPrice,
-                    PaymentId = payent.Id,
-                    Currency = "VND",
-                    PaymentMethod = order.PaymentMethod,
-                    TransactionStatus = (TransactionStatusEnum)order.Status,
-                    TransactionDate = DateTime.UtcNow.AddHours(7),
-                    DiscountAmount = 0,
-                    CreatedAt = DateTime.UtcNow.AddHours(7),
-                    UpdatedAt = DateTime.UtcNow.AddHours(7),
-                    Notes = $"Hủy đơn hàng với mã đơn hàng là: {order.Id} với số tiền: {order.TotalPrice}.",
-                    CreatedBy = order.UserId,
-                    IsDeleted = false,
-                    CreationDate = DateTime.UtcNow.AddHours(7),
-                };
-                await _unitOfWork.transactionRepository.AddAsync(transaction);
+                    var transaction = new Transaction
+                    {
+                        Id = order.TransactionId,
+                        UserId = order.UserId,
+                        OrderId = order.Id,
+                        Amount = order.TotalPrice,
+                        PaymentId = payent.Id,
+                        Currency = "VND",
+                        PaymentMethod = order.PaymentMethod,
+                        TransactionStatus = (TransactionStatusEnum)order.Status,
+                        TransactionDate = DateTime.UtcNow.AddHours(7),
+                        DiscountAmount = 0,
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        UpdatedAt = DateTime.UtcNow.AddHours(7),
+                        Notes = $"Từ chối đơn hàng với mã đơn hàng là: {order.Id} với số tiền: {order.TotalPrice}.",
+                        CreatedBy = order.UserId,
+                        IsDeleted = false,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                    };
 
-                getWalletSystem.Balance = getWalletSystem.Balance - (float)order.TotalPrice;
-                _unitOfWork.walletRepository.Update(getWalletSystem);
+                    getWalletSystem.Balance = getWalletSystem.Balance - (float)order.TotalPrice;
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
 
-                getWalletUser.Balance = getWalletUser.Balance + (float)order.TotalPrice;
-                _unitOfWork.walletRepository.Update(getWalletUser);
+                    getWalletUser.Balance = getWalletUser.Balance + (float)order.TotalPrice;
+                    _unitOfWork.walletRepository.Update(getWalletUser);
 
-                var newWalletSystemTransaction = new WalletTransaction
-                {
-                    Wallet_Id = getWalletUser.Id,
-                    Amount = order.TotalPrice,
-                    Type = WalletTransactionTypeEnum.Refund,
-                    Description = $"Hoàn tiền cho đơn hàng {order.Id} với số tiền: {order.TotalPrice}.",
-                    CreationDate = DateTime.UtcNow.AddHours(7),
-                    CreatedAt = DateTime.UtcNow.AddHours(7),
-                    IsDeleted = false
-                };
-                await _unitOfWork.walletTransactionRepository.AddAsync(newWalletSystemTransaction);
+                    var newWalletSystemTransaction = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletUser.Id,
+                        Amount = order.TotalPrice,
+                        Type = WalletTransactionTypeEnum.Refund,
+                        Description = $"Hoàn tiền cho đơn hàng {order.Id} với số tiền: {order.TotalPrice}.",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(newWalletSystemTransaction);
 
-                var newWalletUserTransaction = new WalletTransaction
-                {
-                    Wallet_Id = getWalletSystem.Id,
-                    Amount = order.TotalPrice,
-                    Type = WalletTransactionTypeEnum.Refund,
-                    Description = $"Hoàn tiền cho đơn hàng {order.Id} với số tiền: {order.TotalPrice}.",
-                    CreationDate = DateTime.UtcNow.AddHours(7),
-                    CreatedAt = DateTime.UtcNow.AddHours(7),
-                    IsDeleted = false
-                };
-                await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
+                    var newWalletUserTransaction = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = order.TotalPrice,
+                        Type = WalletTransactionTypeEnum.Refund,
+                        Description = $"Hoàn tiền cho đơn hàng {order.Id} với số tiền: {order.TotalPrice}.",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
 
-                await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
-                order.Status = OrderStatusEnum.Cancelled;
-                _unitOfWork.orderRepository.Update(order);
-                order.ModificationDate = DateTime.UtcNow.AddHours(7);
-                await _unitOfWork.SaveChangeAsync();
-
-                return new Result<bool>()
-                {
-                    Error = 0,
-                    Message = "Hủy đơn hàng thành công",
-                    Data = true
-                };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
+                    order.Status = OrderStatusEnum.Cancelled;
+                    _unitOfWork.orderRepository.Update(order);
+                    order.ModificationDate = DateTime.UtcNow.AddHours(7);
+                    await _unitOfWork.SaveChangeAsync();
+                    return new Result<bool>()
+                    {
+                        Error = 0,
+                        Message = "Từ chối đơn hàng thành công",
+                        Data = true
+                    };
+                }
             }
 
-            order.Status = statusDto.Status;
+            order.Status = statusDto;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
-            if (statusDto.Status == OrderStatusEnum.Completed)
+            if (statusDto == OrderStatusEnum.Completed)
             {
                 foreach (var item in orderItems)
                 {

@@ -15,7 +15,6 @@ namespace CGP.Domain.Enums
         AwaitingPayment,     // Đơn hàng chờ thanh toán (cho thanh toán online)
         PaymentFailed,       // Thanh toán thất bại (cho thanh toán online)
         ReadyForShipment,    // Đơn hàng đã sẵn sàng để giao
-        Paid,                // Đơn hàng đã thanh toán thành công
         Shipped,             // Đơn hàng đã được giao cho đơn vị vận chuyển
         Delivered,           // Đơn hàng đã được giao đến người dùng
         Completed,           // Đơn hàng hoàn thành (người dùng xác nhận hoặc tự động hoàn thành)
