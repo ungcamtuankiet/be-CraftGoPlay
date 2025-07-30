@@ -95,7 +95,7 @@ namespace CGP.Application.Services
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()
             {
-                Error = 1,
+                Error = 0,
                 Message = "Đánh giá thành công.",
                 Data = rating
             };
