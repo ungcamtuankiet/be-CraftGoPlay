@@ -650,6 +650,8 @@ namespace CGP.Application.Services
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
             var getPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(order.Id);
             var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
+            var getTransaction = await _unitOfWork.transactionRepository.GetTransactionByOrderId(order.Id);
+
             if (order == null)
             {
                 return new Result<bool>()
@@ -674,51 +676,22 @@ namespace CGP.Application.Services
                 
                 if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
                 {
-                    if (order.Status != OrderStatusEnum.Created || order.Status != OrderStatusEnum.Confirmed || order.Status != OrderStatusEnum.Preparing)
+                    if (order.Status == OrderStatusEnum.Shipped || order.Status == OrderStatusEnum.Delivered)
                     {
                         return new Result<bool>()
                         {
                             Error = 1,
-                            Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
+                            Message = "Đơn hàng đang trong quá trình giao hàng nên không thể hủy",
                             Data = false
                         };
                     }
-                }
-
-                if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
-                {
-                    if (order.Status != OrderStatusEnum.Created)
-                    {
-                        return new Result<bool>()
-                        {
-                            Error = 1,
-                            Message = "Đơn đang đã được xác nhận hoặc đang trong quá trình xử lý nên không thể hủy",
-                            Data = false
-                        };
-                    }
-
-                    var payent = new Payment()
-                    {
-                        OrderId = order.Id,
-                        TransactionNo = getPayment.TransactionNo,
-                        BankCode = getPayment.BankCode,
-                        ResponseCode = "00",
-                        SecureHash = getPayment.SecureHash,
-                        PaymentMethod = PaymentMethodEnum.Online,
-                        RawData = getPayment.RawData,
-                        CreatedAt = DateTime.UtcNow.AddHours(7),
-                        IsDeleted = false,
-                        IsRefunded = true
-                    };
-                    await _unitOfWork.paymentRepository.AddAsync(payent);
 
                     var transaction = new Transaction
                     {
-                        Id = order.TransactionId,
                         UserId = order.UserId,
                         OrderId = order.Id,
                         Amount = order.TotalPrice,
-                        PaymentId = payent.Id,
+                        PaymentId = getPayment.Id,
                         Currency = "VND",
                         PaymentMethod = order.PaymentMethod,
                         TransactionStatus = (TransactionStatusEnum)order.Status,
