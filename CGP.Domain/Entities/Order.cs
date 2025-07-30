@@ -24,7 +24,7 @@ namespace CGP.Domain.Entities
         public List<OrderItem> OrderItems { get; set; }
         public List<OrderVoucher> OrderVouchers { get; set; }
         [ForeignKey("TransactionId")]
-        public Transaction Transaction { get; set; }
+        public ICollection<Transaction> Transactions { get; set; }
         [ForeignKey("UserAddressId")]   
         public UserAddress? UserAddress { get; set; }
         public ICollection<ReturnRequest> ReturnRequests { get; set; }

@@ -365,8 +365,8 @@ public class AppDbContext : DbContext
             e.ToTable("Transaction");
             e.HasKey(t => t.Id);
             e.HasOne(t => t.Order)
-            .WithOne(t => t.Transaction)
-            .HasForeignKey<Transaction>(t => t.OrderId)
+            .WithMany(t => t.Transactions)
+            .HasForeignKey(t => t.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
         });
 

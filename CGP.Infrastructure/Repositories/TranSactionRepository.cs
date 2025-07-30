@@ -2,6 +2,7 @@
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
 using CGP.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,12 @@ namespace CGP.Infrastructure.Repositories
         public Task<List<Transaction>> GetByUserIdAsync(Guid userId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Transaction> GetTransactionByOrderId(Guid orderId)
+        {
+            return await _dbContext.Transaction
+                .FirstOrDefaultAsync(t => t.OrderId == orderId);
         }
 
         public Task<List<Transaction>> GetTransactions()

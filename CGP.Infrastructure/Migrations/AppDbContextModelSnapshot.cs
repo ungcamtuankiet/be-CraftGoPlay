@@ -204,7 +204,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 7, 28, 11, 29, 57, 648, DateTimeKind.Local).AddTicks(4941),
+                            CreationDate = new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4791),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -217,7 +217,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 7, 28, 11, 29, 57, 648, DateTimeKind.Local).AddTicks(5013),
+                            CreationDate = new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4812),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -230,7 +230,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 7, 28, 11, 29, 57, 648, DateTimeKind.Local).AddTicks(5024),
+                            CreationDate = new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4816),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -243,7 +243,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 7, 28, 11, 29, 57, 648, DateTimeKind.Local).AddTicks(5030),
+                            CreationDate = new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4819),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -1323,6 +1323,9 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<decimal?>("TransactionFee")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("TransactionStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1341,8 +1344,7 @@ namespace CGP.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("PaymentId");
 
@@ -1566,7 +1568,7 @@ namespace CGP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5dd299c9-cf42-46b2-af22-04d5c3639d39"),
+                            Id = new Guid("f075d697-f230-4e88-aa7e-44b3fed9c3ee"),
                             Balance = 0f,
                             CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
@@ -1919,8 +1921,8 @@ namespace CGP.Infrastructure.Migrations
             modelBuilder.Entity("CGP.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("CGP.Domain.Entities.Order", "Order")
-                        .WithOne("Transaction")
-                        .HasForeignKey("CGP.Domain.Entities.Transaction", "OrderId")
+                        .WithMany("Transactions")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2059,8 +2061,7 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Navigation("ReturnRequests");
 
-                    b.Navigation("Transaction")
-                        .IsRequired();
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Payment", b =>
