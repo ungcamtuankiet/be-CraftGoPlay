@@ -24,6 +24,6 @@ namespace CGP.Application.Interfaces
         Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, CreateDirectOrderDto dto);
         Task<Result<string>> CreateVnPayUrlAsync(Guid transactionId, HttpContext httpContext);
         Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query);
-        Task<Result<bool>> RefundOrderAsync(SendRefundRequestDTO dto);
+        
     }
 }

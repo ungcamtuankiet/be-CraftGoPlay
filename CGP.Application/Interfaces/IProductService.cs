@@ -18,6 +18,7 @@ namespace CGP.Application.Interfaces
         public Task<ResponseProductsStatus<List<ViewProductDTO>>> SearchProducts(string? search, int pageIndex, int pageSize, decimal from, decimal to, string sortOrder);
         public Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum? productStatus);
         public Task<ResponseProductsStatus<List<ViewProductDTO>>> GetProductsByStatus(int pageIndex, int pageSize, ProductStatusEnum productStatus);
+        public Task<ResponseProductsStatus<List<ViewProductBySubCategoryDTO>>> GetProductBySubcategoryId(Guid subCategoryId,int pageIndex, int pageSize, ProductStatusEnum productStatus);
         public Task<Result<object>> CreateProduct(ProductCreateDto request);
         public Task<Result<object>> UpdateProduct(ProductUpdateDTO request);
         public Task<Result<object>> DeleteProduct(Guid id);
