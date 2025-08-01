@@ -496,6 +496,36 @@ namespace CGP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PointTransaction",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Point_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ReferenceCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModificationBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeleteBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PointTransaction", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PointTransaction_Point_Point_Id",
+                        column: x => x.Point_Id,
+                        principalTable: "Point",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CartItem",
                 columns: table => new
                 {
@@ -938,16 +968,16 @@ namespace CGP.Infrastructure.Migrations
                 columns: new[] { "Id", "CraftVillage_Id", "CreatedBy", "CreationDate", "DateOfBirth", "DeleteBy", "DeletionDate", "Email", "IsDeleted", "IsVerified", "ModificationBy", "ModificationDate", "Otp", "OtpExpiryTime", "PasswordHash", "PhoneNumber", "Provider", "ProviderKey", "RefreshToken", "ResetToken", "ResetTokenExpiry", "RoleId", "Status", "Thumbnail", "UserName", "VerificationToken" },
                 values: new object[,]
                 {
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"), null, null, new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4819), null, null, null, "user@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 4, "Active", null, "User", null },
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"), null, null, new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4816), null, null, null, "artisan@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 3, "Active", null, "Artisan", null },
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"), null, null, new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4791), null, null, null, "admin@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 1, "Active", null, "Admin", null },
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"), null, null, new DateTime(2025, 7, 29, 16, 44, 4, 828, DateTimeKind.Local).AddTicks(4812), null, null, null, "staff@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 2, "Active", null, "Staff", null }
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"), null, null, new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2337), null, null, null, "user@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 4, "Active", null, "User", null },
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"), null, null, new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2334), null, null, null, "artisan@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 3, "Active", null, "Artisan", null },
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"), null, null, new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2307), null, null, null, "admin@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 1, "Active", null, "Admin", null },
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"), null, null, new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2330), null, null, null, "staff@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 2, "Active", null, "Staff", null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Wallet",
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "DeleteBy", "DeletionDate", "IsDeleted", "ModificationBy", "ModificationDate", "Type", "User_Id" },
-                values: new object[] { new Guid("f075d697-f230-4e88-aa7e-44b3fed9c3ee"), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, false, null, null, 2, new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471") });
+                values: new object[] { new Guid("c4f1a5a5-25ab-463c-a386-cf488615e1b4"), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, false, null, null, 2, new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUserVoucher_VouchersId",
@@ -1041,6 +1071,11 @@ namespace CGP.Infrastructure.Migrations
                 table: "Point",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PointTransaction_Point_Id",
+                table: "PointTransaction",
+                column: "Point_Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_Artisan_id",
@@ -1163,7 +1198,7 @@ namespace CGP.Infrastructure.Migrations
                 name: "OrderVoucher");
 
             migrationBuilder.DropTable(
-                name: "Point");
+                name: "PointTransaction");
 
             migrationBuilder.DropTable(
                 name: "ProductImage");
@@ -1191,6 +1226,9 @@ namespace CGP.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Meterial");
+
+            migrationBuilder.DropTable(
+                name: "Point");
 
             migrationBuilder.DropTable(
                 name: "Product");
