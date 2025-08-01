@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250801045924_init")]
+    [Migration("20250801073920_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -207,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 1, 11, 59, 23, 487, DateTimeKind.Local).AddTicks(1984),
+                            CreationDate = new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2307),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -220,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 1, 11, 59, 23, 487, DateTimeKind.Local).AddTicks(2002),
+                            CreationDate = new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2330),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -233,7 +233,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 8, 1, 11, 59, 23, 487, DateTimeKind.Local).AddTicks(2005),
+                            CreationDate = new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2334),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -246,7 +246,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 8, 1, 11, 59, 23, 487, DateTimeKind.Local).AddTicks(2008),
+                            CreationDate = new DateTime(2025, 8, 1, 14, 39, 19, 806, DateTimeKind.Local).AddTicks(2337),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -931,6 +931,58 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("Point", (string)null);
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.PointTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Point_Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReferenceCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Point_Id");
+
+                    b.ToTable("PointTransaction", (string)null);
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1571,7 +1623,7 @@ namespace CGP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f7d4746a-1265-4e8d-8826-08557cd99bc6"),
+                            Id = new Guid("c4f1a5a5-25ab-463c-a386-cf488615e1b4"),
                             Balance = 0f,
                             CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
@@ -1841,6 +1893,17 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.PointTransaction", b =>
+                {
+                    b.HasOne("CGP.Domain.Entities.Point", "Point")
+                        .WithMany("PointTransactions")
+                        .HasForeignKey("Point_Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Point");
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.Product", b =>
                 {
                     b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
@@ -2070,6 +2133,11 @@ namespace CGP.Infrastructure.Migrations
             modelBuilder.Entity("CGP.Domain.Entities.Payment", b =>
                 {
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.Point", b =>
+                {
+                    b.Navigation("PointTransactions");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Product", b =>

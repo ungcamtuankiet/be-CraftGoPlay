@@ -13,5 +13,6 @@ namespace CGP.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(7);
         public DateTime? UpdatedAt { get; set; }
         public ApplicationUser User { get; set; } 
+        public ICollection<PointTransaction> PointTransactions { get; set; }
     }
 }

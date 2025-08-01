@@ -40,6 +40,7 @@ public class AppDbContext : DbContext
     public DbSet<ReturnRequest> ReturnRequest { get; set; }
     public DbSet<ActivityLog> ActivityLog { get; set; }
     public DbSet<WalletTransaction> WalletTransaction { get; set; }
+    public DbSet<PointTransaction> PointTransactions { get; set; }
     #endregion
 
 
@@ -466,6 +467,17 @@ public class AppDbContext : DbContext
             e.HasOne(wt => wt.Wallet)
             .WithMany(w => w.WalletTransactions)
             .HasForeignKey(wt => wt.Wallet_Id)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //PointTransaction
+        modelBuilder.Entity<PointTransaction>(e =>
+        {
+            e.ToTable("PointTransaction");
+            e.HasKey(wt => wt.Id);
+            e.HasOne(wt => wt.Point)
+            .WithMany(w => w.PointTransactions)
+            .HasForeignKey(wt => wt.Point_Id)
             .OnDelete(DeleteBehavior.Restrict);
         });
     }
