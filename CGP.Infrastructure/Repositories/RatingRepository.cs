@@ -49,6 +49,7 @@ namespace CGP.Infrastructure.Repositories
         public async Task<IEnumerable<Rating>> GetRatingsByUserIdAsync(Guid userId, int pageIndex, int pageSize)
         {
             return await _dbContext.Rating
+                .Include(r => r.Product)
                 .Where(r => r.UserId == userId)
                 .OrderByDescending(r => r.Star)
                 .Skip(pageIndex * pageSize)

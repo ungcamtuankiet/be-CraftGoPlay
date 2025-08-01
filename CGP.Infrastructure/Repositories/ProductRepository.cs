@@ -30,8 +30,11 @@ namespace CGP.Infrastructure.Repositories
             return await _context.Product
                 .Include(x => x.User)
                 .Include(x => x.Meterials)
-                .Include(x => x.ProductImages)
                 .Include(x => x.SubCategory)
+                .Include(x => x.ProductImages)
+                .Include(x => x.OrderItems)
+                .Include(x => x.Ratings)
+                .ThenInclude(x => x.User)
                 .ToListAsync();
         }
 
@@ -43,6 +46,8 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.SubCategory)
                 .Include(x => x.ProductImages)
                 .Include(x => x.OrderItems)
+                .Include(x => x.Ratings)
+                .ThenInclude(x => x.User)
                 .FirstOrDefaultAsync(x => x.Id == productId);
         }
 
@@ -53,6 +58,9 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
                 .Include(x => x.ProductImages)
+                .Include(x => x.OrderItems)
+                .Include(x => x.Ratings)
+                .ThenInclude(x => x.User)
                 .Where(x => x.Price >= from && x.Price <= to)
                 .Where(x => x.Status == ProductStatusEnum.Active);
 
@@ -86,6 +94,9 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
                 .Include(x => x.ProductImages)
+                .Include(x => x.OrderItems)
+                .Include(x => x.Ratings)
+                .ThenInclude(x => x.User)
                 .Where(x => x.Artisan_id == artisanId);
 
             if(productStatus != null)
@@ -141,6 +152,9 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
                 .Include(x => x.ProductImages)
+                .Include(x => x.OrderItems)
+                .Include(x => x.Ratings)
+                .ThenInclude(x => x.User)
                 .Where(x => x.Status == productStatus);
 
             if (!string.IsNullOrWhiteSpace(productStatus.ToString()))
@@ -195,6 +209,9 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
                 .Include(x => x.ProductImages)
+                .Include(x => x.OrderItems)
+                .Include(x => x.Ratings)
+                .ThenInclude(x => x.User)
                 .FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException("Product not found");
         }
 
@@ -224,6 +241,9 @@ namespace CGP.Infrastructure.Repositories
                 .Include(x => x.Meterials)
                 .Include(x => x.SubCategory)
                 .Include(x => x.ProductImages)
+                .Include(x => x.OrderItems)
+                .Include(x => x.Ratings)
+                .ThenInclude(x => x.User)
                 .Where(x => x.SubCategoryId == subCategoryId)
                 .ToListAsync();
         }

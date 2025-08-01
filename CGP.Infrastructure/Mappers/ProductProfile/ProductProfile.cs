@@ -30,6 +30,7 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.SubCategory != null ? src.SubCategory.SubName : null))
                 .ForMember(dest => dest.Meterials, opt => opt.MapFrom(src => src.Meterials))
                 .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages))
+                .ForMember(dest => dest.Ratings, opt => opt.MapFrom(src => src.Ratings))
                 .ReverseMap();
 
             CreateMap<Product, ProductDTO>().ReverseMap();
@@ -39,6 +40,12 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ReverseMap();
             CreateMap<Product, ViewProductOrderDTO>()
                 .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages.FirstOrDefault()))
+                .ReverseMap();
+
+            CreateMap<Product, ViewProductBySubCategoryDTO>()
+                .ForMember(dest => dest.SubId, opt => opt.MapFrom(src => src.SubCategoryId))
+                .ForMember(dest => dest.SubName, opt => opt.MapFrom(src => src.SubCategory.SubName))
+                .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.SubCategory.Products))
                 .ReverseMap();
         }
     }

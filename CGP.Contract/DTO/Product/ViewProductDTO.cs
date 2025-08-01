@@ -1,5 +1,6 @@
 ﻿using CGP.Contract.DTO.Meterial;
 using CGP.Contract.DTO.ProductImage;
+using CGP.Contract.DTO.Rating;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using System;
@@ -32,5 +33,6 @@ namespace CGP.Contract.DTO.Product
         public List<ProductImageDTO> ProductImages { get; set; } = new();
         public DateTime CreationDate { get; set; }
         public DateTime ModificationDate { get; set; }
+        public List<ViewRatingProductDTO> Ratings { get; set; } = new();
     }
 }

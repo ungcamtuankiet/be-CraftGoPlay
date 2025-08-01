@@ -159,6 +159,18 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<ResponseProductsStatus<List<ViewProductBySubCategoryDTO>>> GetProductBySubcategoryId(Guid subCategoryId, int pageIndex, int pageSize, ProductStatusEnum productStatus)
+        {
+            var result = _mapper.Map<List<ViewProductBySubCategoryDTO>>(await _unitOfWork.productRepository.GetProductsBySubCategoryId(subCategoryId, pageIndex, pageSize, productStatus));
+            return new ResponseProductsStatus<List<ViewProductBySubCategoryDTO>>
+            {
+                Error = 0,
+                Message = "Lấy danh sách sản phẩm theo danh mục con thành công.",
+                Count = result.Count,
+                Data = result
+            };
+        }
+
         public async Task<Result<object>> CreateProduct(ProductCreateDto request)
         {
             try

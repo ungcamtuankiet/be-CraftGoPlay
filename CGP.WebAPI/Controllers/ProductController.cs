@@ -83,6 +83,17 @@ namespace CGP.WebAPI.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("GetProductsBySubCategoryId/{subCategoryId}")]
+        public async Task<IActionResult> GetProductsBySubCategoryId(Guid subCategoryId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] ProductStatusEnum productStatus = ProductStatusEnum.Active)
+        {
+            var result = await _productService.GetProductBySubcategoryId(subCategoryId, pageIndex, pageSize, productStatus);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [HttpPost("CreateProduct")]
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto request)

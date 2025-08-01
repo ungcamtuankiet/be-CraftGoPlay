@@ -111,26 +111,5 @@ namespace CGP.WebAPI.Controllers
             var result = await _orderService.UpdateOrderStatusAsync(orderId, statusDto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
-
-        [HttpPost("ReturnRequest")]
-        [Authorize(Policy = "UserPolicy")]
-        public async Task<IActionResult> RefundOrder([FromForm] SendRefundRequestDTO dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new Result<object>
-                {
-                    Error = 1,
-                    Message = "Dữ liệu không hợp lệ.",
-                    Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
-                });
-            }
-            var result = await _orderService.RefundOrderAsync(dto);
-            if(result.Error != 0)
-            {
-                return BadRequest(result);
-            }
-            return Ok(result);
-        }
     }
 }
