@@ -36,6 +36,7 @@ namespace CGP.Infrastructure.Repositories
         public async Task<Point> GetPointsByUserId(Guid userId)
         {
             return await _dbContext.Point
+                .Include(p => p.User)
                 .Include(p => p.PointTransactions)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }

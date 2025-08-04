@@ -14,10 +14,8 @@ namespace CGP.Infrastructure.Mappers.PointProfile
         public PointProfile()
         {
             CreateMap<Point, ViewPointDTO>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.PointTransactions, opt => opt.MapFrom(src => src.PointTransactions))
                 .ReverseMap();
         }
     }

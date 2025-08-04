@@ -96,6 +96,7 @@ namespace CGP.Application.Services
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(dto.UserId);
 
             getUserPoint.Amount += 100;
+            getUserPoint.UpdatedAt = DateTime.UtcNow.AddHours(7);
             _unitOfWork.pointRepository.Update(getUserPoint);
 
             var pointTransaction = new PointTransaction()

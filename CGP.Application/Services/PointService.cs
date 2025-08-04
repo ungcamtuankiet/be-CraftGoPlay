@@ -25,8 +25,7 @@ namespace CGP.Application.Services
         
         public async Task<Result<ViewPointDTO>> GetPointsByUserId(Guid userId)
         {
-            var points = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
-            var result = _mapper.Map<ViewPointDTO>(points);
+            var result = _mapper.Map<ViewPointDTO>(await _unitOfWork.pointRepository.GetPointsByUserId(userId));
             return new Result<ViewPointDTO>
             {
                 Error = 0,
