@@ -18,7 +18,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetRatingsByUserId/{userId}")]
-        [Authorize(Policy = "UserPolicy")] 
+        //[Authorize(Policy = "UserPolicy")] 
         public async Task<IActionResult> GetRatingsByUserId(Guid userId, int pageIndex = 0, int pageSize = 10)
         {
             var result = await _ratingService.GetRatingsByUserId(userId, pageIndex, pageSize);
@@ -30,7 +30,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetRatingsByArtisanId/{artisanId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> GetRatingsByArtisanId(Guid artisanId, int pageIndex = 0, int pageSize = 10)
         {
             var result = await _ratingService.GetRatingsByArtisanId(artisanId, pageIndex, pageSize);
@@ -42,7 +42,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPost("RatingProduct")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> RateProduct([FromBody] RatingDTO dto)
         {
             if (!ModelState.IsValid)

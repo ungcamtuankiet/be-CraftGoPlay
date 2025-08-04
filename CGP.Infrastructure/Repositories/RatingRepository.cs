@@ -29,6 +29,15 @@ namespace CGP.Infrastructure.Repositories
         public async Task<IEnumerable<Rating>> GetRatingsByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize)
         {
             return await _dbContext.Rating
+                .Include(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.Meterials)
+                .Include(p => p.Product)
+                .ThenInclude(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.SubCategory)
                 .Where(r => r.Product.Artisan_id == artisanId)
                 .OrderByDescending(r => r.Star)
                 .Skip(pageIndex * pageSize)
@@ -39,6 +48,15 @@ namespace CGP.Infrastructure.Repositories
         public async Task<IEnumerable<Rating>> GetRatingsByProductIdAsync(Guid productId, int pageIndex, int pageSize, int star)
         {
             return await _dbContext.Rating
+                .Include(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.Meterials)
+                .Include(p => p.Product)
+                .ThenInclude(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.SubCategory)
                 .Where(r => r.ProductId == productId && r.Star == star)
                 .OrderByDescending(r => r.CreationDate)
                 .Skip(pageIndex * pageSize)
@@ -49,7 +67,15 @@ namespace CGP.Infrastructure.Repositories
         public async Task<IEnumerable<Rating>> GetRatingsByUserIdAsync(Guid userId, int pageIndex, int pageSize)
         {
             return await _dbContext.Rating
+                .Include(p => p.User)
                 .Include(r => r.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.Meterials)
+                .Include(p => p.Product)
+                .ThenInclude(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.SubCategory)
                 .Where(r => r.UserId == userId)
                 .OrderByDescending(r => r.Star)
                 .Skip(pageIndex * pageSize)
@@ -60,6 +86,15 @@ namespace CGP.Infrastructure.Repositories
         public async Task<int> GetTotalRatingsByProductIdAsync(Guid productId)
         {
             return await _dbContext.Rating
+                .Include(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.Meterials)
+                .Include(p => p.Product)
+                .ThenInclude(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.SubCategory)
                 .CountAsync(r => r.ProductId == productId);
         }
 
@@ -77,6 +112,15 @@ namespace CGP.Infrastructure.Repositories
         public async Task<bool> CheckRated(Guid userId, Guid productId)
         {
             return await _dbContext.Rating
+                .Include(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.Meterials)
+                .Include(p => p.Product)
+                .ThenInclude(p => p.User)
+                .Include(r => r.Product)
+                .ThenInclude(p => p.SubCategory)
                 .AnyAsync(r => r.UserId == userId && r.ProductId == productId);
         }
     }
