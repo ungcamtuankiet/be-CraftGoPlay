@@ -31,6 +31,8 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ForMember(dest => dest.Meterials, opt => opt.MapFrom(src => src.Meterials))
                 .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages))
                 .ForMember(dest => dest.Ratings, opt => opt.MapFrom(src => src.Ratings))
+                .ForMember(dest => dest.TotalRatings, opt => opt.MapFrom(src => src.Ratings.Count))
+                .ForMember(dest => dest.AverageRating,opt => opt.MapFrom(src => src.Ratings.Any() ? Math.Round(src.Ratings.Average(r => r.Star), 1) : 0))
                 .ReverseMap();
 
             CreateMap<Product, ProductDTO>().ReverseMap();

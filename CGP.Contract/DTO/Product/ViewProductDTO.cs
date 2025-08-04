@@ -33,6 +33,8 @@ namespace CGP.Contract.DTO.Product
         public List<ProductImageDTO> ProductImages { get; set; } = new();
         public DateTime CreationDate { get; set; }
         public DateTime ModificationDate { get; set; }
+        public int TotalRatings { get; set; }
+        public double AverageRating { get; set; }
         public List<ViewRatingProductDTO> Ratings { get; set; } = new();
     }
 }

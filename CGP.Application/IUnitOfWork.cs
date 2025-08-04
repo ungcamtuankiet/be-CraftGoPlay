@@ -34,6 +34,7 @@ namespace CGP.Application
         IActivityLogRepository activityLogRepository { get; }
         IWalletRepository walletRepository { get; }
         IWalletTransactionRepository walletTransactionRepository { get; }
+        IPointTransactionRepository pointTransactionRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

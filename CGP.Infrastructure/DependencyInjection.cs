@@ -74,6 +74,8 @@ namespace CGP.Infrastructure
             services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
             services.AddScoped<IWalletRepository, WalletRepository>();
             services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
+            services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
+
             //Database
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))

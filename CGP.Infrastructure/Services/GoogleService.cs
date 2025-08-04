@@ -150,6 +150,14 @@ namespace CGP.Infrastructure.Services
                 Type = WalletTypeEnum.User
             };
             await _unitOfWork.walletRepository.AddAsync(wallet);
+
+            var point = new Point()
+            {
+                UserId = user.Id,
+                Amount = 0
+            };
+            await _unitOfWork.pointRepository.AddAsync(point);
+
             await _unitOfWork.SaveChangeAsync();
 
             return new Result<object>
