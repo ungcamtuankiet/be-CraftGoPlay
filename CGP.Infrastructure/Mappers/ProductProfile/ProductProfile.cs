@@ -2,6 +2,7 @@
 using CGP.Contract.DTO.Meterial;
 using CGP.Contract.DTO.Product;
 using CGP.Contract.DTO.ProductImage;
+using CGP.Contract.DTO.Rating;
 using CGP.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -47,6 +48,8 @@ namespace CGP.Infrastructure.Mappers.ProductProfile
                 .ForMember(dest => dest.SubName, opt => opt.MapFrom(src => src.SubCategory.SubName))
                 .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.SubCategory.Products))
                 .ReverseMap();
+
+            CreateMap<Product, ViewRatingDTO>().ReverseMap();
         }
     }
 }
