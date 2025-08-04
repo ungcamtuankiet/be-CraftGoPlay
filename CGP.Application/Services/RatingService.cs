@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Rating;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
@@ -92,6 +93,20 @@ namespace CGP.Application.Services
                 };
             }
             await _unitOfWork.ratingRepository.AddAsync(rating);
+            var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(dto.UserId);
+
+            getUserPoint.Amount += 100;
+            _unitOfWork.pointRepository.Update(getUserPoint);
+
+            var pointTransaction = new PointTransaction()
+            {
+                Point_Id = getUserPoint.Id,
+                Amount = 100,
+                Status = PointTransactionEnum.Earned,
+                Description = "Bạn nhận được 100 xu từ việc đánh giá sản phẩm.",
+            };
+            await _unitOfWork.pointTransactionRepository.AddAsync(pointTransaction);
+
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()
             {

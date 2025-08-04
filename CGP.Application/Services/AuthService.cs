@@ -22,6 +22,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Point = CGP.Domain.Entities.Point;
 
 namespace CGP.Application.Services
 {
@@ -344,6 +345,14 @@ namespace CGP.Application.Services
                 Type = WalletTypeEnum.User
             };
             await _unitOfWork.walletRepository.AddAsync(wallet);
+
+            var point = new Point()
+            {
+                UserId = user.Id,
+                Amount = 0
+            };
+            await _unitOfWork.pointRepository.AddAsync(point);
+
             await _userRepository.UpdateAsync(user);
             return true;
         }

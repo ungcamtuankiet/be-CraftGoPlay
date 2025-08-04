@@ -57,6 +57,12 @@ namespace CGP.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> GetTotalRatingsByProductIdAsync(Guid productId)
+        {
+            return await _dbContext.Rating
+                .CountAsync(r => r.ProductId == productId);
+        }
+
         public async Task<bool> HasPurchased(Guid userId, Guid productId)
         {
             bool hasPurchased = await _dbContext.OrderItem

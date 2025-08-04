@@ -37,8 +37,9 @@ namespace CGP.Infrastructure
         private readonly IActivityLogRepository _activityLogRepository;
         private readonly IWalletRepository _walletRepository;
         private readonly IWalletTransactionRepository _walletTransactionRepository;
+        private readonly IPointTransactionRepository _pointTransactionRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null, ICraftSkillRepository craftSkillRepository = null, ITransactionRepository transactionRepository = null, IPointRepository pointRepository = null, IRatingRepository ratingRepository = null, IReturnRequestRepository returnRequestRepository = null, IActivityLogRepository activityLogRepository = null, IWalletRepository walletRepository = null, IWalletTransactionRepository walletTransactionRepository = null)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null, ICraftSkillRepository craftSkillRepository = null, ITransactionRepository transactionRepository = null, IPointRepository pointRepository = null, IRatingRepository ratingRepository = null, IReturnRequestRepository returnRequestRepository = null, IActivityLogRepository activityLogRepository = null, IWalletRepository walletRepository = null, IWalletTransactionRepository walletTransactionRepository = null, IPointTransactionRepository pointTransactionRepository = null)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
@@ -65,6 +66,7 @@ namespace CGP.Infrastructure
             _activityLogRepository = activityLogRepository;
             _walletRepository = walletRepository;
             _walletTransactionRepository = walletTransactionRepository;
+            _pointTransactionRepository = pointTransactionRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;
@@ -91,6 +93,7 @@ namespace CGP.Infrastructure
         public IActivityLogRepository activityLogRepository => _activityLogRepository;
         public IWalletRepository walletRepository => _walletRepository;
         public IWalletTransactionRepository walletTransactionRepository => _walletTransactionRepository;
+        public IPointTransactionRepository pointTransactionRepository => _pointTransactionRepository;
 
         public async Task<int> SaveChangeAsync()
         {
