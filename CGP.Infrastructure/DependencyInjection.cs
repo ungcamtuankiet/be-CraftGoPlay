@@ -47,6 +47,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IReturnRequestService, ReturnRequestService>();
+            services.AddScoped<IPointService, PointService>();
 
             services.AddMemoryCache();
             //Repositories

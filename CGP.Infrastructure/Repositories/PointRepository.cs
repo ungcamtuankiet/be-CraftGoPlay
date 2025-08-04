@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -35,7 +36,7 @@ namespace CGP.Infrastructure.Repositories
         public async Task<Point> GetPointsByUserId(Guid userId)
         {
             return await _dbContext.Point
-                .Include(p => p.User)
+                .Include(p => p.PointTransactions)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
     }
