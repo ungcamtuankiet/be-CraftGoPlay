@@ -1,5 +1,6 @@
 ﻿using CGP.Contract.DTO.CraftSkill;
 using CGP.Contract.DTO.CraftVillage;
+using CGP.Contract.DTO.User;
 using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace CGP.Contract.DTO.ArtisanRequest
         public string Image { get; set; }
         public ViewCraftVillageDTO CraftVillages { get; set; }
         public Guid UserId { get; set; }
+        public UserDTO User { get; set; }
         public int YearsOfExperience { get; set; }
         public string Description { get; set; }
         public string Reason { get; set; }
