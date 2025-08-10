@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CGP.Domain.Entities
+{
+    public class Inventory : BaseEntity
+    {
+        public Guid UserId { get; set; }
+        public string ItemType { get; set; }
+        public int Quantity { get; set; } = 0;
+        public DateTime AcquiredAt { get; set; } = DateTime.UtcNow.AddHours(7);
+
+        public ApplicationUser User { get; set; }
+    }
+}

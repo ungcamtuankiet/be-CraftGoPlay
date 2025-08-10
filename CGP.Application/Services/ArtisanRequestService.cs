@@ -103,7 +103,14 @@ namespace CGP.Application.Services
                 request.CraftSkills = craftSkills;
             }
             await _unitOfWork.artisanRequestRepository.SendNewRequest(request);
-
+            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+            {
+                UserId = requestDto.UserId,
+                Action = "Gửi yêu cầu.",
+                EntityType = "Auth",
+                Description = "Bạn đã gửi yêu cầu trở thành nghệ nhân thành công.",
+                EntityId = request.Id,
+            });
             return new Result<ViewRequestDTO>
             {
                 Error = 0,
@@ -149,6 +156,7 @@ namespace CGP.Application.Services
             await _unitOfWork.userRepository.UpdateAsync(getUser);
             getWallet.Type = WalletTypeEnum.Artisan;
             _unitOfWork.walletRepository.Update(getWallet);
+
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
             {
@@ -171,6 +179,16 @@ namespace CGP.Application.Services
                 };
             }
             await _unitOfWork.artisanRequestRepository.CancelRequestByArtisan(getRequest);
+
+            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+            {
+                UserId = getRequest.UserId,
+                Action = "Gửi yêu cầu.",
+                EntityType = "Auth",
+                Description = "Bạn đã hủy yêu cầu trở thành nghệ nhân thành công.",
+                EntityId = id,
+            });
+
             return new Result<object>
             {
                 Error = 0,
@@ -253,6 +271,16 @@ namespace CGP.Application.Services
 
             request.Status = RequestArtisanStatus.Pending;
             _unitOfWork.artisanRequestRepository.Update(request);
+
+            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+            {
+                UserId = userId,
+                Action = "Gửi yêu cầu.",
+                EntityType = "Auth",
+                Description = "Bạn đã gửi lại yêu cầu trở thành nghệ nhân thành công.",
+                EntityId = requestId,
+            });
+
             await _unitOfWork.SaveChangeAsync();
 
             return new Result<object>
