@@ -130,6 +130,15 @@ namespace CGP.Application.Services
                 await _unitOfWork.cartItemRepository.AddCartItemAsync(item);
             }
 
+            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+            {
+                UserId = userId,
+                Action = "Thêm sản phẩm vào giỏ hàng.",
+                EntityType = "Cart",
+                Description = "Bạn đã thêm sản phẩm thành công.",
+                EntityId = userId,
+            });
+
             await _unitOfWork.SaveChangeAsync();
             return new Result<CartDto>
             {
@@ -194,6 +203,16 @@ namespace CGP.Application.Services
                 };
 
             await _unitOfWork.cartItemRepository.RemoveCartItemAsync(item);
+
+            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+            {
+                UserId = item.UserId,
+                Action = "Xóa sản phẩm từ giỏ hàng.",
+                EntityType = "Cart",
+                Description = "Bạn đã xóa sản phẩm từ giỏ hàng thành công.",
+                EntityId = item.UserId,
+            });
+
             await _unitOfWork.SaveChangeAsync();
             return new Result<bool>
             {

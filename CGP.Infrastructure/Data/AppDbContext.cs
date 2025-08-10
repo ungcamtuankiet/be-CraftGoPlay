@@ -41,6 +41,10 @@ public class AppDbContext : DbContext
     public DbSet<ActivityLog> ActivityLog { get; set; }
     public DbSet<WalletTransaction> WalletTransaction { get; set; }
     public DbSet<PointTransaction> PointTransactions { get; set; }
+    public DbSet<Crop> Crop { get; set; }
+    public DbSet<Inventory> Inventory { get; set; }
+    public DbSet<UserQuest> UserQuest { get; set; }
+    public DbSet<Quest> Quest { get; set; }
     #endregion
 
 
@@ -478,6 +482,43 @@ public class AppDbContext : DbContext
             e.HasOne(wt => wt.Point)
             .WithMany(w => w.PointTransactions)
             .HasForeignKey(wt => wt.Point_Id)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Crop
+        modelBuilder.Entity<Crop>(e =>
+        {
+            e.ToTable("Crop");
+            e.HasKey(c => c.Id);
+            e.HasOne(c => c.User)
+            .WithMany(u => u.Crops)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Inventory
+        modelBuilder.Entity<Inventory>(e =>
+        {
+            e.ToTable("Inventory");
+            e.HasKey(i => i.Id);
+            e.HasOne(i => i.User)
+            .WithMany(u => u.Inventories)
+            .HasForeignKey(i => i.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //UserQuest
+        modelBuilder.Entity<UserQuest>(e =>
+        {
+            e.ToTable("UserQuest");
+            e.HasKey(uq => uq.Id);
+            e.HasOne(uq => uq.User)
+            .WithMany(u => u.UserQuests)
+            .HasForeignKey(uq => uq.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(uq => uq.Quest)
+            .WithMany(q => q.UserQuests)
+            .HasForeignKey(uq => uq.QuestId)
             .OnDelete(DeleteBehavior.Restrict);
         });
     }

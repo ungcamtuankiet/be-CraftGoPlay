@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Favourite;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,16 @@ namespace CGP.Application.Services
         {
             var favourite = _mapper.Map<Favourite>(request);
             await _unitOfWork.favouriteRepository.AddFavourite(favourite);
+
+            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+            {
+                UserId = request.UserId,
+                Action = "Thêm yêu thích.",
+                EntityType = "Favourite",
+                Description = "Bạn đã thêm sản phẩm vào mục yêu thích thành công.",
+                EntityId = favourite.Id,
+            });
+
             await _unitOfWork.SaveChangeAsync();
             return new Result<object> { 
                 Error = 0,
@@ -50,6 +61,16 @@ namespace CGP.Application.Services
             }
 
             await _unitOfWork.favouriteRepository.DeleteFavouriteByUserAndProduct(userId, productId);
+
+            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+            {
+                UserId = userId,
+                Action = "Thêm yêu thích.",
+                EntityType = "Favourite",
+                Description = "Bạn đã xóa sản phẩm từ mục yêu thích thành công.",
+                EntityId = favourite.Id,
+            });
+
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>
             {

@@ -87,7 +87,7 @@ namespace CGP.Application.Services
 
                 // Generate JWT token
                 var token = await GenerateJwtToken(user);
-                await _unitOfWork.activityLogRepository.AddAsync(new Domain.Entities.ActivityLog
+                await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
                 {
                     UserId = user.Id,
                     Action = "Bạn đã đăng nhập vào hệ thống",
