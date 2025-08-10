@@ -46,6 +46,30 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<List<ViewRatingDTO>>> GetRatingsByProductId(Guid productId, int pageIndex, int pageSize, int? star)
+        {
+            var checkProduct = await _unitOfWork.productRepository.GetByIdAsync(productId);
+            if (checkProduct == null)
+            {
+                return new Result<List<ViewRatingDTO>>()
+                {
+                    Error = 1,
+                    Message = "Sản phẩm không tồn tại.",
+                    Data = null
+                };
+            }
+
+            var result = _mapper.Map<List<ViewRatingDTO>>(await _unitOfWork.ratingRepository.GetRatingsByProductIdAsync(productId, pageIndex, pageSize, star));
+
+            return new Result<List<ViewRatingDTO>>()
+            {
+                Error = 0,
+                Message = "Lấy đánh giá thành công.",
+                Count = result.Count,
+                Data = result
+            };
+        }
+
         public async Task<Result<List<ViewRatingDTO>>> GetRatingsByUserId(Guid userId, int pageIndex, int pageSize)
         {
             var checkUser = await _unitOfWork.userRepository.GetByIdAsync(userId);
