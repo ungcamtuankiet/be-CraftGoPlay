@@ -87,6 +87,19 @@ namespace CGP.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> GetProductCountByArtisanId(Guid artisanId, ProductStatusEnum? productStatus)
+        {
+            var query = _context.Product
+                .Where(x => x.Artisan_id == artisanId);
+
+            if (productStatus.HasValue)
+            {
+                query = query.Where(x => x.Status == productStatus.Value);
+            }
+
+            return await query.CountAsync();
+        }
+
         public async Task<IList<Product>> GetProductsByArtisanId(Guid artisanId, int pageIndex, int pageSize, ProductStatusEnum? productStatus)
         {
             var query = _context.Product
@@ -232,6 +245,18 @@ namespace CGP.Infrastructure.Repositories
         {
             _context.Product.Remove(product);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetProductCount(ProductStatusEnum? productStatus)
+        {
+            var query = _context.Product.AsQueryable();
+
+            if (productStatus.HasValue)
+            {
+                query = query.Where(x => x.Status == productStatus.Value);
+            }
+
+            return await query.CountAsync();
         }
 
         public async Task<IList<Product>> GetProductsBySubCategoryId(Guid subCategoryId, int pageIndex, int pageSize, ProductStatusEnum? productStatus)
