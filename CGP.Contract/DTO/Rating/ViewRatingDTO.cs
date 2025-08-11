@@ -9,7 +9,8 @@ namespace CGP.Contract.DTO.Rating
 {
     public class ViewRatingDTO
     {
-        public Guid UserId { get; set; }
+        public string UserName { get; set; }
+        public string Thumbnail { get; set; } 
         public int Star { get; set; }
         public string? Comment { get; set; }
         public DateTime RatedAt { get; set; }

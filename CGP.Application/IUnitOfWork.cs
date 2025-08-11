@@ -39,6 +39,7 @@ namespace CGP.Application
         IInventoryRepository inventoryRepository { get; }
         IQuestRepository questRepository { get; }
         IUserQuestRepository userQuestRepository { get; }
+        IVoucherRepository voucherRepository { get; }
 
         public Task<int> SaveChangeAsync();
     }

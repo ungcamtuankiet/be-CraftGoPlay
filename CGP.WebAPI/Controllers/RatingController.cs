@@ -41,6 +41,18 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetRatingsByProductId/{productId}")]
+        public async Task<IActionResult> GetRatingsByProductId(Guid productId, int pageIndex = 0, int pageSize = 10, int? star = null)
+        {
+            var result = await _ratingService.GetRatingsByProductId(productId, pageIndex, pageSize, star);
+            if (result.Error == 1)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+
         [HttpPost("RatingProduct")]
 /*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> RateProduct([FromBody] RatingDTO dto)
@@ -61,5 +73,6 @@ namespace CGP.WebAPI.Controllers
             }
             return Ok(result.Data);
         }
+
     }
 }

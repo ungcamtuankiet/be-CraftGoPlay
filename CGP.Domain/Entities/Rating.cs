@@ -11,6 +11,7 @@ namespace CGP.Domain.Entities
     {
         public Guid UserId { get; set; }
         public Guid ProductId { get; set; }
+        public Guid OrderItemId { get; set; }
 
         [Range(1, 5)]
         public int Star { get; set; }
@@ -22,5 +23,6 @@ namespace CGP.Domain.Entities
 
         public virtual ApplicationUser User { get; set; }
         public virtual Product Product { get; set; }
+        public virtual OrderItem OrderItem { get; set; }
     }
 }

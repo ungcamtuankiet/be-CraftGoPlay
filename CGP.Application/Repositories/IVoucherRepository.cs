@@ -11,5 +11,6 @@ namespace CGP.Application.Repositories
     {
         public Task<IList<Voucher>> GetAllVoucherAsync();
         public Task<Voucher> GetVoucherByCodeAsync(string code);
+        public Task<bool> CheckVoucherCode(string code);
     }
 }

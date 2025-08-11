@@ -9,7 +9,7 @@ namespace CGP.Application.Repositories
 {
     public interface ITransactionRepository : IGenericRepository<Transaction>
     {
-        public Task<List<Transaction>> GetByUserIdAsync(Guid userId);
+        public Task<List<Transaction>> GetTransactionsByUserIdAsync(Guid userId);
         public Task<Transaction> GetTransactionByOrderId(Guid orderId);
         public Task<List<Transaction>> GetTransactions();
     }

@@ -11,9 +11,11 @@ namespace CGP.Contract.DTO.Rating
     {
         [Required]
         public Guid UserId { get; set; }
-
         [Required]
         public Guid ProductId { get; set; }
+
+        [Required]
+        public Guid OrderItemId { get; set; }
 
         [Required]
         [Range(1, 5, ErrorMessage = "Số sao đánh giá phải nằm trong khoảng từ 1 đến 5.")]

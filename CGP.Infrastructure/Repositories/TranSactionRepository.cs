@@ -24,9 +24,12 @@ namespace CGP.Infrastructure.Repositories
         {
             _dbContext = dbContext;
         }
-        public Task<List<Transaction>> GetByUserIdAsync(Guid userId)
+        public async Task<List<Transaction>> GetTransactionsByUserIdAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Transaction
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.CreationDate)
+                .ToListAsync();
         }
 
         public async Task<Transaction> GetTransactionByOrderId(Guid orderId)
@@ -35,9 +38,11 @@ namespace CGP.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.OrderId == orderId);
         }
 
-        public Task<List<Transaction>> GetTransactions()
+        public async Task<List<Transaction>> GetTransactions()
         {
-            throw new NotImplementedException();
+            return await _dbContext.Transaction
+                .OrderByDescending(t => t.CreationDate)
+                .ToListAsync();
         }
     }
 }

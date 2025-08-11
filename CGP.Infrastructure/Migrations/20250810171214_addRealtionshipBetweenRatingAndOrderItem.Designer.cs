@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250810171214_addRealtionshipBetweenRatingAndOrderItem")]
+    partial class addRealtionshipBetweenRatingAndOrderItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3184),
+                            CreationDate = new DateTime(2025, 8, 11, 0, 12, 12, 956, DateTimeKind.Local).AddTicks(7987),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -217,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3206),
+                            CreationDate = new DateTime(2025, 8, 11, 0, 12, 12, 956, DateTimeKind.Local).AddTicks(8013),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -230,7 +233,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3211),
+                            CreationDate = new DateTime(2025, 8, 11, 0, 12, 12, 956, DateTimeKind.Local).AddTicks(8019),
                             Email = "artisan@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -243,7 +246,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3215),
+                            CreationDate = new DateTime(2025, 8, 11, 0, 12, 12, 956, DateTimeKind.Local).AddTicks(8022),
                             Email = "user@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -1323,7 +1326,7 @@ namespace CGP.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("UserId", "OrderItemId")
+                    b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
                     b.ToTable("Ratings", (string)null);
@@ -1847,7 +1850,7 @@ namespace CGP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("be28e3ff-84f5-4908-b94f-77ce6c5ca9b9"),
+                            Id = new Guid("33626e9e-3000-472d-b6b0-1fd826acc6b4"),
                             Balance = 0f,
                             CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
