@@ -171,6 +171,77 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<int>> GetProductCount(ProductStatusEnum? productStatus)
+        {
+            string cacheKey = $"product:count:{productStatus?.ToString() ?? "all"}";
+            var cachedData = await _redisService.GetCacheAsync<int>(cacheKey);
+
+            if (cachedData != default)
+            {
+                return new Result<int>
+                {
+                    Error = 0,
+                    Message = "Lấy số lượng sản phẩm thành công (từ bộ nhớ đệm).",
+                    Data = cachedData
+                };
+            }
+
+            var count = await _unitOfWork.productRepository.GetProductCount(productStatus);
+            await _redisService.SetCacheAsync(cacheKey, count, TimeSpan.FromMinutes(10));
+            return new Result<int>
+            {
+                Error = 0,
+                Message = "Lấy số lượng sản phẩm thành công.",
+                Data = count
+            };
+        }
+
+        public async Task<Result<int>> GetProductCountByArtisanId(Guid artisanId, ProductStatusEnum? productStatus)
+        {
+            if (artisanId == Guid.Empty)
+            {
+                return new Result<int>
+                {
+                    Error = 1,
+                    Message = "Mã nghệ nhân không hợp lệ.",
+                    Data = 0
+                };
+            }
+
+            var getArtisan = await _unitOfWork.userRepository.GetUserById(artisanId);
+            if (getArtisan == null)
+            {
+                return new Result<int>
+                {
+                    Error = 1,
+                    Message = "Nghệ nhân không tồn tại.",
+                    Data = 0
+                };
+            }
+
+            string cacheKey = $"product:count:artisan:{artisanId}:{productStatus?.ToString() ?? "all"}";
+            var cachedData = await _redisService.GetCacheAsync<int>(cacheKey);
+
+            if (cachedData != default)
+            {
+                return new Result<int>
+                {
+                    Error = 0,
+                    Message = "Lấy số lượng sản phẩm của nghệ nhân thành công (từ bộ nhớ đệm).",
+                    Data = cachedData
+                };
+            }
+
+            var count = await _unitOfWork.productRepository.GetProductCountByArtisanId(artisanId, productStatus);
+            await _redisService.SetCacheAsync(cacheKey, count, TimeSpan.FromMinutes(10));
+            return new Result<int>
+            {
+                Error = 0,
+                Message = "Lấy số lượng sản phẩm của nghệ nhân thành công.",
+                Data = count
+            };
+        }
+
         public async Task<Result<object>> CreateProduct(ProductCreateDto request)
         {
             try
