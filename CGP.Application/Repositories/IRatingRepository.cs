@@ -13,7 +13,7 @@ namespace CGP.Application.Repositories
         Task<IEnumerable<Rating>> GetRatingsByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize);
         Task<IEnumerable<Rating>> GetRatingsByProductIdAsync(Guid productId, int pageIndex, int pageSize, int? star);
         Task<int> GetTotalRatingsByProductIdAsync(Guid productId);
-        Task<bool> HasPurchased(Guid userId, Guid productId);
-        Task<bool> CheckRated(Guid userId, Guid productId);
+        Task<bool> HasPurchased(Guid userId, Guid productId, Guid orderItemId);
+        Task<bool> CheckRated(Guid userId, Guid orderItemId);
     }
 }

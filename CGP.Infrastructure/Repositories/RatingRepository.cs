@@ -108,18 +108,18 @@ namespace CGP.Infrastructure.Repositories
                 .CountAsync(r => r.ProductId == productId);
         }
 
-        public async Task<bool> HasPurchased(Guid userId, Guid productId)
+        public async Task<bool> HasPurchased(Guid userId, Guid productId, Guid orderItemId)
         {
             bool hasPurchased = await _dbContext.OrderItem
                 .Include(oi => oi.Order)
                 .AnyAsync(oi =>oi.Order.UserId == userId &&
-                    oi.ProductId == productId &&
+                    oi.Id == orderItemId && oi.ProductId == productId &&
                     oi.Order.Status == OrderStatusEnum.Completed);
 
             return hasPurchased;
         }
 
-        public async Task<bool> CheckRated(Guid userId, Guid productId)
+        public async Task<bool> CheckRated(Guid userId, Guid orderItemId)
         {
             return await _dbContext.Rating
                 .Include(p => p.User)
@@ -131,7 +131,7 @@ namespace CGP.Infrastructure.Repositories
                 .ThenInclude(p => p.User)
                 .Include(r => r.Product)
                 .ThenInclude(p => p.SubCategory)
-                .AnyAsync(r => r.UserId == userId && r.ProductId == productId);
+                .AnyAsync(r => r.UserId == userId && r.OrderItemId == orderItemId);
         }
     }
 }

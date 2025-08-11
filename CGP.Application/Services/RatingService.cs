@@ -46,12 +46,12 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<List<ViewRatingDTO>>> GetRatingsByProductId(Guid productId, int pageIndex, int pageSize, int? star)
+        public async Task<Result<List<ViewRatingProductDTO>>> GetRatingsByProductId(Guid productId, int pageIndex, int pageSize, int? star)
         {
             var checkProduct = await _unitOfWork.productRepository.GetByIdAsync(productId);
             if (checkProduct == null)
             {
-                return new Result<List<ViewRatingDTO>>()
+                return new Result<List<ViewRatingProductDTO>>()
                 {
                     Error = 1,
                     Message = "Sản phẩm không tồn tại.",
@@ -59,12 +59,12 @@ namespace CGP.Application.Services
                 };
             }
 
-            var result = _mapper.Map<List<ViewRatingDTO>>(await _unitOfWork.ratingRepository.GetRatingsByProductIdAsync(productId, pageIndex, pageSize, star));
+            var result = _mapper.Map<List<ViewRatingProductDTO>>(await _unitOfWork.ratingRepository.GetRatingsByProductIdAsync(productId, pageIndex, pageSize, star));
 
-            return new Result<List<ViewRatingDTO>>()
+            return new Result<List<ViewRatingProductDTO>>()
             {
                 Error = 0,
-                Message = "Lấy đánh giá thành công.",
+                Message = "Lấy đánh giá cho sản phẩm thành công.",
                 Count = result.Count,
                 Data = result
             };
@@ -87,14 +87,14 @@ namespace CGP.Application.Services
             return new Result<List<ViewRatingDTO>>()
             {
                 Error = 0,
-                Message = "Lấy đánh giá thành công.",
+                Message = "Lấy đánh giá cho người dùng thành công.",
                 Data = result
             };
         }
 
         public async Task<Result<object>> RatingProduct(RatingDTO dto)
         {
-            var checkHasPurchased = await _unitOfWork.ratingRepository.HasPurchased(dto.UserId, dto.ProductId);
+            var checkHasPurchased = await _unitOfWork.ratingRepository.HasPurchased(dto.UserId, dto.ProductId, dto.OrderItemId);
             var rating = _mapper.Map<Rating>(dto);
             if (!checkHasPurchased)
             {
@@ -106,7 +106,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            var hasRated = await _unitOfWork.ratingRepository.CheckRated(dto.UserId, dto.ProductId);
+            var hasRated = await _unitOfWork.ratingRepository.CheckRated(dto.UserId, dto.OrderItemId);
             if (hasRated)
             {
                 return new Result<object>()
@@ -116,7 +116,8 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
-            await _unitOfWork.ratingRepository.AddAsync(rating);
+            rating.ProductId = dto.ProductId;
+
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(dto.UserId);
 
             getUserPoint.Amount += 100;
@@ -130,6 +131,7 @@ namespace CGP.Application.Services
                 Status = PointTransactionEnum.Earned,
                 Description = "Bạn nhận được 100 xu từ việc đánh giá sản phẩm.",
             };
+            await _unitOfWork.ratingRepository.AddAsync(rating);
             await _unitOfWork.pointTransactionRepository.AddAsync(pointTransaction);
 
             await _unitOfWork.SaveChangeAsync();
