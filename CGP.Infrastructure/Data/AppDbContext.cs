@@ -440,7 +440,12 @@ public class AppDbContext : DbContext
                   .HasForeignKey(r => r.ProductId)
                   .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasIndex(r => new { r.UserId, r.ProductId }).IsUnique();
+            entity.HasOne(r => r.OrderItem)
+                  .WithMany(oi => oi.Ratings)
+                  .HasForeignKey(r => r.OrderItemId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(r => new { r.UserId, r.OrderItemId }).IsUnique();
         });
 
         //ReturnRequest

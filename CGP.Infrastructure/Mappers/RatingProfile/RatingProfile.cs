@@ -14,9 +14,13 @@ namespace CGP.Infrastructure.Mappers.RatingProfile
         public RatingProfile()
         {
             CreateMap<Rating, RatingDTO>().ReverseMap();
-            CreateMap<Rating, ViewRatingDTO>().ReverseMap();
+            CreateMap<Rating, ViewRatingDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.Thumbnail, opt => opt.MapFrom(src => src.User.Thumbnail))
+                .ReverseMap();
             CreateMap<Rating, ViewRatingProductDTO>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.UserThumbnail, opt => opt.MapFrom(src => src.User.Thumbnail))
                 .ReverseMap();
         }
     }

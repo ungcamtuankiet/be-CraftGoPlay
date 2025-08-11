@@ -13,5 +13,6 @@ namespace CGP.Application.Interfaces
         public Task<Result<object>> RatingProduct(RatingDTO rating);
         public Task<Result<List<ViewRatingDTO>>> GetRatingsByUserId(Guid userId, int pageIndex, int pageSize);
         public Task<Result<List<ViewRatingDTO>>> GetRatingsByArtisanId(Guid artisanId, int pageIndex, int pageSize);
+        public Task<Result<List<ViewRatingProductDTO>>> GetRatingsByProductId(Guid productId, int pageIndex, int pageSize, int? star);
     }
 }
