@@ -94,6 +94,33 @@ namespace CGP.WebAPI.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("GetProductCount")]
+        public async Task<IActionResult> GetProductCount([FromQuery] ProductStatusEnum? productStatus = null)
+        {
+            var result = await _productService.GetProductCount(productStatus);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("GetProductCountByArtisanId/{artisanId}")]
+        [Authorize(Policy = "ArtisanPolicy")]
+        public async Task<IActionResult> GetProductCountByArtisanId(Guid artisanId, [FromQuery] ProductStatusEnum? productStatus = null)
+        {
+            if (artisanId == Guid.Empty)
+            {
+                return BadRequest(new { Error = 1, Message = "Mã nghệ nhân không hợp lệ." });
+            }
+            var result = await _productService.GetProductCountByArtisanId(artisanId, productStatus);
+            if (result.Error == 0)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [HttpPost("CreateProduct")]
         [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto request)
