@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250809151658_init")]
-    partial class init
+    [Migration("20250812060941_addTableDailyCheckIn")]
+    partial class addTableDailyCheckIn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -207,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(485),
+                            CreationDate = new DateTime(2025, 8, 12, 13, 9, 40, 465, DateTimeKind.Local).AddTicks(147),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -220,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(510),
+                            CreationDate = new DateTime(2025, 8, 12, 13, 9, 40, 465, DateTimeKind.Local).AddTicks(167),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -229,32 +229,6 @@ namespace CGP.Infrastructure.Migrations
                             RoleId = 2,
                             Status = "Active",
                             UserName = "Staff"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(516),
-                            Email = "artisan@gmail.com",
-                            IsDeleted = false,
-                            IsVerified = true,
-                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
-                            PhoneNumber = "0123456789",
-                            RoleId = 3,
-                            Status = "Active",
-                            UserName = "Artisan"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(520),
-                            Email = "user@gmail.com",
-                            IsDeleted = false,
-                            IsVerified = true,
-                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
-                            PhoneNumber = "0123456789",
-                            RoleId = 4,
-                            Status = "Active",
-                            UserName = "User"
                         });
                 });
 
@@ -641,6 +615,55 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("Crop", (string)null);
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.DailyCheckIn", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CheckInDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("Reward")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("StreakCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DailyCheckIn", (string)null);
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.Favourite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -812,6 +835,9 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<double>("TotalDiscount")
+                        .HasColumnType("float");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
@@ -1305,6 +1331,9 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("OrderItemId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1319,9 +1348,11 @@ namespace CGP.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderItemId");
+
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("UserId", "ProductId")
+                    b.HasIndex("UserId", "OrderItemId")
                         .IsUnique();
 
                     b.ToTable("Ratings", (string)null);
@@ -1845,12 +1876,21 @@ namespace CGP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("be15774c-f9c4-4198-91f6-31ed0f17bded"),
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b400"),
                             Balance = 0f,
                             CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
                             Type = 2,
                             User_Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471")
+                        },
+                        new
+                        {
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b401"),
+                            Balance = 0f,
+                            CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Type = 0,
+                            User_Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f")
                         });
                 });
 
@@ -2029,6 +2069,17 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.DailyCheckIn", b =>
+                {
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("DailyCheckIns")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.Favourite", b =>
                 {
                     b.HasOne("CGP.Domain.Entities.Product", "Product")
@@ -2180,6 +2231,12 @@ namespace CGP.Infrastructure.Migrations
 
             modelBuilder.Entity("CGP.Domain.Entities.Rating", b =>
                 {
+                    b.HasOne("CGP.Domain.Entities.OrderItem", "OrderItem")
+                        .WithMany("Ratings")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CGP.Domain.Entities.Product", "Product")
                         .WithMany("Ratings")
                         .HasForeignKey("ProductId")
@@ -2191,6 +2248,8 @@ namespace CGP.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("OrderItem");
 
                     b.Navigation("Product");
 
@@ -2344,6 +2403,8 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Navigation("Crops");
 
+                    b.Navigation("DailyCheckIns");
+
                     b.Navigation("Favourites");
 
                     b.Navigation("Inventories");
@@ -2397,6 +2458,11 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("ReturnRequests");
 
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.OrderItem", b =>
+                {
+                    b.Navigation("Ratings");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.Payment", b =>

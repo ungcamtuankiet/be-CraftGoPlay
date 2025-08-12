@@ -32,6 +32,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .ThenInclude(p => p.ProductImages)
+                .Include(o => o.UserAddress)
                 .AsQueryable();
 
             if (status.HasValue)
@@ -57,6 +58,7 @@ namespace CGP.Infrastructure.Repositories
                .Include(o => o.OrderItems)
                .Include(o => o.User)
                .ThenInclude(o => o.ArtisanRequest)
+               .Include(o => o.UserAddress)
                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
@@ -68,6 +70,7 @@ namespace CGP.Infrastructure.Repositories
                .Include(o => o.OrderItems)
                .ThenInclude(o => o.Product)
                .ThenInclude(o => o.ProductImages)
+               .Include(o => o.UserAddress)
                .Where(o => o.TransactionId == transactionId)
                .ToListAsync();
         }
@@ -82,6 +85,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.User)
+                .Include(o => o.UserAddress)
                 .Where(o => o.UserId == userId)
                 .AsQueryable();
 
@@ -106,6 +110,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.ProductImages)
+                .Include(o => o.UserAddress)
                 .Where(o => o.OrderItems.Any(oi => oi.ArtisanId == artisanId))
                 .AsQueryable();
 

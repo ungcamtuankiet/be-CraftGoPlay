@@ -38,7 +38,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetOrdersByArtisanId/{artisanId}")]
-        [Authorize(Policy = "ArtisanPolicy")] // Assuming artisan policy exists
+        [Authorize(Policy = "ArtisanPolicy")]
         public async Task<IActionResult> GetOrdersByArtisanId(Guid artisanId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
         {
             var result = await _orderService.GetOrdersByArtisanIdAsync(artisanId, pageIndex, pageSize, status);
@@ -92,12 +92,12 @@ namespace CGP.WebAPI.Controllers
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
             var deliveryAmounts = JsonSerializer.Deserialize<Dictionary<Guid, double>>(request.DeliveryAmounts);
-            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, deliveryAmounts, request.AddressId, request.PaymentMethod);
+            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, deliveryAmounts, request.AddressId, request.VoucherCode, request.PaymentMethod);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
         [HttpPost("CreateDirect/{userId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> CreateDirect([FromForm] CreateDirectOrderDto dto, Guid userId)
         {
             var result = await _orderService.CreateDirectOrderAsync(userId, dto.AddressId,dto.DeliveryAmount, dto);

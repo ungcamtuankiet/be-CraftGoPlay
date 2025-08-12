@@ -15,6 +15,7 @@ namespace CGP.Domain.Entities
         public Guid? UserAddressId { get; set; }
         public double Product_Amount { get; set; }
         public double Delivery_Amount { get; set; }
+        public double TotalDiscount { get; set; }
         public decimal TotalPrice { get; set; } 
         public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Created;
         public PaymentMethodEnum PaymentMethod { get; set; }

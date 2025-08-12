@@ -12,6 +12,7 @@ namespace CGP.Contract.DTO.Order
         public Guid UserId { get; set; } 
         public Guid AddressId { get; set; }
         public string DeliveryAmounts { get; set; }
+        public string? VoucherCode { get; set; }
         public List<Guid> SelectedCartItemIds { get; set; } = new();
         public PaymentMethodEnum PaymentMethod { get; set; } 
     }

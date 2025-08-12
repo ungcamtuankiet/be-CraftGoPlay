@@ -35,7 +35,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetOrders")]
-        [Authorize(Policy = "AdminOrStaffPolicy")] // Assuming admin access for all orders
+/*        [Authorize(Policy = "AdminOrStaffPolicy")]*/
         public async Task<IActionResult> GetOrders([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
         {
             var result = await _orderService.GetOrdersAsync(pageIndex, pageSize, status);

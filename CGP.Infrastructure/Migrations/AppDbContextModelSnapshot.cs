@@ -204,7 +204,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3184),
+                            CreationDate = new DateTime(2025, 8, 12, 13, 9, 40, 465, DateTimeKind.Local).AddTicks(147),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -217,7 +217,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3206),
+                            CreationDate = new DateTime(2025, 8, 12, 13, 9, 40, 465, DateTimeKind.Local).AddTicks(167),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -226,32 +226,6 @@ namespace CGP.Infrastructure.Migrations
                             RoleId = 2,
                             Status = "Active",
                             UserName = "Staff"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3211),
-                            Email = "artisan@gmail.com",
-                            IsDeleted = false,
-                            IsVerified = true,
-                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
-                            PhoneNumber = "0123456789",
-                            RoleId = 3,
-                            Status = "Active",
-                            UserName = "Artisan"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3215),
-                            Email = "user@gmail.com",
-                            IsDeleted = false,
-                            IsVerified = true,
-                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
-                            PhoneNumber = "0123456789",
-                            RoleId = 4,
-                            Status = "Active",
-                            UserName = "User"
                         });
                 });
 
@@ -638,6 +612,55 @@ namespace CGP.Infrastructure.Migrations
                     b.ToTable("Crop", (string)null);
                 });
 
+            modelBuilder.Entity("CGP.Domain.Entities.DailyCheckIn", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CheckInDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("Reward")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("StreakCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DailyCheckIn", (string)null);
+                });
+
             modelBuilder.Entity("CGP.Domain.Entities.Favourite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -809,6 +832,9 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<double>("TotalDiscount")
+                        .HasColumnType("float");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
@@ -1847,12 +1873,21 @@ namespace CGP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("be28e3ff-84f5-4908-b94f-77ce6c5ca9b9"),
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b400"),
                             Balance = 0f,
                             CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
                             Type = 2,
                             User_Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471")
+                        },
+                        new
+                        {
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b401"),
+                            Balance = 0f,
+                            CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Type = 0,
+                            User_Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f")
                         });
                 });
 
@@ -2024,6 +2059,17 @@ namespace CGP.Infrastructure.Migrations
                 {
                     b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
                         .WithMany("Crops")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CGP.Domain.Entities.DailyCheckIn", b =>
+                {
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("DailyCheckIns")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -2353,6 +2399,8 @@ namespace CGP.Infrastructure.Migrations
                     b.Navigation("Carts");
 
                     b.Navigation("Crops");
+
+                    b.Navigation("DailyCheckIns");
 
                     b.Navigation("Favourites");
 
