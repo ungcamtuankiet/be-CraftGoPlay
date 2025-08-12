@@ -1,6 +1,7 @@
 ﻿using CGP.Contract.DTO.OrderItem;
 using CGP.Contract.DTO.Product;
 using CGP.Contract.DTO.User;
+using CGP.Contract.DTO.UserAddress;
 using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,15 @@ namespace CGP.Contract.DTO.Order
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
+        public double Product_Amount { get; set; }
+        public double Delivery_Amount { get; set; }
+        public double TotalDiscount { get; set; }
         public decimal TotalPrice { get; set; }
         public OrderStatusEnum Status { get; set; }
         public PaymentMethodEnum PaymentMethod { get; set; }
-        public double Delivery_Amount { get; set; }
         public bool IsPaid { get; set; } = false;
         public DateTime CreationDate { get; set; }
         public List<ViewOrderItemDTO> OrderItems { get; set; } = new List<ViewOrderItemDTO>();
+        public ViewAddressDTO UserAddress { get; set; }
     }
 }

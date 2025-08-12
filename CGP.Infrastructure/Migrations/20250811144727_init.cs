@@ -766,41 +766,6 @@ namespace CGP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ratings",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Star = table.Column<int>(type: "int", nullable: false),
-                    Comment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    RatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModificationBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeleteBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Ratings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Ratings_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Ratings_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Order",
                 columns: table => new
                 {
@@ -810,6 +775,7 @@ namespace CGP.Infrastructure.Migrations
                     UserAddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Product_Amount = table.Column<double>(type: "float", nullable: false),
                     Delivery_Amount = table.Column<double>(type: "float", nullable: false),
+                    TotalDiscount = table.Column<double>(type: "float", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false),
@@ -1011,6 +977,48 @@ namespace CGP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Ratings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Star = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    RatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModificationBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeleteBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ratings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Ratings_OrderItem_OrderItemId",
+                        column: x => x.OrderItemId,
+                        principalTable: "OrderItem",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Ratings_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Ratings_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transaction",
                 columns: table => new
                 {
@@ -1090,16 +1098,18 @@ namespace CGP.Infrastructure.Migrations
                 columns: new[] { "Id", "CraftVillage_Id", "CreatedBy", "CreationDate", "DateOfBirth", "DeleteBy", "DeletionDate", "Email", "IsDeleted", "IsVerified", "ModificationBy", "ModificationDate", "Otp", "OtpExpiryTime", "PasswordHash", "PhoneNumber", "Provider", "ProviderKey", "RefreshToken", "ResetToken", "ResetTokenExpiry", "RoleId", "Status", "Thumbnail", "UserName", "VerificationToken" },
                 values: new object[,]
                 {
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"), null, null, new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(520), null, null, null, "user@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 4, "Active", null, "User", null },
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"), null, null, new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(516), null, null, null, "artisan@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 3, "Active", null, "Artisan", null },
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"), null, null, new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(485), null, null, null, "admin@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 1, "Active", null, "Admin", null },
-                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"), null, null, new DateTime(2025, 8, 9, 22, 16, 57, 317, DateTimeKind.Local).AddTicks(510), null, null, null, "staff@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 2, "Active", null, "Staff", null }
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"), null, null, new DateTime(2025, 8, 11, 21, 47, 27, 387, DateTimeKind.Local).AddTicks(2163), null, null, null, "admin@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 1, "Active", null, "Admin", null },
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"), null, null, new DateTime(2025, 8, 11, 21, 47, 27, 387, DateTimeKind.Local).AddTicks(2220), null, null, null, "staff@gmail.com", false, true, null, null, null, null, "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", "0123456789", null, null, null, null, null, 2, "Active", null, "Staff", null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Wallet",
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "DeleteBy", "DeletionDate", "IsDeleted", "ModificationBy", "ModificationDate", "Type", "User_Id" },
-                values: new object[] { new Guid("be15774c-f9c4-4198-91f6-31ed0f17bded"), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, false, null, null, 2, new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471") });
+                values: new object[,]
+                {
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b400"), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, false, null, null, 2, new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471") },
+                    { new Guid("8b56687e-8377-4743-aac9-08dcf5c4b401"), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, false, null, null, 0, new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f") }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUserVoucher_VouchersId",
@@ -1225,14 +1235,19 @@ namespace CGP.Infrastructure.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Ratings_OrderItemId",
+                table: "Ratings",
+                column: "OrderItemId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ratings_ProductId",
                 table: "Ratings",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ratings_UserId_ProductId",
+                name: "IX_Ratings_UserId_OrderItemId",
                 table: "Ratings",
-                columns: new[] { "UserId", "ProductId" },
+                columns: new[] { "UserId", "OrderItemId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1340,9 +1355,6 @@ namespace CGP.Infrastructure.Migrations
                 name: "MeterialProduct");
 
             migrationBuilder.DropTable(
-                name: "OrderItem");
-
-            migrationBuilder.DropTable(
                 name: "OrderVoucher");
 
             migrationBuilder.DropTable(
@@ -1382,7 +1394,7 @@ namespace CGP.Infrastructure.Migrations
                 name: "Point");
 
             migrationBuilder.DropTable(
-                name: "Product");
+                name: "OrderItem");
 
             migrationBuilder.DropTable(
                 name: "Payment");
@@ -1397,16 +1409,19 @@ namespace CGP.Infrastructure.Migrations
                 name: "Wallet");
 
             migrationBuilder.DropTable(
-                name: "SubCategory");
+                name: "Product");
 
             migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "SubCategory");
 
             migrationBuilder.DropTable(
                 name: "UserAddress");
+
+            migrationBuilder.DropTable(
+                name: "Category");
 
             migrationBuilder.DropTable(
                 name: "User");

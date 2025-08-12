@@ -45,6 +45,7 @@ public class AppDbContext : DbContext
     public DbSet<Inventory> Inventory { get; set; }
     public DbSet<UserQuest> UserQuest { get; set; }
     public DbSet<Quest> Quest { get; set; }
+    public DbSet<DailyCheckIn> DailyCheckIn { get; set; }
     #endregion
 
 
@@ -68,9 +69,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ApplicationUser>()
             .HasData(
                 new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), UserName = "Admin", Email = "admin@gmail.com", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 1, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
-                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), UserName = "Staff", Email = "staff@gmail.com", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 2, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
-                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B470"), UserName = "Artisan", Email = "artisan@gmail.com", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 3, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false },
-                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B469"), UserName = "User", Email = "user@gmail.com", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 4, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false }
+                new ApplicationUser { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), UserName = "Staff", Email = "staff@gmail.com", PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy", Status = StatusEnum.Active, RoleId = 2, IsVerified = true, PhoneNumber = "0123456789", CreationDate = DateTime.Now, IsDeleted = false }
            );
 
         modelBuilder.Entity<ApplicationUser>()
@@ -100,7 +99,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Wallet>()
             .HasData(
-            new Wallet { Id = Guid.NewGuid(), Balance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), Type = WalletTypeEnum.System }
+            new Wallet { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B400"), Balance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), Type = WalletTypeEnum.System },
+            new Wallet { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B401"), Balance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), Type = WalletTypeEnum.User }
             );
 
         //Category
@@ -524,6 +524,17 @@ public class AppDbContext : DbContext
             e.HasOne(uq => uq.Quest)
             .WithMany(q => q.UserQuests)
             .HasForeignKey(uq => uq.QuestId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //DailyCheckIn
+        modelBuilder.Entity<DailyCheckIn>(e =>
+        {
+            e.ToTable("DailyCheckIn");
+            e.HasKey(d => d.Id);
+            e.HasOne(d => d.User)
+            .WithMany(u => u.DailyCheckIns)
+            .HasForeignKey(d => d.UserId)
             .OnDelete(DeleteBehavior.Restrict);
         });
     }

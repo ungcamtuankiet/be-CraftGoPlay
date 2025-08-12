@@ -30,6 +30,7 @@ namespace CGP.Application.Services
             {
                 Error = 0,
                 Message = "Lấy danh sách phiếu giảm giá thành công",
+                Count = result.Count,
                 Data = result
             };
         }
@@ -43,6 +44,7 @@ namespace CGP.Application.Services
                 {
                     Error = 1,
                     Message = "Phiếu giảm giá không tồn tại",
+                    Count = 0,
                     Data = null
                 };
             }
@@ -51,6 +53,7 @@ namespace CGP.Application.Services
             {
                 Error = 0,
                 Message = "Lấy thông tin phiếu giảm giá thành công",
+                Count = 1,
                 Data = result
             };
         }
@@ -64,6 +67,7 @@ namespace CGP.Application.Services
                 {
                     Error = 1,
                     Message = "Mã giảm giá không tồn tại",
+                    Count = 0,
                     Data = null
                 };
             }
@@ -72,6 +76,7 @@ namespace CGP.Application.Services
             {
                 Error = 0,
                 Message = "Lấy thông tin mã giảm giá thành công",
+                Count = 1,
                 Data = result
             };
         }

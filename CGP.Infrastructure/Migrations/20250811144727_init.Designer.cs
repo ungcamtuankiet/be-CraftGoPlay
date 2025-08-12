@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250810175406_fixUniqueRating")]
-    partial class fixUniqueRating
+    [Migration("20250811144727_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -207,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3184),
+                            CreationDate = new DateTime(2025, 8, 11, 21, 47, 27, 387, DateTimeKind.Local).AddTicks(2163),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -220,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3206),
+                            CreationDate = new DateTime(2025, 8, 11, 21, 47, 27, 387, DateTimeKind.Local).AddTicks(2220),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -229,32 +229,6 @@ namespace CGP.Infrastructure.Migrations
                             RoleId = 2,
                             Status = "Active",
                             UserName = "Staff"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b470"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3211),
-                            Email = "artisan@gmail.com",
-                            IsDeleted = false,
-                            IsVerified = true,
-                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
-                            PhoneNumber = "0123456789",
-                            RoleId = 3,
-                            Status = "Active",
-                            UserName = "Artisan"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b469"),
-                            CreationDate = new DateTime(2025, 8, 11, 0, 54, 5, 591, DateTimeKind.Local).AddTicks(3215),
-                            Email = "user@gmail.com",
-                            IsDeleted = false,
-                            IsVerified = true,
-                            PasswordHash = "$2y$10$O1smXu1TdT1x.Z35v5jQauKcQIBn85VYRqiLggPD8HMF9rRyGnHXy",
-                            PhoneNumber = "0123456789",
-                            RoleId = 4,
-                            Status = "Active",
-                            UserName = "User"
                         });
                 });
 
@@ -812,6 +786,9 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<double>("TotalDiscount")
+                        .HasColumnType("float");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
@@ -1850,12 +1827,21 @@ namespace CGP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("be28e3ff-84f5-4908-b94f-77ce6c5ca9b9"),
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b400"),
                             Balance = 0f,
                             CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
                             Type = 2,
                             User_Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471")
+                        },
+                        new
+                        {
+                            Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b401"),
+                            Balance = 0f,
+                            CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Type = 0,
+                            User_Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f")
                         });
                 });
 
