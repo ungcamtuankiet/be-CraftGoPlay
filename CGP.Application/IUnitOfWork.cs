@@ -40,6 +40,7 @@ namespace CGP.Application
         IQuestRepository questRepository { get; }
         IUserQuestRepository userQuestRepository { get; }
         IVoucherRepository voucherRepository { get; }
+        IDailyCheckInRepository dailyCheckInRepository { get; }
 
         public Task<int> SaveChangeAsync();
     }
