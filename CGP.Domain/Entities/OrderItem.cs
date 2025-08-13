@@ -15,6 +15,6 @@ namespace CGP.Domain.Entities
         public Guid ArtisanId { get; set; }
         public Order Order { get; set; }
         public Product Product { get; set; }
-        public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
+        public Rating Rating { get; set; }
     }
 }

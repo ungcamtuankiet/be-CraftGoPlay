@@ -27,7 +27,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPost("AddToCart/{userId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> AddToCart(Guid userId, [FromBody] AddCartItemDto dto)
         {
             var result = await _cartService.AddToCartAsync(userId, dto);
@@ -38,7 +38,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("UpdateCart")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> UpdateCartItem([FromBody] UpdateCartItemDto dto)
         {
             var result = await _cartService.UpdateCartItemAsync(dto);
@@ -49,7 +49,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpDelete("Delete/{cartItemId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> RemoveFromCart(Guid cartItemId)
         {
             var result = await _cartService.RemoveFromCartAsync(cartItemId);
