@@ -13,7 +13,6 @@ namespace CGP.Domain.Entities
         public decimal? Reward { get; set; }
         public string? Note { get; set; }
         public int StreakCount { get; set; }
-
         public ApplicationUser User { get; set; }
 
     }
