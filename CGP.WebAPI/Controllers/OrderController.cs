@@ -22,7 +22,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetOrdersByUserId/{userId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> GetOrdersByUserId(Guid userId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
         {
             var result = await _orderService.GetOrdersByUserIdAsync(userId, pageIndex, pageSize, status);
@@ -38,7 +38,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetOrdersByArtisanId/{artisanId}")]
-        [Authorize(Policy = "ArtisanPolicy")]
+/*        [Authorize(Policy = "ArtisanPolicy")]*/
         public async Task<IActionResult> GetOrdersByArtisanId(Guid artisanId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
         {
             var result = await _orderService.GetOrdersByArtisanIdAsync(artisanId, pageIndex, pageSize, status);
@@ -54,7 +54,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetOrderByOrderId/{orderId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> GetOrderByOrderId(Guid orderId)
         {
             var result = await _orderService.GetOrderByIdAssync(orderId);
@@ -70,7 +70,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("VnpayUrl/{orderId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> CreateVnPayUrl(Guid orderId)
         {
             var result = await _orderService.CreateVnPayUrlAsync(orderId, HttpContext);
@@ -83,12 +83,13 @@ namespace CGP.WebAPI.Controllers
             var result = await _orderService.HandleVnPayReturnAsync(Request.Query);
 
             var status = result.Error == 0 ? "success" : "failed";
+            return Ok(result);
 
-            return Redirect($"http://localhost:5173/payment-{status}");
+/*            return Redirect($"http://localhost:5173/payment-{status}");*/
         }
 
         [HttpPost("CreateFromCart")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
             var deliveryAmounts = JsonSerializer.Deserialize<Dictionary<Guid, double>>(request.DeliveryAmounts);
@@ -105,7 +106,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("Status/{orderId}")]
-        [Authorize]
+/*        [Authorize]*/
         public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromForm] OrderStatusEnum statusDto)
         {
             var result = await _orderService.UpdateOrderStatusAsync(orderId, statusDto);

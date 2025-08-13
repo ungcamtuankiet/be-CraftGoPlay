@@ -43,6 +43,7 @@ namespace CGP.Infrastructure
         private readonly IQuestRepository _questRepository;
         private readonly IUserQuestRepository _userQuestRepository;
         private readonly IVoucherRepository _voucherRepository;
+        private readonly IDailyCheckInRepository _dailyCheckInRepository;
 
         public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null, ICraftSkillRepository craftSkillRepository = null, ITransactionRepository transactionRepository = null, IPointRepository pointRepository = null, IRatingRepository ratingRepository = null, IReturnRequestRepository returnRequestRepository = null, IActivityLogRepository activityLogRepository = null, IWalletRepository walletRepository = null, IWalletTransactionRepository walletTransactionRepository = null, IPointTransactionRepository pointTransactionRepository = null, ICropRepository cropRepository = null, IInventoryRepository inventoryRepository = null, IQuestRepository questRepository = null, IUserQuestRepository userQuestRepository = null, IVoucherRepository voucherRepository = null)
         {
@@ -109,6 +110,7 @@ namespace CGP.Infrastructure
         public IQuestRepository questRepository => _questRepository;
         public IUserQuestRepository userQuestRepository => _userQuestRepository;
         public IVoucherRepository voucherRepository => _voucherRepository;
+        public IDailyCheckInRepository dailyCheckInRepository => _dailyCheckInRepository;
 
         public async Task<int> SaveChangeAsync()
         {

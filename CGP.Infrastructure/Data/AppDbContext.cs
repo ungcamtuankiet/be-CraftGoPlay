@@ -441,8 +441,8 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(r => r.OrderItem)
-                  .WithMany(oi => oi.Ratings)
-                  .HasForeignKey(r => r.OrderItemId)
+                  .WithOne(oi => oi.Rating)
+                  .HasForeignKey<Rating>(r => r.OrderItemId)
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(r => new { r.UserId, r.OrderItemId }).IsUnique();
