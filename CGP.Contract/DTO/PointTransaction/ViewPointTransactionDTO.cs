@@ -11,8 +11,8 @@ namespace CGP.Contract.DTO.PointTransaction
 {
     public class ViewPointTransactionDTO
     {
+        public Guid Id { get; set; }
         public Guid Point_Id { get; set; }
-/*        public ViewPointDTO Point { get; set; }*/
         public decimal Amount { get; set; }
         public PointTransactionEnum Status { get; set; }
         public string? ReferenceCode { get; set; }

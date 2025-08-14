@@ -22,7 +22,16 @@ namespace CGP.Infrastructure.Repositories
         public async Task<DailyCheckIn> IsCheckIn(Guid userId)
         {
             return await _context.DailyCheckIn
+                .AsNoTracking()
+                .OrderByDescending(x => x.CheckInDate)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
+        public async Task<bool> HasCheckedInToday(Guid userId)
+        {
+            return await _context.DailyCheckIn
+                .AsNoTracking()
+                .AnyAsync(x => x.UserId == userId && x.CheckInDate.Date == DateTime.UtcNow.AddHours(7).Date);
         }
     }
 }
