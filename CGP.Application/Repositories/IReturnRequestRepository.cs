@@ -12,6 +12,8 @@ namespace CGP.Application.Repositories
     {
         Task<List<ReturnRequest>> GetAllAsync(int pageIndex, int pageSize, ReturnStatusEnum status);
         Task<List<ReturnRequest>> GetByUserIdAsync(Guid userId, int pageIndex, int pageSize, ReturnStatusEnum status);
-        Task<ReturnRequest> GetByOrderIdAsync(Guid orderId);
+        Task<List<ReturnRequest>> GetByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, ReturnStatusEnum? status);
+        Task<ReturnRequest> GetByOrderItemIdAsync(Guid orderItemId);
+        Task<ReturnRequest> GetReturnRequestByOrderItemIdAsync(Guid orderItemId);
     }
 }

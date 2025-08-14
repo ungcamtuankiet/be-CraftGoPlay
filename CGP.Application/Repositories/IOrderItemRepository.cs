@@ -10,5 +10,6 @@ namespace CGP.Application.Repositories
     public interface IOrderItemRepository : IGenericRepository<OrderItem>
     {
         public Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid orderId);
+        public Task<OrderItem> GetOrderItemsByIdAsync(Guid orderItemId);
     }
 }

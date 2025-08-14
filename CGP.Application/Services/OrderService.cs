@@ -265,7 +265,9 @@ namespace CGP.Application.Services
                             ProductId = i.ProductId,
                             ArtisanId = i.Product.Artisan_id,
                             Quantity = i.Quantity,
-                            UnitPrice = i.UnitPrice
+                            UnitPrice = i.UnitPrice,
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            Status = OrderStatusEnum.Created
                         }).ToList();
                         order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
 
@@ -356,7 +358,9 @@ namespace CGP.Application.Services
                         ProductId = i.ProductId,
                         ArtisanId = i.Product.Artisan_id,
                         Quantity = i.Quantity,
-                        UnitPrice = i.UnitPrice
+                        UnitPrice = i.UnitPrice,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        Status = OrderStatusEnum.Created
                     }).ToList();
                     order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
                     order.TotalDiscount = totalDiscount;
@@ -545,7 +549,9 @@ namespace CGP.Application.Services
                             ProductId = i.ProductId,
                             ArtisanId = i.Product.Artisan_id,
                             Quantity = i.Quantity,
-                            UnitPrice = i.UnitPrice
+                            UnitPrice = i.UnitPrice,
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            Status = OrderStatusEnum.Created
                         }).ToList();
                         await _unitOfWork.orderRepository.AddAsync(order);
 
@@ -619,7 +625,9 @@ namespace CGP.Application.Services
                         ProductId = i.ProductId,
                         ArtisanId = i.Product.Artisan_id,
                         Quantity = i.Quantity,
-                        UnitPrice = i.UnitPrice
+                        UnitPrice = i.UnitPrice,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        Status = OrderStatusEnum.Created
                     }).ToList();
                     order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
                     order.TotalDiscount = totalDiscount;
@@ -822,43 +830,13 @@ namespace CGP.Application.Services
                         ProductId = dto.ProductId,
                         ArtisanId = product.Artisan_id,
                         Quantity = dto.Quantity,
-                        UnitPrice = product.Price
+                        UnitPrice = product.Price,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        Status = OrderStatusEnum.Created
                     }
-                }; 
+                };
                 order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
                 await _unitOfWork.orderRepository.AddAsync(order);
-
-
-
-/*                var log = new Payment
-                {
-                    Id = paymentId,
-                    OrderId = order.Id,
-                    PaymentMethod = PaymentMethodEnum.Online,
-                };
-                var transaction = new Domain.Entities.Transaction
-                {
-                    Id = transactionId,
-                    UserId = order.UserId,
-                    OrderId = order.Id,
-                    Amount = order.TotalPrice,
-                    VoucherId = voucherId,
-                    Currency = "VND",
-                    PaymentId = paymentId,
-                    PaymentMethod = order.PaymentMethod,
-                    TransactionStatus = (TransactionStatusEnum)order.Status,
-                    TransactionDate = DateTime.UtcNow.AddHours(7),
-                    DiscountAmount = 0,
-                    CreatedAt = DateTime.UtcNow.AddHours(7),
-                    UpdatedAt = DateTime.UtcNow.AddHours(7),
-                    Notes = $"Đặt hàng trực tiếp với mã đơn hàng là {order.Id} bằng thanh toán tiền online.",
-                    CreatedBy = order.UserId,
-                    IsDeleted = false,
-                    CreationDate = DateTime.UtcNow.AddHours(7),
-                };
-
-                await _unitOfWork.transactionRepository.AddAsync(transaction);
-                await _unitOfWork.paymentRepository.AddAsync(log);*/
             }
             else
             {
@@ -993,7 +971,9 @@ namespace CGP.Application.Services
                 ProductId = dto.ProductId,
                 ArtisanId = product.Artisan_id,
                 Quantity = dto.Quantity,
-                UnitPrice = product.Price
+                UnitPrice = product.Price,
+                CreationDate = DateTime.UtcNow.AddHours(7),
+                Status = OrderStatusEnum.Created
             }
         }; order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
                 getProduct.Quantity = getProduct.Quantity - dto.Quantity;
@@ -1124,6 +1104,9 @@ namespace CGP.Application.Services
                             product.Quantity -= item.Quantity;
                             _unitOfWork.productRepository.Update(product);
                         }
+                        item.Status = OrderStatusEnum.Created;
+                        item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                        _unitOfWork.orderItemRepository.Update(item);
                     }
 
                     order.IsPaid = true;
@@ -1171,6 +1154,13 @@ namespace CGP.Application.Services
                 foreach (var order in orders)
                 {
                     order.Status = OrderStatusEnum.PaymentFailed;
+                    var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(order.Id);
+                    foreach (var item in orderItems)
+                    {
+                        item.Status = OrderStatusEnum.PaymentFailed;
+                        item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                        _unitOfWork.orderItemRepository.Update(item);
+                    }
                 }
                 return new Result<object>
                 {
@@ -1286,6 +1276,14 @@ namespace CGP.Application.Services
 
                     await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
                     order.Status = OrderStatusEnum.Cancelled;
+
+                    foreach (var item in orderItems)
+                    {
+                        item.Status = OrderStatusEnum.Cancelled;
+                        item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                        _unitOfWork.orderItemRepository.Update(item);
+                    }
+
                     _unitOfWork.orderRepository.Update(order);
                     order.ModificationDate = DateTime.UtcNow.AddHours(7);
                     await _unitOfWork.SaveChangeAsync();
@@ -1401,6 +1399,13 @@ namespace CGP.Application.Services
                     await _unitOfWork.walletTransactionRepository.AddAsync(newWalletUserTransaction);
                     order.Status = OrderStatusEnum.Cancelled;
                     _unitOfWork.orderRepository.Update(order);
+
+                    foreach (var item in orderItems)
+                    {
+                        item.Status = OrderStatusEnum.Cancelled;
+                        item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                        _unitOfWork.orderItemRepository.Update(item);
+                    }
                     order.ModificationDate = DateTime.UtcNow.AddHours(7);
                     await _unitOfWork.SaveChangeAsync();
                     return new Result<bool>()
@@ -1414,6 +1419,12 @@ namespace CGP.Application.Services
 
             order.Status = statusDto;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
+            foreach (var item in orderItems)
+            {
+                item.Status = statusDto;
+                item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                _unitOfWork.orderItemRepository.Update(item);
+            }
             if (statusDto == OrderStatusEnum.Completed)
             {
                 foreach (var item in orderItems)

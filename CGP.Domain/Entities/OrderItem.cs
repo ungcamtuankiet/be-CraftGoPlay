@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGP.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,10 @@ namespace CGP.Domain.Entities
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public Guid ArtisanId { get; set; }
+        public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Created;
         public Order Order { get; set; }
         public Product Product { get; set; }
         public Rating Rating { get; set; }
+        public ReturnRequest ReturnRequest { get; set; }
     }
 }

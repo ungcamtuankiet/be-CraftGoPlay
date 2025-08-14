@@ -458,9 +458,9 @@ public class AppDbContext : DbContext
             .HasConversion(v => v.ToString(), v => (ReturnStatusEnum)Enum.Parse(typeof(ReturnStatusEnum), v));
             e.Property(r => r.Reason)
             .HasConversion(v => v.ToString(), v => (ReturnReasonEnum)Enum.Parse(typeof(ReturnReasonEnum), v));
-            e.HasOne(r => r.Order)
-            .WithMany(o => o.ReturnRequests)
-            .HasForeignKey(r => r.OrderId)
+            e.HasOne(r => r.OrderItem)
+            .WithOne(o => o.ReturnRequest)
+            .HasForeignKey<ReturnRequest>(r => r.OrderItemId)
             .OnDelete(DeleteBehavior.Restrict);
             e.HasOne(r => r.User)
             .WithMany(o => o.ReturnRequests)

@@ -29,13 +29,36 @@ namespace CGP.Application.Services
             _cloudinaryService = cloudinaryService;
         }
 
+        public async Task<Result<object>> GetReturnRequestByArtisanIdAsync(Guid artisanId, ReturnStatusEnum? status, int pageIndex, int pageSize)
+        {
+            var result = _mapper.Map<List<ViewReturnRequestDTO>>(await _unitOfWork.returnRequestRepository.GetByArtisanIdAsync(artisanId, pageIndex, pageSize, status));
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Lấy danh sách yêu cầu hoàn trả hàng thành công.",
+                Count = result.Count,
+                Data = result
+            };
+        }
+
         public async Task<Result<bool>> RefundOrderAsync(SendRefundRequestDTO dto)
         {
-            var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(dto.OrderId);
+            var orderItem = await _unitOfWork.orderItemRepository.GetOrderItemsByIdAsync(dto.OrderItemId);
             var returnRequest = _mapper.Map<ReturnRequest>(dto);
+            var checkReturnRequest = await _unitOfWork.returnRequestRepository.GetReturnRequestByOrderItemIdAsync(dto.OrderItemId);
             var uploadResult = await _cloudinaryService.UploadProductImage(dto.ImageUrl, FOLDER);
 
-            if (order.Status == OrderStatusEnum.Completed)
+            if(checkReturnRequest != null)
+            {
+                return new Result<bool>
+                {
+                    Error = 1,
+                    Message = "Yêu cầu hoàn trả hàng đã tồn tại.",
+                    Data = false
+                };
+            }
+
+            if (orderItem.Status == OrderStatusEnum.Completed)
             {
                 return new Result<bool>
                 {
@@ -45,7 +68,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (order.Status != OrderStatusEnum.Delivered)
+            if (orderItem.Status != OrderStatusEnum.Delivered)
             {
                 return new Result<bool>
                 {
@@ -55,7 +78,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (order == null || order.Payment == null)
+            if (orderItem == null || orderItem.Order.Payment == null)
             {
                 return new Result<bool>
                 {
@@ -65,7 +88,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (order.Payment.IsRefunded)
+            if (orderItem.Order.Payment.IsRefunded)
             {
                 return new Result<bool>
                 {
@@ -97,7 +120,7 @@ namespace CGP.Application.Services
             returnRequest.ImageUrl = uploadResult.SecureUrl.ToString();
             await _unitOfWork.returnRequestRepository.AddAsync(returnRequest);
 
-            order.Status = OrderStatusEnum.ReturnRequested;
+            orderItem.Status = OrderStatusEnum.ReturnRequested;
 
 
             await _unitOfWork.SaveChangeAsync();
@@ -107,6 +130,49 @@ namespace CGP.Application.Services
                 Error = 0,
                 Message = "Đã gửi yêu cầu hoàn trả hàng thành công.",
                 Data = true
+            };
+        }
+
+        public async Task<Result<object>> UpdateStatusReturnRequestAsync(Guid returnRequestId, ReturnStatusEnum status)
+        {
+            var getRequest = await _unitOfWork.returnRequestRepository.GetByIdAsync(returnRequestId);
+            if (getRequest == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Yêu cầu hoàn tiền khg tồn tại.",
+                };
+            }
+
+            if (getRequest.Status != ReturnStatusEnum.Pending)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Yêu cầu hoàn tiền đã được xử lý trước đó.",
+                };
+            }
+
+            if (getRequest.Status == ReturnStatusEnum.Approved || getRequest.Status == ReturnStatusEnum.Rejected || getRequest.Status == ReturnStatusEnum.Refunded)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Yêu cầu hoàn tiền đã được duyệt trước đó.",
+                };
+            }
+
+            getRequest.Status = status;
+            getRequest.ApprovedAt = DateTime.UtcNow.AddHours(7);
+            getRequest.ModificationDate = DateTime.UtcNow.AddHours(7);
+            _unitOfWork.returnRequestRepository.Update(getRequest);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Cập nhật trạng thái yêu cầu hoàn tiền thành công.",
+                Data = getRequest
             };
         }
     }
