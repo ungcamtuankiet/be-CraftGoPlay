@@ -14,6 +14,7 @@ namespace CGP.Infrastructure.Mappers.UserProfile
         public UserProfile()
         {
             CreateMap<UserDTO, ApplicationUser>().ReverseMap();
+            CreateMap<ViewUserReturnRequestDTO, ApplicationUser>().ReverseMap();
             CreateMap<ViewArtisanInfoCartitemDTO, ApplicationUser>().ReverseMap();
             CreateMap<CreateNewAccountDTO, ApplicationUser>().ReverseMap();
             CreateMap<UpdateAccountDTO, ApplicationUser>().ReverseMap();

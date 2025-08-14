@@ -25,6 +25,18 @@ namespace CGP.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<OrderItem> GetOrderItemsByIdAsync(Guid orderItemId)
+        {
+            return await _dbContext.OrderItem
+                .Include(oi => oi.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(oi => oi.Product)
+                .ThenInclude(p => p.User)
+                .Include(oi => oi.Order)
+                .ThenInclude(o => o.Payment)
+                .FirstOrDefaultAsync(oi => oi.Id == orderItemId);
+        }
+
         public async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid orderId)
         {
             return await _dbContext.OrderItem

@@ -28,7 +28,6 @@ namespace CGP.Domain.Entities
         public ICollection<Transaction> Transactions { get; set; }
         [ForeignKey("UserAddressId")]   
         public UserAddress? UserAddress { get; set; }
-        public ICollection<ReturnRequest> ReturnRequests { get; set; }
 
         public static implicit operator string(Order v)
         {

@@ -14,6 +14,10 @@ namespace CGP.Infrastructure.Mappers.ReturnRequestProfile
         public ReturnRequestProfile()
         {
             CreateMap<ReturnRequest,SendRefundRequestDTO>().ReverseMap();
+            CreateMap<ReturnRequest,ViewReturnRequestDTO>()
+                .ForMember(rr => rr.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(rr => rr.OrderItem, opt => opt.MapFrom(src => src.OrderItem))
+                .ReverseMap();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace CGP.Domain.Entities
 {
     public class ReturnRequest : BaseEntity
     {
-        public Guid OrderId { get; set; }
+        public Guid OrderItemId { get; set; }
         public Guid UserId { get; set; }
         public ReturnReasonEnum Reason { get; set; }
         public string? OtherReason { get; set; }
@@ -20,8 +20,7 @@ namespace CGP.Domain.Entities
         public DateTime? ApprovedAt { get; set; }
         public DateTime? ReceivedAt { get; set; }
         public bool IsRefunded { get; set; } = false;
-
         public ApplicationUser User { get; set; }
-        public Order Order { get; set; }
+        public OrderItem OrderItem { get; set; }
     }
 }

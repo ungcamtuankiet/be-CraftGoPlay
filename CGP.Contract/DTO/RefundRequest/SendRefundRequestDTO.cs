@@ -10,7 +10,7 @@ namespace CGP.Contract.DTO.RefundRequest
 {
     public class SendRefundRequestDTO
     {
-        public Guid OrderId { get; set; }
+        public Guid OrderItemId { get; set; }
         public Guid UserId { get; set; }
         public ReturnReasonEnum Reason { get; set; }
         public string? OtherReason { get; set; }
