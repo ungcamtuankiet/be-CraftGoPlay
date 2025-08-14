@@ -45,7 +45,6 @@ namespace CGP.Application.Services
                 Data = result
             };
         }
-
         public async Task<Result<List<ViewRatingProductDTO>>> GetRatingsByProductId(Guid productId, int pageIndex, int pageSize, int? star)
         {
             var checkProduct = await _unitOfWork.productRepository.GetByIdAsync(productId);
@@ -69,7 +68,6 @@ namespace CGP.Application.Services
                 Data = result
             };
         }
-
         public async Task<Result<List<ViewRatingDTO>>> GetRatingsByUserId(Guid userId, int pageIndex, int pageSize)
         {
             var checkUser = await _unitOfWork.userRepository.GetByIdAsync(userId);
@@ -91,7 +89,27 @@ namespace CGP.Application.Services
                 Data = result
             };
         }
+        public async Task<Result<bool>> CheckRated(Guid userId, Guid orderItemId)
+        {
+            var checkUser = await _unitOfWork.userRepository.GetByIdAsync(userId);
+            if (checkUser == null)
+            {
+                return new Result<bool>()
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại.",
+                    Data = false
+                };
+            }
 
+            var hasRated = await _unitOfWork.ratingRepository.CheckRated(userId, orderItemId);
+            return new Result<bool>()
+            {
+                Error = 0,
+                Message = hasRated ? "Người dùng đã đánh giá sản phẩm này." : "Người dùng chưa đánh giá sản phẩm này.",
+                Data = hasRated
+            };
+        }
         public async Task<Result<object>> RatingProduct(RatingDTO dto)
         {
             var checkHasPurchased = await _unitOfWork.ratingRepository.HasPurchased(dto.UserId, dto.ProductId, dto.OrderItemId);

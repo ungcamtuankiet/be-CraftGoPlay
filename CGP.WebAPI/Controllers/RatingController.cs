@@ -52,6 +52,18 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("CheckRated")]
+        /* [Authorize(Policy = "UserPolicy")] */
+        public async Task<IActionResult> CheckRated([FromBody] Guid userId, Guid orderItemId)
+        {
+            var result = await _ratingService.CheckRated(userId, orderItemId);
+            if (result.Error == 1)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
 
         [HttpPost("RatingProduct")]
 /*        [Authorize(Policy = "UserPolicy")]*/

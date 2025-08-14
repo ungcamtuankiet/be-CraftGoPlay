@@ -9,6 +9,7 @@ namespace CGP.Application.Repositories
 {
     public interface IDailyCheckInRepository : IGenericRepository<DailyCheckIn>
     {
-        public Task<DailyCheckIn> IsCheckIn(Guid userId);
+        Task<DailyCheckIn> IsCheckIn(Guid userId);
+        Task<bool> HasCheckedInToday(Guid userId);
     }
 }

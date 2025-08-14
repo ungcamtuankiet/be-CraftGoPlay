@@ -11,5 +11,8 @@ namespace CGP.Application.Interfaces
     public interface IDailyCheckInService
     {
         Task<Result<object>> CheckInAsync(DailyCheckInDTO dto);
+        Task<Result<bool>> HasCheckedInTodayAsync(Guid userId);
+        Task<Result<bool>> UpdateStreakAsync(Guid userId);
+        Task<Result<int>> GetCurrentStreakAsync(Guid userId);
     }
 }
