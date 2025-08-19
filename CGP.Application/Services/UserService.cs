@@ -176,6 +176,28 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<ViewAddressDTO>> GetAddressById(Guid addressId)
+        {
+            var address = await _unitOfWork.userAddressRepository.GetUserAddressById(addressId);
+            if (address == null)
+            {
+                return new Result<ViewAddressDTO>
+                {
+                    Error = 1,
+                    Message = "Địa chỉ không tồn tại.",
+                    Data = null
+                };
+            }
+
+            var result = _mapper.Map<ViewAddressDTO>(address);
+            return new Result<ViewAddressDTO>
+            {
+                Error = 0,
+                Message = "Lấy địa chỉ thành công.",
+                Data = result
+            };
+        }
+
         public async Task<Result<object>> AddNewAddress(AddNewAddressDTO userAddress)
         {
             var address = _mapper.Map<UserAddress>(userAddress);
@@ -216,7 +238,7 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
-            getUser.FullAddress = $"{getUser.HomeNumber}, {getUser.WardName}, {getUser.DistrictName}, {getUser.ProviceName}";
+            getUser.FullAddress = $"{userAddress.HomeNumber}, {userAddress.WardName}, {userAddress.DistrictName}, {userAddress.ProviceName}";
             getUser.UserId = getUser.UserId;
             _mapper.Map(userAddress, getUser);
             await _unitOfWork.SaveChangeAsync();

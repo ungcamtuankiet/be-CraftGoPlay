@@ -821,6 +821,7 @@ namespace CGP.Application.Services
                 order.TransactionId = transactionId;
                 order.UserAddressId = address;
                 order.PaymentMethod = dto.PaymentMethod;
+                order.Delivery_Amount = Delivery_Amount;
                 order.CreationDate = DateTime.UtcNow;
                 order.TotalDiscount = totalDiscount;
                 order.OrderItems = new List<OrderItem>

@@ -23,6 +23,7 @@ namespace CGP.Application.Interfaces
         Task<Result<UserDTO>> GetCurrentUserById();
         Task<Result<List<ViewAddressDTO>>> GetListAddressByUserId(Guid userId);
         Task<Result<ViewAddressDTO>> GetDefaultAddressByUserId(Guid userId);
+        Task<Result<ViewAddressDTO>> GetAddressById(Guid addressId);
         Task<Result<object>> AddNewAddress(AddNewAddressDTO userAddress);
         Task<Result<object>> UpdateAddress(UpdateAddressDTO userAddress, Guid addressId);
         Task<Result<object>> SetDefaultAddress(Guid addressId);
