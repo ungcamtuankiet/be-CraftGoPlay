@@ -12,7 +12,10 @@ namespace CGP.Application.Interfaces
     public interface IReturnRequestService
     {
         Task<Result<bool>> RefundOrderAsync(SendRefundRequestDTO dto);
+        Task<Result<object>> EscalateReturnRequestAsync(Guid returnRequestId, string reason);
         Task<Result<object>> GetReturnRequestByArtisanIdAsync(Guid artisanId, ReturnStatusEnum? status, int pageIndex, int pageSize);
-        Task<Result<object>> UpdateStatusReturnRequestAsync(Guid returnRequestId, ReturnStatusEnum status);
+        Task<Result<object>> GetEscalatedReturnRequestAsync(int pageIndex, int pageSize);
+        Task<Result<object>> UpdateStatusReturnRequestAsync(Guid returnRequestId, ReturnStatusEnum status, RejectReturnReasonEnum rejectReason);
+        Task<Result<object>> ResolveEscalatedRequestAsync(Guid returnRequestId, bool acceptRefund);
     }
 }

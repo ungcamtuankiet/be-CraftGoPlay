@@ -11,6 +11,8 @@ namespace CGP.Domain.Enums
         Pending,
         Approved,
         Rejected,
-        Refunded
+        Refunded,
+        Escalated,
+        Resolved
     }
 }

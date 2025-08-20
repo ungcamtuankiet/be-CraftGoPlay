@@ -68,7 +68,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPatch("UpdateAddress/{addressId}")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> UpdateAddress(Guid addressId, [FromForm] UpdateAddressDTO userAddress)
         {
             if (!ModelState.IsValid)

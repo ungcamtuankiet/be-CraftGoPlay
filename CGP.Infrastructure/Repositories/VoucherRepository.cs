@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,6 +26,22 @@ namespace CGP.Infrastructure.Repositories
             if (checkVoucherCode == null)
                 return false;
             return true;
+        }
+
+        public async Task<Voucher> CheckVoucherDelivery(string code)
+        {
+            var result = await _context.Voucher
+                .FirstOrDefaultAsync(v => v.Code == code && v.Type == VoucherTypeEnum.Delivery);
+
+            return result;
+        }
+
+        public async Task<Voucher> CheckVoucherProduct(string code)
+        {
+            var result = await _context.Voucher
+                .FirstOrDefaultAsync(v => v.Code == code && v.Type == VoucherTypeEnum.Product);
+
+            return result;
         }
 
         public async Task<IList<Voucher>> GetAllVoucherAsync()
