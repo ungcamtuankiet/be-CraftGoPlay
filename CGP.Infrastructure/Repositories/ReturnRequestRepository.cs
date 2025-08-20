@@ -84,6 +84,25 @@ namespace CGP.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<ReturnRequest>> GetEscalatedBAsync(int pageIndex, int pageSize)
+        {
+            var result = await _dbContext.ReturnRequest
+                .Include(rr => rr.OrderItem)
+                .ThenInclude(rr => rr.Product)
+                .ThenInclude(rr => rr.ProductImages)
+                .Include(rr => rr.OrderItem)
+                .ThenInclude(rr => rr.Product)
+                .ThenInclude(rr => rr.User)
+                .Include(rr => rr.User)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .OrderByDescending(rr => rr.CreationDate)
+                .ToListAsync();
+
+            return result;
+                
+        }
+
         public async Task<ReturnRequest> GetReturnRequestByOrderItemIdAsync(Guid orderItemId)
         {
             return await _dbContext.ReturnRequest

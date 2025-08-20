@@ -21,9 +21,20 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpGet("GetReturnRequestByArtisanId/{artisanId}")]
-        public async Task<IActionResult> GetReturnRequestByArtisanId(Guid artisanId,[FromQuery] ReturnStatusEnum? status = null, int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> GetReturnRequestByArtisanId(Guid artisanId, [FromQuery] ReturnStatusEnum? status = null, int pageIndex = 1, int pageSize = 10)
         {
             var result = await _returnRequestService.GetReturnRequestByArtisanIdAsync(artisanId, status, pageIndex, pageSize);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("GetListEscalated")]
+        public async Task<IActionResult> GetListEscalated(int pageIndex = 1, int pageSize = 10)
+        {
+            var result = await _returnRequestService.GetEscalatedReturnRequestAsync(pageIndex, pageSize);
             if (result.Error != 0)
             {
                 return BadRequest(result);
@@ -54,9 +65,31 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("UpdateStatusReturnRequest/{returnRequestId}")]
-        public async Task<IActionResult> UpdateStatusReturnRequest(Guid returnRequestId, ReturnStatusEnum status)
+        public async Task<IActionResult> UpdateStatusReturnRequest(Guid returnRequestId, ReturnStatusEnum status, RejectReturnReasonEnum rejectReturnReasonEnum)
         {
-            var result = await _returnRequestService.UpdateStatusReturnRequestAsync(returnRequestId, status);
+            var result = await _returnRequestService.UpdateStatusReturnRequestAsync(returnRequestId, status, rejectReturnReasonEnum);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpPut("EscalateReturnRequest/{returnRequestId}")]
+        public async Task<IActionResult> EscalateReturnRequest(Guid returnRequestId, [FromQuery] string reason)
+        {
+            var result = await _returnRequestService.EscalateReturnRequestAsync(returnRequestId, reason);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpPut("ResolveEscalatedRequest/{returnRequestId}")]
+        public async Task<IActionResult> ResolveEscalatedRequest(Guid returnRequestId, [FromQuery] bool acceptRefund)
+        {
+            var result = await _returnRequestService.ResolveEscalatedRequestAsync(returnRequestId, acceptRefund);
             if (result.Error != 0)
             {
                 return BadRequest(result);

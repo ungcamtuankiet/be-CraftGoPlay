@@ -11,7 +11,8 @@ namespace CGP.Domain.Entities
     {
         public Guid OrderItemId { get; set; }
         public Guid UserId { get; set; }
-        public ReturnReasonEnum Reason { get; set; }
+        public ReturnReasonEnum? Reason { get; set; }
+        public RejectReturnReasonEnum? RejectReturnReasonEnum { get; set; }
         public string? OtherReason { get; set; }
         public string? Description { get; set; }
         public string? ImageUrl { get; set; } 

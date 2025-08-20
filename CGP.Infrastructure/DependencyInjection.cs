@@ -87,6 +87,7 @@ namespace CGP.Infrastructure
             services.AddScoped<IUserQuestRepository, UserQuestRepository>();
             services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddScoped<IDailyCheckInRepository, DailyCheckInRepository>();
+            services.AddScoped<IOrderVoucherRepository, OrderVoucherRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>
