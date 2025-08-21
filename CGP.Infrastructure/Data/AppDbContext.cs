@@ -89,7 +89,7 @@ public class AppDbContext : DbContext
             e.HasKey(p => p.Id);
             e.Property(p => p.Id)
             .IsRequired();
-            e.Property(p => p.Balance)
+            e.Property(p => p.AvailableBalance)
             .HasDefaultValue(0);
             e.HasOne(p => p.User)
             .WithOne(p => p.Wallet)
@@ -99,8 +99,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Wallet>()
             .HasData(
-            new Wallet { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B400"), Balance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), Type = WalletTypeEnum.System },
-            new Wallet { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B401"), Balance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), Type = WalletTypeEnum.User }
+            new Wallet { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B400"), AvailableBalance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B471"), Type = WalletTypeEnum.System },
+            new Wallet { Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B401"), AvailableBalance = 0, User_Id = Guid.Parse("8B56687E-8377-4743-AAC9-08DCF5C4B47F"), Type = WalletTypeEnum.User }
             );
 
         //Category
@@ -292,12 +292,6 @@ public class AppDbContext : DbContext
             .HasOne(o => o.User)
             .WithMany(o => o.Orders)
             .HasForeignKey(o => o.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Order>()
-            .HasOne(o => o.UserAddress)
-            .WithMany(o => o.Orders)
-            .HasForeignKey(o => o.UserAddressId)
             .OnDelete(DeleteBehavior.Restrict);
 
         //OrderItem
@@ -535,6 +529,21 @@ public class AppDbContext : DbContext
             e.HasOne(d => d.User)
             .WithMany(u => u.DailyCheckIns)
             .HasForeignKey(d => d.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Order Address
+        modelBuilder.Entity<OrderAddress>(e =>
+        {
+            e.ToTable("OrderAddress");
+            e.HasKey(oa => oa.Id);
+            e.HasOne(oa => oa.Order)
+            .WithOne(o => o.OrderAddress)
+            .HasForeignKey<OrderAddress>(oa => oa.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(oa => oa.Order)
+            .WithOne(ua => ua.OrderAddress)
+            .HasForeignKey<OrderAddress>(oa => oa.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
         });
     }

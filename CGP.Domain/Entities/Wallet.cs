@@ -10,7 +10,8 @@ namespace CGP.Domain.Entities
 {
     public class Wallet : BaseEntity
     {
-        public float Balance { get; set; } = 0;
+        public decimal PendingBalance { get; set; }
+        public decimal AvailableBalance { get; set; }
         public WalletTypeEnum Type { get; set; }
         public Guid User_Id { get; set; }
         [ForeignKey("User_Id")]

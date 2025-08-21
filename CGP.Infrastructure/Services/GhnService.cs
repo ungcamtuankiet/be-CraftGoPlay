@@ -1,4 +1,4 @@
-﻿using CGP.Application;
+﻿/*using CGP.Application;
 using CGP.Application.Interfaces;
 using CGP.Contract.DTO.GHN;
 using CGP.Domain.Entities;
@@ -32,7 +32,7 @@ namespace CGP.Infrastructure.Services
             var getOrder = await _unitOfWork.orderRepository.GetByIdAsync(orderId);
             var getArtisanInfo = await _unitOfWork.artisanRequestRepository.GetByIdAsync(artisanId);
 
-            var userAddress = await _unitOfWork.userAddressRepository.GetByIdAsync((Guid)getOrder.UserAddressId);
+*//*            var userAddress = await _unitOfWork.userAddressRepository.GetByIdAsync((Guid)getOrder.UserAddressId);*//*
             if (userAddress == null || string.IsNullOrEmpty(userAddress.WardCode))
             {
                 throw new Exception("Địa chỉ người dùng không hợp lệ.");
@@ -76,3 +76,4 @@ namespace CGP.Infrastructure.Services
         }
     }
 }
+*/

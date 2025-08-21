@@ -7,6 +7,7 @@ using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 using Transaction = CGP.Domain.Entities.Transaction;
 
 namespace CGP.Application.Services
@@ -15,13 +16,14 @@ namespace CGP.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPayoutService _payoutService;
+        private readonly IWalletService _walletService;
         private readonly IMapper _mapper;
         private readonly IClaimsService _claimsService;
         private readonly IConfiguration _configuration;
         private readonly ICloudinaryService _cloudinaryService;
         private static string FOLDER = "return-request";
 
-        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService, IMapper mapper, IClaimsService claimsService, IConfiguration configuration, ICloudinaryService cloudinaryService)
+        public OrderService(IUnitOfWork unitOfWork, IPayoutService payoutService, IMapper mapper, IClaimsService claimsService, IConfiguration configuration, ICloudinaryService cloudinaryService, IWalletService walletService)
         {
             _unitOfWork = unitOfWork;
             _payoutService = payoutService;
@@ -29,6 +31,7 @@ namespace CGP.Application.Services
             _claimsService = claimsService;
             _configuration = configuration;
             _cloudinaryService = cloudinaryService;
+            _walletService = walletService;
         }
 
         public async Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersAsync(int pageIndex, int pageSize, OrderStatusEnum? status)
@@ -147,7 +150,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Dictionary<Guid, double> deliveryAmounts, Guid address, string? VoucherCode, PaymentMethodEnum paymentMethod)
+        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Dictionary<Guid, double> deliveryAmounts, Guid address, string voucherDeliveryCode, string? voucherProductCode, PaymentMethodEnum paymentMethod)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
             var transactionId = Guid.NewGuid();
@@ -157,8 +160,13 @@ namespace CGP.Application.Services
             var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
             bool isValidAddress = await _unitOfWork.userAddressRepository.CheckAddressUser(address, userId);
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
-            var getVoucher = await _unitOfWork.voucherRepository.GetVoucherByCodeAsync(VoucherCode);
+            var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
+            var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
+            double totalShipping = deliveryAmounts.Values.Sum();
+            double discountProduct = 0;
+            double discountDelivery = 0;
             double totalDiscount = 0;
+            double totalPrice = 0;
             Guid? voucherId = null;
 
             if (cart == null || !cart.Items.Any())
@@ -201,397 +209,14 @@ namespace CGP.Application.Services
                         Message = "Địa chỉ không hợp lệ."
                     };
                 }
+
                 var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
+                double totalProductAmount = (double)grouped.Sum(g => g.Sum(i => i.Quantity * i.UnitPrice));
                 foreach (var group in grouped)
                 {
                     var artisanId = group.Key;
                     var deliveryAmount = deliveryAmounts[artisanId];
                     var order = new Order();
-                    if (VoucherCode != null)
-                    {
-                        if (getVoucher.StartDate > DateTime.UtcNow.AddHours(7))
-                        {
-                            return new Result<Guid>()
-                            {
-                                Error = 1,
-                                Message = "Mã giảm giá chưa bắt đầu sử dụng.",
-                            };
-                        }
-
-                        if (getVoucher.EndDate < DateTime.UtcNow.AddHours(7))
-                        {
-                            return new Result<Guid>()
-                            {
-                                Error = 1,
-                                Message = "Mã giảm giá đã hết hạn sử dụng.",
-                            };
-                        }
-
-                        if (getVoucher.UsedCount == getVoucher.Quantity)
-                        {
-                            return new Result<Guid>()
-                            {
-                                Error = 1,
-                                Message = "Mã giảm giá đã hết lượt sử dụng.",
-                            };
-                        }
-                        if (getVoucher.IsActive == false)
-                        {
-                            return new Result<Guid>()
-                            {
-                                Error = 1,
-                                Message = "Mã giảm giá không còn hoạt động.",
-                            };
-                        }
-
-                        if (getVoucher.PaymentMethod == PaymentMethodEnum.Cash)
-                        {
-                            return new Result<Guid>()
-                            {
-                                Error = 1,
-                                Message = "Mã giảm giá chỉ được sử dụng cho giao dịch tiền mặt.",
-                            };
-                        }
-                        order.UserId = userId;
-                        order.TransactionId = transactionId;
-                        order.UserAddressId = address;
-                        order.Status = OrderStatusEnum.AwaitingPayment;
-                        order.PaymentMethod = paymentMethod;
-                        order.CreationDate = DateTime.UtcNow;
-                        order.Delivery_Amount = deliveryAmount;
-                        order.TotalDiscount = totalDiscount;
-                        order.OrderItems = group.Select(i => new OrderItem
-                        {
-                            ProductId = i.ProductId,
-                            ArtisanId = i.Product.Artisan_id,
-                            Quantity = i.Quantity,
-                            UnitPrice = i.UnitPrice,
-                            CreationDate = DateTime.UtcNow.AddHours(7),
-                            Status = OrderStatusEnum.Created
-                        }).ToList();
-                        order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
-
-                        if (order.Product_Amount < getVoucher.MinOrderValue || order.Product_Amount > getVoucher.MaxDiscountAmount)
-                        {
-                            return new Result<Guid>()
-                            {
-                                Error = 1,
-                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá.",
-                            };
-                        }
-                        if (getVoucher.Type == VoucherTypeEnum.Delivery)
-                        {
-                            if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
-                            {
-                                totalDiscount = deliveryAmount * getVoucher.Discount / 100;
-                                totalDiscount = Math.Floor(totalDiscount);
-                            }
-                            else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                            {
-                                if (totalDiscount < 0)
-                                {
-                                    totalDiscount = deliveryAmount;
-                                }
-                                else
-                                {
-                                    totalDiscount = getVoucher.Discount;
-                                }
-                            }
-                        }
-
-                        if (getVoucher.Type == VoucherTypeEnum.Product)
-                        {
-                            if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
-                            {
-                                totalDiscount = order.Product_Amount * getVoucher.Discount / 100;
-                                totalDiscount = Math.Floor(totalDiscount);
-                            }
-                            else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                            {
-                                totalDiscount = order.Product_Amount - getVoucher.Discount;
-                                if (totalDiscount < 0)
-                                {
-                                    totalDiscount = order.Product_Amount;
-                                }
-                                else
-                                {
-                                    totalDiscount = getVoucher.Discount;
-                                }
-                            }
-                        }
-                        order.TotalDiscount = totalDiscount;
-                        order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
-                        orders.Add(order);
-                        await _unitOfWork.orderRepository.AddAsync(order);
-                        foreach (var item in group)
-                        {
-                            item.IsDeleted = true;
-                            var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
-                            if (product != null)
-                            {
-                                if (product.Quantity < item.Quantity)
-                                {
-                                    return new Result<Guid>()
-                                    {
-                                        Error = 1,
-                                        Message = $"Sản phẩm {product.Name} không đủ hàng."
-                                    };
-                                }
-                                product.Quantity = product.Quantity - item.Quantity;
-                                _unitOfWork.productRepository.Update(product);
-                            }
-                        }
-                        getVoucher.UsedCount++;
-                        _unitOfWork.voucherRepository.Update(getVoucher);
-                    }
-
-                    order.UserId = userId;
-                    order.TransactionId = transactionId;
-                    order.UserAddressId = address;
-                    order.Status = OrderStatusEnum.AwaitingPayment;
-                    order.PaymentMethod = paymentMethod;
-                    order.CreationDate = DateTime.UtcNow;
-                    order.Delivery_Amount = deliveryAmount;
-                    order.TotalDiscount = 0;
-                    order.OrderItems = group.Select(i => new OrderItem
-                    {
-                        ProductId = i.ProductId,
-                        ArtisanId = i.Product.Artisan_id,
-                        Quantity = i.Quantity,
-                        UnitPrice = i.UnitPrice,
-                        CreationDate = DateTime.UtcNow.AddHours(7),
-                        Status = OrderStatusEnum.Created
-                    }).ToList();
-                    order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
-                    order.TotalDiscount = totalDiscount;
-                    order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
-                    orders.Add(order);
-                    await _unitOfWork.orderRepository.AddAsync(order);
-                    foreach (var item in group)
-                    {
-                        item.IsDeleted = true;
-                        var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
-                        if (product != null)
-                        {
-                            if (product.Quantity < item.Quantity)
-                            {
-                                return new Result<Guid>()
-                                {
-                                    Error = 1,
-                                    Message = $"Sản phẩm {product.Name} không đủ hàng."
-                                };
-                            }
-                            product.Quantity = product.Quantity - item.Quantity;
-                            _unitOfWork.productRepository.Update(product);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (address == null)
-                {
-                    address = getAddressDefault.Id;
-                }
-                if (!isValidAddress)
-                {
-                    return new Result<Guid>
-                    {
-                        Error = 1,
-                        Message = "Địa chỉ không hợp lệ."
-                    };
-                }
-
-                var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
-                if (VoucherCode != null)
-                {
-                    if (getVoucher != null)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá không hợp lệ.",
-                        };
-                    }
-
-                    if (getVoucher.StartDate > DateTime.UtcNow.AddHours(7))
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá chưa bắt đầu sử dụng.",
-                        };
-                    }
-
-                    if (getVoucher.EndDate < DateTime.UtcNow.AddHours(7))
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá đã hết hạn sử dụng.",
-                        };
-                    }
-
-                    if (getVoucher.UsedCount == getVoucher.Quantity)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá đã hết lượt sử dụng.",
-                        };
-                    }
-
-                    if (getVoucher.IsActive == false)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá không còn hoạt động.",
-                        };
-                    }
-
-                    if (getVoucher.PaymentMethod == PaymentMethodEnum.Cash)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá chỉ được sử dụng cho giao dịch tiền mặt.",
-                        };
-                    }
-                    foreach (var group in grouped)
-                    {
-                        var artisanId = group.Key;
-                        var deliveryAmount = deliveryAmounts[artisanId];
-                        foreach (var item in group)
-                        {
-                            item.IsDeleted = true;
-
-                            var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
-                            if (product != null)
-                            {
-                                if (product.Quantity < item.Quantity)
-                                {
-                                    return new Result<Guid>()
-                                    {
-                                        Error = 1,
-                                        Message = $"Sản phẩm {product.Name} không đủ hàng.",
-                                    };
-                                }
-                                product.Quantity = product.Quantity - item.Quantity;
-                                _unitOfWork.productRepository.Update(product);
-                            }
-                        }
-
-                        var order = new Order();
-
-                        order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
-
-                        if (order.Product_Amount < getVoucher.MinOrderValue || order.Product_Amount > getVoucher.MaxDiscountAmount)
-                        {
-                            return new Result<Guid>()
-                            {
-                                Error = 1,
-                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá.",
-                            };
-                        }
-
-                        if (getVoucher.Type == VoucherTypeEnum.Delivery)
-                        {
-                            if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
-                            {
-                                totalDiscount = deliveryAmount * getVoucher.Discount / 100;
-                                totalDiscount = Math.Floor(totalDiscount);
-                            }
-                            else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                            {
-                                if (totalDiscount < 0)
-                                {
-                                    totalDiscount = deliveryAmount;
-                                }
-                                else
-                                {
-                                    totalDiscount = getVoucher.Discount;
-                                }
-                            }
-                        }
-
-                        if (getVoucher.Type == VoucherTypeEnum.Product)
-                        {
-                            if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
-                            {
-                                totalDiscount = order.Product_Amount * getVoucher.Discount / 100;
-                                totalDiscount = Math.Floor(totalDiscount);
-                            }
-                            else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                            {
-                                totalDiscount = order.Product_Amount - getVoucher.Discount;
-                                if (totalDiscount < 0)
-                                {
-                                    totalDiscount = order.Product_Amount;
-                                }
-                                else
-                                {
-                                    totalDiscount = getVoucher.Discount;
-                                }
-                            }
-                        }
-                        order.TotalDiscount = totalDiscount;
-                        order.UserId = userId;
-                        order.Status = OrderStatusEnum.Created;
-                        order.TransactionId = transactionId;
-                        order.UserAddressId = address;
-                        order.PaymentMethod = paymentMethod;
-                        order.TotalDiscount = totalDiscount;
-                        order.CreationDate = DateTime.UtcNow;
-                        order.Delivery_Amount = deliveryAmount;
-                        order.OrderItems = group.Select(i => new OrderItem
-                        {
-                            ProductId = i.ProductId,
-                            ArtisanId = i.Product.Artisan_id,
-                            Quantity = i.Quantity,
-                            UnitPrice = i.UnitPrice,
-                            CreationDate = DateTime.UtcNow.AddHours(7),
-                            Status = OrderStatusEnum.Created
-                        }).ToList();
-                        await _unitOfWork.orderRepository.AddAsync(order);
-
-                        order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
-                        orders.Add(order);
-                        var log = new Payment
-                        {
-                            OrderId = order.Id,
-                            PaymentMethod = PaymentMethodEnum.Cash,
-                        };
-                        await _unitOfWork.paymentRepository.AddAsync(log);
-                        var transaction = new Domain.Entities.Transaction
-                        {
-                            Id = Guid.NewGuid(),
-                            UserId = order.UserId,
-                            OrderId = order.Id,
-                            Amount = order.TotalPrice,
-                            VoucherId = getVoucher.Id,
-                            Currency = "VND",
-                            PaymentId = log.Id,
-                            PaymentMethod = order.PaymentMethod,
-                            TransactionStatus = (TransactionStatusEnum)order.Status,
-                            TransactionDate = DateTime.UtcNow.AddHours(7),
-                            DiscountAmount = 0,
-                            CreatedAt = DateTime.UtcNow.AddHours(7),
-                            UpdatedAt = DateTime.UtcNow.AddHours(7),
-                            Notes = $"Đặt hàng từ giỏ hàng với mã đơn hàng là {order.Id} bằng thanh toán tiền mặt.",
-                            CreatedBy = order.UserId,
-                            IsDeleted = false,
-                            CreationDate = DateTime.UtcNow,
-                        };
-                        await _unitOfWork.transactionRepository.AddAsync(transaction);
-                        getVoucher.UsedCount++;
-                        _unitOfWork.voucherRepository.Update(getVoucher);
-                    }
-                }
-                foreach (var group in grouped)
-                {
-                    var artisanId = group.Key;
-                    var deliveryAmount = deliveryAmounts[artisanId];
                     foreach (var item in group)
                     {
                         item.IsDeleted = true;
@@ -611,15 +236,7 @@ namespace CGP.Application.Services
                             _unitOfWork.productRepository.Update(product);
                         }
                     }
-                    var order = new Order();
 
-                    order.UserId = userId;
-                    order.TransactionId = transactionId;
-                    order.UserAddressId = address;
-                    order.Status = OrderStatusEnum.Created;
-                    order.PaymentMethod = paymentMethod;
-                    order.CreationDate = DateTime.UtcNow;
-                    order.Delivery_Amount = deliveryAmount;
                     order.OrderItems = group.Select(i => new OrderItem
                     {
                         ProductId = i.ProductId,
@@ -630,8 +247,484 @@ namespace CGP.Application.Services
                         Status = OrderStatusEnum.Created
                     }).ToList();
                     order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
-                    order.TotalDiscount = totalDiscount;
-                    order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
+                    if (voucherDeliveryCode == null && voucherProductCode == null)
+                    {
+                        discountProduct = 0;
+                        discountDelivery = 0;
+                    }
+
+                    else
+                    {
+                        if (voucherProductCode != null)
+                        {
+                            if (getVoucherProduct == null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm không tồn tại.",
+                                };
+                            }
+                            if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm chưa bắt đầu sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherProduct.EndDate < DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm đã hết hạn sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherProduct.UsedCount == getVoucherProduct.Quantity)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm đã hết lượt sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherProduct.IsActive == false)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá không còn hoạt động.",
+                                };
+                            }
+
+                            if (getVoucherProduct.PaymentMethod != paymentMethod)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm chỉ được sử dụng cho giao dịch tiền mặt.",
+                                };
+                            }
+
+                            if (totalProductAmount < getVoucherProduct.MinOrderValue || totalProductAmount > getVoucherProduct.MaxDiscountAmount)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho sản phẩm.",
+                                };
+                            }
+
+                            if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                            {
+                                discountProduct = Math.Floor(order.Product_Amount * ((getVoucherProduct.Discount / grouped.Count()) / 100.0));
+
+                            }
+                            else if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                            {
+                                discountProduct = Math.Floor(getVoucherProduct.Discount / grouped.Count());
+                                if (discountProduct > order.Product_Amount)
+                                {
+                                    discountProduct = order.Product_Amount;
+                                }
+                                else
+                                {
+                                    discountProduct = discountProduct;
+                                }
+                            }
+
+                            getVoucherProduct.UsedCount++;
+                        }
+                        else
+                        {
+                            discountProduct = 0;
+                        }
+
+                        if (voucherDeliveryCode != null)
+                        {
+                            if (getVoucherDelivery == null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển không tồn tại.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.StartDate > DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm cho vận chuyển giá chưa bắt đầu sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.EndDate < DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển đã hết hạn sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.UsedCount == getVoucherDelivery.Quantity)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển đã hết lượt sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.IsActive == false)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá không còn hoạt động.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.PaymentMethod != paymentMethod)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển chỉ được sử dụng cho giao dịch online.",
+                                };
+                            }
+
+                            if (totalProductAmount < getVoucherDelivery.MinOrderValue || totalProductAmount > getVoucherDelivery.MaxDiscountAmount)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho phí vận chuyển.",
+                                };
+                            }
+
+
+                            if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                            {
+                                discountDelivery = Math.Floor(deliveryAmount * ((getVoucherDelivery.Discount / 100.0) / grouped.Count()));
+                            }
+                            else if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                            {
+                                discountDelivery = Math.Floor(getVoucherDelivery.Discount / grouped.Count());
+                                if (discountDelivery > deliveryAmount)
+                                {
+                                    discountDelivery = deliveryAmount;
+                                }
+                            }
+                            getVoucherDelivery.UsedCount++;
+                        }
+                        else
+                        {
+                            discountDelivery = 0;
+                        }
+                    }
+
+                    order.UserId = userId;
+                    order.TransactionId = transactionId;
+                    order.Status = OrderStatusEnum.AwaitingPayment;
+                    order.PaymentMethod = paymentMethod;
+                    order.CreationDate = DateTime.UtcNow;
+                    order.Delivery_Amount = deliveryAmount;
+                    order.ProductDiscount = discountProduct;
+                    order.DeliveryDiscount = discountDelivery;
+                    order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount;
+                    order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
+                    orders.Add(order);
+                    await _unitOfWork.orderRepository.AddAsync(order);
+                    
+
+                    var orderAddress = new OrderAddress
+                    {
+                        OrderId = order.Id,
+                        FullName = getAddressByUserId.FullName,
+                        PhoneNumber = getAddressByUserId.PhoneNumber,
+                        FullAddress = getAddressByUserId.FullAddress,
+                        ProviceId = getAddressByUserId.ProviceId,
+                        ProviceName = getAddressByUserId.ProviceName,
+                        DistrictId = getAddressByUserId.DistrictId,
+                        DistrictName = getAddressByUserId.DistrictName,
+                        WardCode = getAddressByUserId.WardCode,
+                        WardName = getAddressByUserId.WardName,
+                        HomeNumber = getAddressByUserId.HomeNumber
+                    };
+                    await _unitOfWork.orderAddressRepository.AddAsync(orderAddress);
+
+                    if (getVoucherDelivery != null)
+                    {
+                        await _unitOfWork.orderVoucherRepository.AddAsync(new OrderVoucher
+                        {
+                            OrderId = order.Id,
+                            VoucherId = getVoucherDelivery.Id
+                        });
+                        _unitOfWork.voucherRepository.Update(getVoucherDelivery);
+                    }
+                    if (getVoucherProduct != null)
+                    {
+                        await _unitOfWork.orderVoucherRepository.AddAsync(new OrderVoucher
+                        {
+                            OrderId = order.Id,
+                            VoucherId = getVoucherProduct.Id
+                        });
+                        _unitOfWork.voucherRepository.Update(getVoucherProduct);
+                    }
+                }
+            }
+            else
+            {
+                if (address == null)
+                {
+                    address = getAddressDefault.Id;
+                }
+                if (!isValidAddress)
+                {
+                    return new Result<Guid>
+                    {
+                        Error = 1,
+                        Message = "Địa chỉ không hợp lệ."
+                    };
+                }
+
+                var grouped = selectedItems.GroupBy(i => i.Product.Artisan_id);
+                double totalProductAmount = (double)grouped.Sum(g => g.Sum(i => i.Quantity * i.UnitPrice));
+                foreach (var group in grouped)
+                {
+                    var artisanId = group.Key;
+                    var deliveryAmount = deliveryAmounts[artisanId];
+                    var order = new Order();
+                    foreach (var item in group)
+                    {
+                        item.IsDeleted = true;
+
+                        var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                        if (product != null)
+                        {
+                            if (product.Quantity < item.Quantity)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = $"Sản phẩm {product.Name} không đủ hàng.",
+                                };
+                            }
+                            product.Quantity = product.Quantity - item.Quantity;
+                            _unitOfWork.productRepository.Update(product);
+                        }
+                    }
+
+                    order.OrderItems = group.Select(i => new OrderItem
+                    {
+                        ProductId = i.ProductId,
+                        ArtisanId = i.Product.Artisan_id,
+                        Quantity = i.Quantity,
+                        UnitPrice = i.UnitPrice,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        Status = OrderStatusEnum.Created
+                    }).ToList();
+                    order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+                    if (voucherDeliveryCode == null && voucherProductCode == null)
+                    {
+                        discountProduct = 0;
+                        discountDelivery = 0;
+                    }
+
+                    else
+                    {
+                        if (voucherProductCode != null)
+                        {
+                            if (getVoucherProduct == null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm không tồn tại.",
+                                };
+                            }
+                            if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm chưa bắt đầu sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherProduct.EndDate < DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm đã hết hạn sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherProduct.UsedCount == getVoucherProduct.Quantity)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm đã hết lượt sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherProduct.IsActive == false)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá không còn hoạt động.",
+                                };
+                            }
+
+                            if (getVoucherProduct.PaymentMethod != paymentMethod)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho sản phẩm chỉ được sử dụng cho giao dịch tiền mặt.",
+                                };
+                            }
+
+                            if (totalProductAmount < getVoucherProduct.MinOrderValue || totalProductAmount > getVoucherProduct.MaxDiscountAmount)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho sản phẩm.",
+                                };
+                            }
+
+                            if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                            {
+                                discountProduct = Math.Floor(order.Product_Amount * ((getVoucherProduct.Discount / grouped.Count()) / 100.0));
+                            
+                            }
+                            else if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                            {
+                                discountProduct = Math.Floor(getVoucherProduct.Discount / grouped.Count());
+                                if (discountProduct > order.Product_Amount)
+                                {
+                                    discountProduct = order.Product_Amount;
+                                }
+                                else
+                                {
+                                    discountProduct = discountProduct;
+                                }
+                            }
+
+                            getVoucherProduct.UsedCount++;
+                        }
+                        else
+                        {
+                            discountProduct = 0;
+                        }
+
+                        if (voucherDeliveryCode != null)
+                        {
+                            if (getVoucherDelivery == null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển không tồn tại.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.StartDate > DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm cho vận chuyển giá chưa bắt đầu sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.EndDate < DateTime.UtcNow.AddHours(7))
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển đã hết hạn sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.UsedCount == getVoucherDelivery.Quantity)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển đã hết lượt sử dụng.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.IsActive == false)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá không còn hoạt động.",
+                                };
+                            }
+
+                            if (getVoucherDelivery.PaymentMethod != paymentMethod)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá cho vận chuyển chỉ được sử dụng cho giao dịch tiền mặt.",
+                                };
+                            }
+
+                            if (totalProductAmount < getVoucherDelivery.MinOrderValue || totalProductAmount > getVoucherDelivery.MaxDiscountAmount)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho phí vận chuyển.",
+                                };
+                            }
+
+
+                            if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                            {
+                                discountDelivery = Math.Floor(deliveryAmount * ((getVoucherDelivery.Discount / 100.0)/grouped.Count()));
+                            }
+                            else if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                            {
+                                discountDelivery = Math.Floor(getVoucherDelivery.Discount / grouped.Count());
+                                if (discountDelivery > deliveryAmount)
+                                {
+                                    discountDelivery = deliveryAmount;
+                                }
+                            }
+                            getVoucherDelivery.UsedCount++;
+                        }
+                        else
+                        {
+                            discountDelivery = 0;
+                        }
+                    }
+
+                    order.UserId = userId;
+                    order.TransactionId = transactionId;
+                    order.Status = OrderStatusEnum.Created;
+                    order.PaymentMethod = paymentMethod;
+                    order.CreationDate = DateTime.UtcNow;
+                    order.Delivery_Amount = deliveryAmount;
+                    order.ProductDiscount = discountProduct;
+                    order.DeliveryDiscount = discountDelivery;
+                    order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount;
+                    order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
                     await _unitOfWork.orderRepository.AddAsync(order);
                     orders.Add(order);
 
@@ -662,6 +755,42 @@ namespace CGP.Application.Services
                         CreationDate = DateTime.UtcNow,
                     };
                     await _unitOfWork.transactionRepository.AddAsync(transaction);
+
+                    var orderAddress = new OrderAddress
+                    {
+                        OrderId = order.Id,
+                        FullName = getAddressByUserId.FullName,
+                        PhoneNumber = getAddressByUserId.PhoneNumber,
+                        FullAddress = getAddressByUserId.FullAddress,
+                        ProviceId = getAddressByUserId.ProviceId,
+                        ProviceName = getAddressByUserId.ProviceName,
+                        DistrictId = getAddressByUserId.DistrictId,
+                        DistrictName = getAddressByUserId.DistrictName,
+                        WardCode = getAddressByUserId.WardCode,
+                        WardName = getAddressByUserId.WardName,
+                        HomeNumber = getAddressByUserId.HomeNumber
+                    };
+
+                    await _unitOfWork.orderAddressRepository.AddAsync(orderAddress);
+
+                    if (getVoucherDelivery != null)
+                    {
+                        await _unitOfWork.orderVoucherRepository.AddAsync(new OrderVoucher
+                        {
+                            OrderId = order.Id,
+                            VoucherId = getVoucherDelivery.Id
+                        });
+                        _unitOfWork.voucherRepository.Update(getVoucherDelivery);
+                    }
+                    if (getVoucherProduct != null)
+                    {
+                        await _unitOfWork.orderVoucherRepository.AddAsync(new OrderVoucher
+                        {
+                            OrderId = order.Id,
+                            VoucherId = getVoucherProduct.Id
+                        });
+                        _unitOfWork.voucherRepository.Update(getVoucherProduct);
+                    }
                 }
             }
             //cart.IsCheckedOut = true;
@@ -684,7 +813,7 @@ namespace CGP.Application.Services
         }
 
 
-        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, CreateDirectOrderDto dto)
+        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, string voucherDeliveryCode, string? voucherProductCode, CreateDirectOrderDto dto)
         {
             var product = await _unitOfWork.productRepository.GetByIdAsync(dto.ProductId);
             var transactionId = Guid.NewGuid();
@@ -695,7 +824,10 @@ namespace CGP.Application.Services
             var getAddressDefault = await _unitOfWork.userAddressRepository.GetDefaultAddressByUserId(userId);
             bool isValidAddress = await _unitOfWork.userAddressRepository.CheckAddressUser(address, userId);
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
-            var getVoucher = await _unitOfWork.voucherRepository.GetVoucherByCodeAsync(dto.VoucherCode);
+            var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
+            var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
+            double discountProduct = 0;
+            double discountDelivery = 0;
             double totalDiscount = 0;
             Guid? voucherId = null;
 
@@ -707,6 +839,7 @@ namespace CGP.Application.Services
                     Data = Guid.Empty
                 };
             var order = new Order();
+            order.Product_Amount = (double)(dto.Quantity * product.Price);
             if (dto.PaymentMethod == PaymentMethodEnum.Online)
             {
                 if (address == null)
@@ -718,120 +851,204 @@ namespace CGP.Application.Services
                     return new Result<Guid>()
                     {
                         Error = 1,
-                        Message = "Địa chỉ không hợp lệ.",
+                        Message = "Địa chỉ không hợp lệ."
                     };
                 }
 
-                order.Product_Amount = (double)(getProduct.Price * dto.Quantity);
-                if (dto.VoucherCode != null)
+
+                if (voucherDeliveryCode == null && voucherProductCode == null)
                 {
-                    if (getVoucher.StartDate > DateTime.UtcNow.AddHours(7))
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá chưa bắt đầu sử dụng.",
-                        };
-                    }
+                    discountDelivery = 0;
+                    discountProduct = 0;
+                }
 
-                    if (getVoucher.EndDate < DateTime.UtcNow.AddHours(7))
+                else
+                {
+                    if (voucherProductCode != null)
                     {
-                        return new Result<Guid>()
+                        if (getVoucherProduct == null)
                         {
-                            Error = 1,
-                            Message = "Mã giảm giá đã hết hạn sử dụng.",
-                        };
-                    }
-
-                    if (getVoucher.UsedCount == getVoucher.Quantity)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá đã hết lượt sử dụng.",
-                        };
-                    }
-
-                    if (getVoucher.IsActive == false)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá không còn hoạt động.",
-                        };
-                    }
-
-                    if (getVoucher.PaymentMethod == PaymentMethodEnum.Cash)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá chỉ được sử dụng cho giao dịch tiền mặt.",
-                        };
-                    }
-
-                    if (order.Product_Amount < getVoucher.MinOrderValue || order.Product_Amount > getVoucher.MaxDiscountAmount)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá.",
-                        };
-                    }
-                    if (getVoucher.Type == VoucherTypeEnum.Delivery)
-                    {
-                        if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
-                        {
-                            totalDiscount = Delivery_Amount * getVoucher.Discount / 100;
-                            totalDiscount = Math.Floor(totalDiscount);
-                        }
-                        else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                        {
-                            if (Delivery_Amount < 0)
+                            return new Result<Guid>()
                             {
-                                totalDiscount = Delivery_Amount;
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm không tồn tại.",
+                            };
+                        }
+                        if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm chưa bắt đầu sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherProduct.EndDate < DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm đã hết hạn sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherProduct.UsedCount == getVoucherProduct.Quantity)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm đã hết lượt sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherProduct.PaymentMethod != dto.PaymentMethod)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm chỉ được sử dụng cho giao dịch online.",
+                            };
+                        }
+
+                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherProduct.MaxDiscountAmount)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho sản phẩm.",
+                            };
+                        }
+
+                        if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                        {
+                            discountProduct = Math.Floor(order.Product_Amount * (getVoucherProduct.Discount / 100.0));
+                        }
+                        else if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                        {
+                            if (getVoucherProduct.Discount > order.Product_Amount)
+                            {
+                                discountProduct = order.Product_Amount;
                             }
                             else
                             {
-                                totalDiscount = getVoucher.Discount;
+                                discountProduct = getVoucherProduct.Discount;
                             }
                         }
+
+                        getVoucherProduct.UsedCount++;
+                    }
+                    else
+                    {
+                        order.ProductDiscount = 0;
                     }
 
-                    if (getVoucher.Type == VoucherTypeEnum.Product)
+                    if (voucherDeliveryCode != null)
                     {
-
-                        if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                        if (getVoucherDelivery == null)
                         {
-                            totalDiscount = order.Product_Amount * getVoucher.Discount / 100;
-                            totalDiscount = Math.Floor(totalDiscount);
-                        }
-                        else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                        {
-                            totalDiscount = order.Product_Amount - getVoucher.Discount;
-                            if (totalDiscount < 0)
+                            return new Result<Guid>()
                             {
-                                totalDiscount = order.Product_Amount;
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển không tồn tại.",
+                            };
+                        }
+                        if (order.Product_Amount < getVoucherDelivery.MinOrderValue)
+                        {
+                            return new Result<Guid>
+                            {
+                                Error = 1,
+                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá vận chuyển."
+                            };
+                        }
+
+                        if (getVoucherDelivery.StartDate > DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm cho vận chuyển giá chưa bắt đầu sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.EndDate < DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển đã hết hạn sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.UsedCount == getVoucherDelivery.Quantity)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển đã hết lượt sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.IsActive == false || getVoucherProduct.IsActive == false)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá không còn hoạt động.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.PaymentMethod != dto.PaymentMethod)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển chỉ được sử dụng cho giao dịch online.",
+                            };
+                        }
+
+                        if ((double)(product.Price * dto.Quantity) < getVoucherDelivery.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherDelivery.MaxDiscountAmount)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho phí vận chuyển.",
+                            };
+                        }
+
+
+                        if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                        {
+                            discountDelivery = Math.Floor((Delivery_Amount * (getVoucherDelivery.Discount / 100.0)));
+                        }
+                        else if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                        {
+                            if (getVoucherDelivery.Discount > Delivery_Amount)
+                            {
+                                discountDelivery = Delivery_Amount;
                             }
                             else
                             {
-                                totalDiscount = getVoucher.Discount;
+                                discountDelivery = getVoucherDelivery.Discount;
                             }
                         }
+
+                        getVoucherDelivery.UsedCount++;
                     }
-                    getVoucher.UsedCount++;
-                    voucherId = getVoucher.Id;
-                    _unitOfWork.voucherRepository.Update(getVoucher);
+                    else
+                    {
+                        order.DeliveryDiscount = 0;
+                    }
                 }
 
                 order.UserId = userId;
                 order.Status = OrderStatusEnum.AwaitingPayment;
                 order.TransactionId = transactionId;
-                order.UserAddressId = address;
+                order.ProductDiscount = discountProduct;
+                order.DeliveryDiscount = discountDelivery;
                 order.PaymentMethod = dto.PaymentMethod;
                 order.Delivery_Amount = Delivery_Amount;
                 order.CreationDate = DateTime.UtcNow;
-                order.TotalDiscount = totalDiscount;
+                order.TotalDiscount = discountProduct + discountDelivery;
                 order.OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -844,8 +1061,25 @@ namespace CGP.Application.Services
                         Status = OrderStatusEnum.Created
                     }
                 };
-                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
+                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
                 await _unitOfWork.orderRepository.AddAsync(order);
+
+                var orderAddress = new OrderAddress
+                {
+                    OrderId = order.Id,
+                    FullName = getAddressByUserId.FullName,
+                    PhoneNumber = getAddressByUserId.PhoneNumber,
+                    FullAddress = getAddressByUserId.FullAddress,
+                    ProviceId = getAddressByUserId.ProviceId,
+                    ProviceName = getAddressByUserId.ProviceName,
+                    DistrictId = getAddressByUserId.DistrictId,
+                    DistrictName = getAddressByUserId.DistrictName,
+                    WardCode = getAddressByUserId.WardCode,
+                    WardName = getAddressByUserId.WardName,
+                    HomeNumber = getAddressByUserId.HomeNumber
+                };
+
+                await _unitOfWork.orderAddressRepository.AddAsync(orderAddress);
             }
             else
             {
@@ -863,128 +1097,213 @@ namespace CGP.Application.Services
                 }
 
 
-                order.Product_Amount = (double)(getProduct.Price * dto.Quantity);
-                if (dto.VoucherCode != null)
+                if (voucherDeliveryCode == null && voucherProductCode == null)
                 {
-                    if (getVoucher.StartDate > DateTime.UtcNow.AddHours(7))
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá chưa bắt đầu sử dụng.",
-                        };
-                    }
+                    order.DeliveryDiscount = 0;
+                    order.ProductDiscount = 0;
+                }
 
-                    if (getVoucher.EndDate < DateTime.UtcNow.AddHours(7))
+                else
+                {
+                    if (voucherProductCode != null)
                     {
-                        return new Result<Guid>()
+                        if( getVoucherProduct == null)
                         {
-                            Error = 1,
-                            Message = "Mã giảm giá đã hết hạn sử dụng.",
-                        };
-                    }
-
-                    if (getVoucher.UsedCount == getVoucher.Quantity)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá đã hết lượt sử dụng.",
-                        };
-                    }
-
-                    if (getVoucher.IsActive == false)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá không còn hoạt động.",
-                        };
-                    }
-
-                    if (getVoucher.PaymentMethod == PaymentMethodEnum.Online)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Mã giảm giá chỉ được sử dụng cho giao dịch online.",
-                        };
-                    }
-
-                    if (getProduct.Price < (decimal)getVoucher.MinOrderValue || getProduct.Price > (decimal)getVoucher.MaxDiscountAmount)
-                    {
-                        return new Result<Guid>()
-                        {
-                            Error = 1,
-                            Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá.",
-                        };
-                    }
-
-                    if (getVoucher.Type == VoucherTypeEnum.Delivery)
-                    {
-                        if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
-                        {
-                            totalDiscount = Delivery_Amount * getVoucher.Discount / 100;
-                            totalDiscount = Math.Floor(totalDiscount);
-                        }
-                        else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                        {
-                            if (Delivery_Amount < 0)
+                            return new Result<Guid>()
                             {
-                                totalDiscount = Delivery_Amount;
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm không tồn tại.",
+                            };
+                        }
+                        if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm chưa bắt đầu sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherProduct.EndDate < DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm đã hết hạn sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherProduct.UsedCount == getVoucherProduct.Quantity)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm đã hết lượt sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherProduct.PaymentMethod != dto.PaymentMethod)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho sản phẩm chỉ được sử dụng cho giao dịch tiền mặt.",
+                            };
+                        }
+
+                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherProduct.MaxDiscountAmount)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho sản phẩm.",
+                            };
+                        }
+
+                        if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                        {
+                            discountProduct = Math.Floor(order.Product_Amount * (getVoucherProduct.Discount / 100.0));
+                        }
+                        else if (getVoucherProduct.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                        {
+                            if (getVoucherProduct.Discount > order.Product_Amount)
+                            {
+                                discountProduct = order.Product_Amount;
                             }
                             else
                             {
-                                totalDiscount = getVoucher.Discount;
+                                discountProduct = getVoucherProduct.Discount;
                             }
                         }
+
+                        getVoucherProduct.UsedCount++;
+                    }
+                    else
+                    {
+                        order.ProductDiscount = 0;
                     }
 
-                    if (getVoucher.Type == VoucherTypeEnum.Product)
+                    if (voucherDeliveryCode != null)
                     {
-
-                        if (getVoucher.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                        if( getVoucherDelivery == null)
                         {
-                            totalDiscount = order.Product_Amount * getVoucher.Discount / 100;
-                            totalDiscount = Math.Floor(totalDiscount);
-                        }
-                        else if (getVoucher.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
-                        {
-                            totalDiscount = order.Product_Amount - getVoucher.Discount;
-                            if (totalDiscount < 0)
+                            return new Result<Guid>()
                             {
-                                totalDiscount = order.Product_Amount;
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển không tồn tại.",
+                            };
+                        }
+                        if (order.Product_Amount < getVoucherDelivery.MinOrderValue)
+                        {
+                            return new Result<Guid>
+                            {
+                                Error = 1,
+                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá vận chuyển."
+                            };
+                        }
+
+                        if (getVoucherDelivery.StartDate > DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm cho vận chuyển giá chưa bắt đầu sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.EndDate < DateTime.UtcNow.AddHours(7))
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển đã hết hạn sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.UsedCount == getVoucherDelivery.Quantity)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển đã hết lượt sử dụng.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.IsActive == false || getVoucherProduct.IsActive == false)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá không còn hoạt động.",
+                            };
+                        }
+
+                        if (getVoucherDelivery.PaymentMethod != dto.PaymentMethod)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá cho vận chuyển chỉ được sử dụng cho giao dịch tiền mặt.",
+                            };
+                        }
+
+                        if ((double)(product.Price * dto.Quantity) < getVoucherDelivery.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherDelivery.MaxDiscountAmount)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Đơn hàng không đủ điều kiện áp dụng mã giảm giá cho phí vận chuyển.",
+                            };
+                        }
+
+
+                        if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.Percentage)
+                        {
+                            discountDelivery = Math.Floor((Delivery_Amount * (getVoucherDelivery.Discount / 100.0)));
+                        }
+                        else if (getVoucherDelivery.DiscountType == VoucherDiscountTypeEnum.FixedAmount)
+                        {
+                            if(getVoucherDelivery.Discount > Delivery_Amount)
+                            {
+                                discountDelivery = Delivery_Amount;
                             }
                             else
                             {
-                                totalDiscount = getVoucher.Discount;
+                                discountDelivery = getVoucherDelivery.Discount;
                             }
                         }
+
+                        getVoucherDelivery.UsedCount++;
                     }
-                    getVoucher.UsedCount++;
-                    _unitOfWork.voucherRepository.Update(getVoucher);
+                    else
+                    {
+                        order.DeliveryDiscount = 0;
+                    }
                 }
 
                 order.UserId = userId;
                 order.Status = OrderStatusEnum.Created;
                 order.TransactionId = transactionId;
-                order.UserAddressId = address;
                 order.PaymentMethod = dto.PaymentMethod;
                 order.CreationDate = DateTime.UtcNow;
                 order.Delivery_Amount = Delivery_Amount;
-                order.TotalDiscount = totalDiscount;
+                order.DeliveryDiscount = discountDelivery;
+                order.ProductDiscount = discountProduct;
+                order.TotalDiscount = discountDelivery + discountProduct;
+                order.Product_Amount = (double)(dto.Quantity * product.Price);
                 order.OrderItems = new List<OrderItem>
-        {
-            new OrderItem
-            {
-                ProductId = dto.ProductId,
-                ArtisanId = product.Artisan_id,
-                Quantity = dto.Quantity,
-                UnitPrice = product.Price,
-                CreationDate = DateTime.UtcNow.AddHours(7),
-                Status = OrderStatusEnum.Created
-            }
-        }; order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - totalDiscount);
+                {
+                    new OrderItem
+                    {
+                        ProductId = dto.ProductId,
+                        ArtisanId = product.Artisan_id,
+                        Quantity = dto.Quantity,
+                        UnitPrice = product.Price,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        Status = OrderStatusEnum.Created
+                    }
+                }; 
+                order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
                 getProduct.Quantity = getProduct.Quantity - dto.Quantity;
                 await _unitOfWork.orderRepository.AddAsync(order);
 
@@ -1013,9 +1332,45 @@ namespace CGP.Application.Services
                     IsDeleted = false,
                     CreationDate = DateTime.UtcNow.AddHours(7),
                 };
-                await _unitOfWork.productRepository.UpdateProduct(getProduct);
                 await _unitOfWork.transactionRepository.AddAsync(transaction);
                 await _unitOfWork.paymentRepository.AddAsync(log);
+                _unitOfWork.productRepository.Update(getProduct);
+
+                var orderAddress = new OrderAddress
+                {
+                    OrderId = order.Id,
+                    FullName = getAddressByUserId.FullName,
+                    PhoneNumber = getAddressByUserId.PhoneNumber,
+                    FullAddress = getAddressByUserId.FullAddress,
+                    ProviceId = getAddressByUserId.ProviceId,
+                    ProviceName = getAddressByUserId.ProviceName,
+                    DistrictId = getAddressByUserId.DistrictId,
+                    DistrictName = getAddressByUserId.DistrictName,
+                    WardCode = getAddressByUserId.WardCode,
+                    WardName = getAddressByUserId.WardName,
+                    HomeNumber = getAddressByUserId.HomeNumber
+                };
+
+                await _unitOfWork.orderAddressRepository.AddAsync(orderAddress);
+
+                if(getVoucherDelivery != null)
+                {
+                    await _unitOfWork.orderVoucherRepository.AddAsync(new OrderVoucher
+                    {
+                        OrderId = order.Id,
+                        VoucherId = getVoucherDelivery.Id
+                    });
+                    _unitOfWork.voucherRepository.Update(getVoucherDelivery);
+                }
+                if(getVoucherProduct != null)
+                {
+                    await _unitOfWork.orderVoucherRepository.AddAsync(new OrderVoucher
+                    {
+                        OrderId = order.Id,
+                        VoucherId = getVoucherProduct.Id
+                    });
+                    _unitOfWork.voucherRepository.Update(getVoucherProduct);
+                }
             }
 
             await _unitOfWork.SaveChangeAsync();
@@ -1141,7 +1496,7 @@ namespace CGP.Application.Services
                     };
                     await _unitOfWork.transactionRepository.AddAsync(transaction);
 
-                    getWalletSystem.Balance = getWalletSystem.Balance + (float)order.TotalPrice;
+                    getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + order.TotalPrice;
                     _unitOfWork.walletRepository.Update(getWalletSystem);
 
                     var addMoneyToWalletSystem = new WalletTransaction
@@ -1250,10 +1605,10 @@ namespace CGP.Application.Services
                     };
                     await _unitOfWork.transactionRepository.AddAsync(transaction);
 
-                    getWalletSystem.Balance = getWalletSystem.Balance - (float)order.TotalPrice;
+                    getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance - order.TotalPrice;
                     _unitOfWork.walletRepository.Update(getWalletSystem);
 
-                    getWalletUser.Balance = getWalletUser.Balance + (float)order.TotalPrice;
+                    getWalletUser.AvailableBalance = getWalletUser.AvailableBalance + order.TotalPrice;
                     _unitOfWork.walletRepository.Update(getWalletUser);
 
                     var newWalletSystemTransaction = new WalletTransaction
@@ -1372,10 +1727,10 @@ namespace CGP.Application.Services
                         CreationDate = DateTime.UtcNow.AddHours(7),
                     };
 
-                    getWalletSystem.Balance = getWalletSystem.Balance - (float)order.TotalPrice;
+                    getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance - order.TotalPrice;
                     _unitOfWork.walletRepository.Update(getWalletSystem);
 
-                    getWalletUser.Balance = getWalletUser.Balance + (float)order.TotalPrice;
+                    getWalletUser.AvailableBalance = getWalletUser.AvailableBalance + order.TotalPrice;
                     _unitOfWork.walletRepository.Update(getWalletUser);
 
                     var newWalletSystemTransaction = new WalletTransaction
@@ -1442,7 +1797,7 @@ namespace CGP.Application.Services
 
                 if (order.PaymentMethod == PaymentMethodEnum.Cash && order.IsPaid == false)
                 {
-                    getWalletSystem.Balance = getWalletSystem.Balance + (float)order.TotalPrice;
+                    getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + order.TotalPrice;
                     _unitOfWork.walletRepository.Update(getWalletSystem);
 
                     var addMoneyToWalletSystem = new WalletTransaction
@@ -1456,6 +1811,7 @@ namespace CGP.Application.Services
                         IsDeleted = false
                     };
                     await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
+                    await _walletService.CreatePendingTransactionAsync(addMoneyToWalletSystem.Wallet_Id, addMoneyToWalletSystem.Amount, 3);
                 }
                 order.IsPaid = true;
             }

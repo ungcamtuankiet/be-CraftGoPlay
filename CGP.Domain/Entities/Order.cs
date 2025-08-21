@@ -12,7 +12,6 @@ namespace CGP.Domain.Entities
     {
         public Guid UserId { get; set; }
         public Guid TransactionId { get; set; }
-        public Guid? UserAddressId { get; set; }
         public double Product_Amount { get; set; }
         public double Delivery_Amount { get; set; }
         public double ProductDiscount { get; set; } 
@@ -24,12 +23,11 @@ namespace CGP.Domain.Entities
         public bool IsPaid { get; set; } = false;
         public ApplicationUser User { get; set; }
         public Payment? Payment { get; set; }
+        public OrderAddress OrderAddress { get; set; }
         public List<OrderItem> OrderItems { get; set; }
         public List<OrderVoucher> OrderVouchers { get; set; }
         [ForeignKey("TransactionId")]
         public ICollection<Transaction> Transactions { get; set; }
-        [ForeignKey("UserAddressId")]   
-        public UserAddress? UserAddress { get; set; }
 
         public static implicit operator string(Order v)
         {

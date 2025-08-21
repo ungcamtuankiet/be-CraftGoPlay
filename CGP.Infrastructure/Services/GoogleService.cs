@@ -146,7 +146,7 @@ namespace CGP.Infrastructure.Services
             var wallet = new Wallet()
             {
                 User_Id = user.Id,
-                Balance = 0,
+                AvailableBalance = 0,
                 Type = WalletTypeEnum.User
             };
             await _unitOfWork.walletRepository.AddAsync(wallet);
