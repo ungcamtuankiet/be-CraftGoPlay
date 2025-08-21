@@ -793,6 +793,7 @@ namespace CGP.Application.Services
                     }
                 }
             }
+            //cart.IsCheckedOut = true;
             if (!cart.Items.Any(i => !i.IsDeleted))
             {
                 cart.IsCheckedOut = true;
@@ -801,7 +802,6 @@ namespace CGP.Application.Services
             {
                 cart.IsCheckedOut = false;
             }
-
             _unitOfWork.cartRepository.Update(cart);
             await _unitOfWork.SaveChangeAsync();
             return new Result<Guid>()
@@ -1046,6 +1046,7 @@ namespace CGP.Application.Services
                 order.ProductDiscount = discountProduct;
                 order.DeliveryDiscount = discountDelivery;
                 order.PaymentMethod = dto.PaymentMethod;
+                order.Delivery_Amount = Delivery_Amount;
                 order.CreationDate = DateTime.UtcNow;
                 order.TotalDiscount = discountProduct + discountDelivery;
                 order.OrderItems = new List<OrderItem>
@@ -1381,7 +1382,6 @@ namespace CGP.Application.Services
             };
         }
 
-
         public async Task<Result<string>> CreateVnPayUrlAsync(Guid transactionId, HttpContext httpContext)
         {
             var orders = await _unitOfWork.orderRepository.GetOrdersByTransactionIdAsync(transactionId);
@@ -1541,8 +1541,6 @@ namespace CGP.Application.Services
                 Data = transactionId
             };
         }
-
-
 
         public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, OrderStatusEnum statusDto)
         {
@@ -1788,7 +1786,7 @@ namespace CGP.Application.Services
                 item.ModificationDate = DateTime.UtcNow.AddHours(7);
                 _unitOfWork.orderItemRepository.Update(item);
             }
-            if (statusDto == OrderStatusEnum.Completed)
+            if (statusDto == OrderStatusEnum.Delivered)
             {
                 foreach (var item in orderItems)
                 {

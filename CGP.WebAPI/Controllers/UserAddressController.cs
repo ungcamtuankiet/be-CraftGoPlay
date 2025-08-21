@@ -50,6 +50,18 @@ namespace CGP.WebAPI.Controllers
             return Ok(artisanAddress);
         }
 
+        [HttpGet("GetAddressById/{addressId}")]
+        [Authorize(Policy = "UserPolicy")]
+        public async Task<IActionResult> GetAddressById(Guid addressId)
+        {
+            var address = await _userService.GetAddressById(addressId);
+            if (address.Error == 1)
+            {
+                return NotFound(address);
+            }
+            return Ok(address);
+        }
+
         [HttpPost("AddNewAddress")]
         [Authorize(Policy = "UserPolicy")]
         public async Task<IActionResult> AddNewAddress([FromForm] AddNewAddressDTO userAddress)

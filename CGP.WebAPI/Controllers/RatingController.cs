@@ -52,11 +52,11 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("CheckRated")]
+        [HttpPost("CheckRated")]
         /* [Authorize(Policy = "UserPolicy")] */
-        public async Task<IActionResult> CheckRated([FromBody] Guid userId, Guid orderItemId)
+        public async Task<IActionResult> CheckRated([FromBody] CheckedRatingDTO dto)
         {
-            var result = await _ratingService.CheckRated(userId, orderItemId);
+            var result = await _ratingService.CheckRated(dto.UserId, dto.OrderItemId);
             if (result.Error == 1)
             {
                 return BadRequest(result);
