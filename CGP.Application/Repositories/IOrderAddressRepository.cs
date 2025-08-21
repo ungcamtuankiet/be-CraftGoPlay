@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace CGP.Application.Repositories
 {
-    public interface IWalletTransactionRepository : IGenericRepository<WalletTransaction>
+    public interface IOrderAddressRepository : IGenericRepository<OrderAddress>
     {
-        Task<List<WalletTransaction>> GetPendingTransactionsAsync();
     }
 }

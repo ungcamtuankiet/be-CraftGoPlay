@@ -1,7 +1,9 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,13 @@ namespace CGP.Infrastructure.Repositories
         public WalletTransactionRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
         {
             _context = context;
+        }
+
+        public async Task<List<WalletTransaction>> GetPendingTransactionsAsync()
+        {
+            return await _context.WalletTransaction
+                .Where(t => t.Type == WalletTransactionTypeEnum.Pending && t.UnlockDate <= DateTime.UtcNow.AddHours(7))
+                .ToListAsync();
         }
     }
 }

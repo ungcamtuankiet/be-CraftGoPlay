@@ -14,5 +14,7 @@ namespace CGP.Application.Interfaces
         Task<Result<ViewWalletDTO>> GetWalletByUserId(Guid userId);
         Task<Result<ViewWalletDTO>> GetWalletByArtisanId(Guid artisanId);
         Task<Result<ViewWalletDTO>> GetWalletSystem();
+        Task CreatePendingTransactionAsync(Guid shopId, decimal amount, int holdDays);
+        Task ReleasePendingTransactionsAsync();
     }
 }

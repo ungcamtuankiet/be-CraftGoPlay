@@ -106,6 +106,7 @@ namespace CGP.Application.Services
                     };
                 }
                 existingItem.Quantity += dto.Quantity;
+                existingItem.ModificationDate = DateTime.UtcNow.AddHours(7);
                 await _unitOfWork.cartItemRepository.UpdateCartItemAsync(existingItem);
             }
             else
@@ -179,6 +180,7 @@ namespace CGP.Application.Services
                 };
             }
             item.Quantity = dto.Quantity;
+            item.ModificationDate = DateTime.UtcNow.AddHours(7);
             await _unitOfWork.cartItemRepository.UpdateCartItemAsync(item);
             await _unitOfWork.SaveChangeAsync();
 
