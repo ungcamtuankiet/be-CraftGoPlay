@@ -14,6 +14,7 @@ namespace CGP.Infrastructure.Mappers.InventoryProfile
         public InventoryProfile()
         {
             CreateMap<Inventory, ViewInventoryDTO>()
+                .ForMember(dest => dest.Crop, opt => opt.MapFrom(src => src.Crop))
                 .ReverseMap();
             CreateMap<AddToInventoryDTO, Inventory>().ReverseMap();
             CreateMap<UpdateInventoryDTO, Inventory>().ReverseMap();

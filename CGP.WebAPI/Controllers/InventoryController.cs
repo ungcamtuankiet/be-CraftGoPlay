@@ -26,19 +26,8 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetInventoryById/{inventoryId}")]
-        public async Task<IActionResult> GetInventoryById(Guid inventoryId)
-        {
-            var result = await _inventoryService.GetInventoryById(inventoryId);
-            if (result.Error != 0)
-            {
-                return NotFound(result);
-            }
-            return Ok(result);
-        }
-
         [HttpPost("AddToInventory")]
-        public async Task<IActionResult> AddToInventoryAsync([FromBody] AddToInventoryDTO addToInventoryDTO)
+        public async Task<IActionResult> AddToInventoryAsync([FromForm] AddToInventoryDTO addToInventoryDTO)
         {
             var result = await _inventoryService.AddToInventoryAsync(addToInventoryDTO);
             if (result.Error != 0)
@@ -49,7 +38,7 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("UpdateInventory")]
-        public async Task<IActionResult> UpdateInventoryAsync([FromBody] UpdateInventoryDTO updateInventoryDTO)
+        public async Task<IActionResult> UpdateInventoryAsync([FromForm] UpdateInventoryDTO updateInventoryDTO)
         {
             var result = await _inventoryService.UpdateInventoryAsync(updateInventoryDTO);
             if (result.Error != 0)

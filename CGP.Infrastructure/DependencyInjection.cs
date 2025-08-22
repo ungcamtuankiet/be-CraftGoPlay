@@ -54,6 +54,7 @@ namespace CGP.Infrastructure
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IVoucherService, VoucherService>();
             services.AddScoped<IDailyCheckInService, DailyCheckInService>();
+            services.AddScoped<IFarmlandService, FarmlandService>();
 
             services.AddMemoryCache();
             //Repositories
@@ -90,6 +91,8 @@ namespace CGP.Infrastructure
             services.AddScoped<IDailyCheckInRepository, DailyCheckInRepository>();
             services.AddScoped<IOrderVoucherRepository, OrderVoucherRepository>();
             services.AddScoped<IOrderAddressRepository, OrderAddressRepository>();
+            services.AddScoped<IFarmlandRepository, FarmlandRepository>();
+            services.AddScoped<IFarmlandCropRepository, FarmlandCropRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>

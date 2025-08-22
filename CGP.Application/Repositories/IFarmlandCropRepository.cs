@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace CGP.Application.Repositories
 {
-    public interface ICropRepository : IGenericRepository<Crop>
+    public interface IFarmlandCropRepository : IGenericRepository<FarmlandCrop>
     {
-        public Task<Crop> GetCropsByIdAsync(Guid id);
-        public Task<Crop> CheckName(string name);
+        Task<FarmlandCrop?> GetActiveCropAsync(Guid plotId);
     }
 }
