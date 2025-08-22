@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250821155947_addFarmlandCropTable")]
+    partial class addFarmlandCropTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 22, 19, 1, 13, 437, DateTimeKind.Local).AddTicks(8600),
+                            CreationDate = new DateTime(2025, 8, 21, 22, 59, 44, 887, DateTimeKind.Local).AddTicks(7651),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -217,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 22, 19, 1, 13, 437, DateTimeKind.Local).AddTicks(8621),
+                            CreationDate = new DateTime(2025, 8, 21, 22, 59, 44, 887, DateTimeKind.Local).AddTicks(7720),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -559,9 +562,6 @@ namespace CGP.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -578,19 +578,13 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("DeletionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("GrowthStage")
                         .HasColumnType("int");
 
-                    b.Property<int>("GrowthTimeHours")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsHarvested")
                         .HasColumnType("bit");
 
                     b.Property<Guid?>("ModificationBy")
@@ -599,21 +593,26 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("PlantedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TileX")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TileY")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("WaterCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("WateringIntervalHours")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("Crop");
+                    b.ToTable("Crop", (string)null);
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.DailyCheckIn", b =>
@@ -704,12 +703,6 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<int>("PlotIndex")
                         .HasColumnType("int");
 
-                    b.Property<int>("PositionX")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PositionY")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -750,12 +743,6 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsHarvested")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastWateredAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid?>("ModificationBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -764,9 +751,6 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Property<DateTime>("PlantDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("WateredCount")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -834,9 +818,6 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("CropId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("DeleteBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -870,8 +851,6 @@ namespace CGP.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CropId");
 
                     b.HasIndex("UserId");
 
@@ -2277,9 +2256,13 @@ namespace CGP.Infrastructure.Migrations
 
             modelBuilder.Entity("CGP.Domain.Entities.Crop", b =>
                 {
-                    b.HasOne("CGP.Domain.Entities.ApplicationUser", null)
+                    b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
                         .WithMany("Crops")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.DailyCheckIn", b =>
@@ -2344,18 +2327,11 @@ namespace CGP.Infrastructure.Migrations
 
             modelBuilder.Entity("CGP.Domain.Entities.Inventory", b =>
                 {
-                    b.HasOne("CGP.Domain.Entities.Crop", "Crop")
-                        .WithMany("Inventories")
-                        .HasForeignKey("CropId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("CGP.Domain.Entities.ApplicationUser", "User")
                         .WithMany("Inventories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Crop");
 
                     b.Navigation("User");
                 });
@@ -2706,8 +2682,6 @@ namespace CGP.Infrastructure.Migrations
             modelBuilder.Entity("CGP.Domain.Entities.Crop", b =>
                 {
                     b.Navigation("FarmlandCrops");
-
-                    b.Navigation("Inventories");
                 });
 
             modelBuilder.Entity("CGP.Domain.Entities.FarmLand", b =>

@@ -23,6 +23,30 @@ namespace CGP.Application.Services
             _mapper = mapper;
         }
 
+        public async Task<Result<object>> AddCropAsync(AddCropDTO request)
+        {
+            var result = _mapper.Map<Crop>(request);
+            var checkName = await _unitOfWork.cropRepository.CheckName(result.Name);
+            if(checkName != null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Tên cây trồng đã tồn tại.",
+                    Data = null
+                };
+            }
+
+            await _unitOfWork.cropRepository.AddAsync(result);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Thêm cây trồng thành công.",
+                Data = null
+            };
+        }
+
         public async Task<Result<ViewCropDTO>> GetCropByIdAsync(Guid cropId)
         {
             var result = _mapper.Map<ViewCropDTO>(
@@ -45,76 +69,6 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<List<ViewCropDTO>>> GetCropsByUserIdAsync(Guid userId)
-        {
-            var result = _mapper.Map<List<ViewCropDTO>>(
-                await _unitOfWork.cropRepository.GetCropsByUserIdAsync(userId)
-            );
-            if(result == null || result.Count == 0)
-            {
-                return new Result<List<ViewCropDTO>>
-                {
-                    Error = 1,
-                    Message = "Không có cây trồng nào.",
-                    Data = null
-                };
-            }
-
-            return new Result<List<ViewCropDTO>>
-            {
-                Error = 0,
-                Message = "Lấy danh sách cây trồng thành công.",
-                Data = result
-            };
-        }
-
-        public async Task<Result<object>> HarvestCropAsync(Guid cropId)
-        {
-            var crop = await _unitOfWork.cropRepository.GetCropsByIdAsync(cropId);
-            if(crop == null)
-            {
-                return new Result<object>
-                {
-                    Error = 1,
-                    Message = "Cây trồng không tồn tại.",
-                    Data = null
-                };
-            }
-
-            if(crop.IsHarvested)
-            {
-                return new Result<object>
-                {
-                    Error = 1,
-                    Message = "Cây trồng đã được thu hoạch.",
-                    Data = null
-                };
-            }
-
-            crop.IsHarvested = true;
-            _unitOfWork.cropRepository.Update(crop);
-            await _unitOfWork.SaveChangeAsync();
-            return new Result<object>
-            {
-                Error = 0,
-                Message = "Thu hoạch cây trồng thành công",
-                Data = null
-            };
-        }
-
-        public async Task<Result<object>> PlantCropAsync(PlantCropDTO request)
-        {
-            var result = _mapper.Map<Crop>(request);
-            await _unitOfWork.cropRepository.AddAsync(result);
-            await _unitOfWork.SaveChangeAsync();
-            return new Result<object>
-            {
-                Error = 0,
-                Message = "Trông cây thành công.",
-                Data = result
-            };
-        }
-
         public async Task<Result<object>> RemoveCropAsync(Guid cropId)
         {
             var crop = await _unitOfWork.cropRepository.GetCropsByIdAsync(cropId);
@@ -124,16 +78,6 @@ namespace CGP.Application.Services
                 {
                     Error = 1,
                     Message = "Cây trồng không tồn tại.",
-                    Data = null
-                };
-            }
-
-            if (crop.IsHarvested)
-            {
-                return new Result<object>
-                {
-                    Error = 1,
-                    Message = "Cây trồng đã được thu hoạch, không thể xóa.",
                     Data = null
                 };
             }
@@ -148,7 +92,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<object>> UpdateCropCropAsync(UpdateCropDTO request)
+        public async Task<Result<object>> UpdateCropAsync(UpdateCropDTO request)
         {
             var crop = await _unitOfWork.cropRepository.GetCropsByIdAsync(request.Id);
             if (crop == null)
@@ -168,30 +112,6 @@ namespace CGP.Application.Services
             {
                 Error = 0,
                 Message = "Cập nhật cây trồng thành công.",
-                Data = null
-            };
-        }
-
-        public async Task<Result<object>> WaterCropAsync(Guid cropId)
-        {
-            var crop = await _unitOfWork.cropRepository.GetCropsByIdAsync(cropId);
-            if (crop == null)
-            {
-                return new Result<object>
-                {
-                    Error = 1,
-                    Message = "Cây trồng không tồn tại.",
-                    Data = null
-                };
-            }
-
-            crop.WaterCount++;
-            _unitOfWork.cropRepository.Update(crop);
-            await _unitOfWork.SaveChangeAsync();
-            return new Result<object>
-            {
-                Error = 0,
-                Message = "Tưới nước cho cây trồng thành công.",
                 Data = null
             };
         }

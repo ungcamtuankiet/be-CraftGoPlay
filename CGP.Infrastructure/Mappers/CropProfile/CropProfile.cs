@@ -14,7 +14,7 @@ namespace CGP.Infrastructure.Mappers.CropProfile
         public CropProfile()
         {
             CreateMap<Crop, ViewCropDTO>().ReverseMap();
-            CreateMap<PlantCropDTO, Crop>().ReverseMap();
+            CreateMap<AddCropDTO, Crop>().ReverseMap();
             CreateMap<UpdateCropDTO, Crop>().ReverseMap();
         }
     }

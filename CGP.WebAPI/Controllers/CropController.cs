@@ -26,21 +26,14 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetCropsByUserId/{userId}")]
-        public async Task<IActionResult> GetCropsByUserId(Guid userId)
+        [HttpPost("AddCrop")]
+        public async Task<IActionResult> AddCrop([FromForm] AddCropDTO cropDto)
         {
-            var result = await _cropService.GetCropsByUserIdAsync(userId);
-            if (result.Error != 0)
+            if (cropDto == null)
             {
-                return NotFound(result);
+                return BadRequest("Crop data is required.");
             }
-            return Ok(result);
-        }
-
-        [HttpPost("PlantCrop")]
-        public async Task<IActionResult> PlantCrop([FromBody] PlantCropDTO request)
-        {
-            var result = await _cropService.PlantCropAsync(request);
+            var result = await _cropService.AddCropAsync(cropDto);
             if (result.Error != 0)
             {
                 return BadRequest(result);
@@ -49,31 +42,13 @@ namespace CGP.WebAPI.Controllers
         }
 
         [HttpPut("UpdateCrop")]
-        public async Task<IActionResult> UpdateCrop([FromBody] UpdateCropDTO request)
+        public async Task<IActionResult> UpdateCrop([FromForm] UpdateCropDTO cropDto)
         {
-            var result = await _cropService.UpdateCropCropAsync(request);
-            if (result.Error != 0)
+            if (cropDto == null || cropDto.Id == Guid.Empty)
             {
-                return BadRequest(result);
+                return BadRequest("Valid crop data is required.");
             }
-            return Ok(result);
-        }
-
-        [HttpPut("WaterCrop/{cropId}")]
-        public async Task<IActionResult> WaterCrop(Guid cropId)
-        {
-            var result = await _cropService.WaterCropAsync(cropId);
-            if (result.Error != 0)
-            {
-                return BadRequest(result);
-            }
-            return Ok(result);
-        }
-
-        [HttpPut("HarvestCrop/{cropId}")]
-        public async Task<IActionResult> HarvestCrop(Guid cropId)
-        {
-            var result = await _cropService.HarvestCropAsync(cropId);
+            var result = await _cropService.UpdateCropAsync(cropDto);
             if (result.Error != 0)
             {
                 return BadRequest(result);

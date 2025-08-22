@@ -46,6 +46,9 @@ public class AppDbContext : DbContext
     public DbSet<UserQuest> UserQuest { get; set; }
     public DbSet<Quest> Quest { get; set; }
     public DbSet<DailyCheckIn> DailyCheckIn { get; set; }
+    public DbSet<OrderAddress> OrderAddress { get; set; }
+    public DbSet<FarmLand> FarmLand { get; set; }
+    public DbSet<FarmlandCrop> FarmlandCrop { get; set; }
     #endregion
 
 
@@ -484,15 +487,63 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         });
 
+        //OrderAddress
+        modelBuilder.Entity<OrderAddress>(e =>
+        {
+            e.ToTable("OrderAddress");
+            e.HasKey(oa => oa.Id);
+            e.HasOne(oa => oa.Order)
+            .WithOne(o => o.OrderAddress)
+            .HasForeignKey<OrderAddress>(oa => oa.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(oa => oa.Order)
+            .WithOne(ua => ua.OrderAddress)
+            .HasForeignKey<OrderAddress>(oa => oa.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //DailyCheckIn
+        modelBuilder.Entity<DailyCheckIn>(e =>
+        {
+            e.ToTable("DailyCheckIn");
+            e.HasKey(d => d.Id);
+            e.HasOne(d => d.User)
+            .WithMany(u => u.DailyCheckIns)
+            .HasForeignKey(d => d.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //FarmLand
+        modelBuilder.Entity<FarmLand>(e =>
+        {
+            e.ToTable("FarmLand");
+            e.HasKey(f => f.Id);
+            e.HasOne(f => f.User)
+            .WithMany(u => u.FarmLands)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //FarmlandCrop
+        modelBuilder.Entity<FarmlandCrop>(e =>
+        {
+            e.ToTable("FarmlandCrop");
+            e.HasKey(fc => fc.Id);
+            e.HasOne(fc => fc.Farmland)
+            .WithMany(f => f.FarmlandCrops)
+            .HasForeignKey(fc => fc.FarmlandId)
+            .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(fc => fc.Crop)
+            .WithMany(c => c.FarmlandCrops)
+            .HasForeignKey(fc => fc.CropId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
         //Crop
-        modelBuilder.Entity<Crop>(e =>
+        modelBuilder.Entity<Inventory>(e =>
         {
             e.ToTable("Crop");
-            e.HasKey(c => c.Id);
-            e.HasOne(c => c.User)
-            .WithMany(u => u.Crops)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            e.HasKey(i => i.Id);
         });
 
         //Inventory
@@ -503,6 +554,16 @@ public class AppDbContext : DbContext
             e.HasOne(i => i.User)
             .WithMany(u => u.Inventories)
             .HasForeignKey(i => i.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Inventory>(e =>
+        {
+            e.ToTable("Inventory");
+            e.HasKey(i => i.Id);
+            e.HasOne(i => i.Crop)
+            .WithMany(u => u.Inventories)
+            .HasForeignKey(i => i.CropId)
             .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -518,32 +579,6 @@ public class AppDbContext : DbContext
             e.HasOne(uq => uq.Quest)
             .WithMany(q => q.UserQuests)
             .HasForeignKey(uq => uq.QuestId)
-            .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        //DailyCheckIn
-        modelBuilder.Entity<DailyCheckIn>(e =>
-        {
-            e.ToTable("DailyCheckIn");
-            e.HasKey(d => d.Id);
-            e.HasOne(d => d.User)
-            .WithMany(u => u.DailyCheckIns)
-            .HasForeignKey(d => d.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        //Order Address
-        modelBuilder.Entity<OrderAddress>(e =>
-        {
-            e.ToTable("OrderAddress");
-            e.HasKey(oa => oa.Id);
-            e.HasOne(oa => oa.Order)
-            .WithOne(o => o.OrderAddress)
-            .HasForeignKey<OrderAddress>(oa => oa.OrderId)
-            .OnDelete(DeleteBehavior.Restrict);
-            e.HasOne(oa => oa.Order)
-            .WithOne(ua => ua.OrderAddress)
-            .HasForeignKey<OrderAddress>(oa => oa.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
         });
     }

@@ -38,7 +38,8 @@ namespace CGP.Infrastructure.Repositories
             .ThenInclude(i => i.ProductImages)
             .Include(c => c.Items)
             .ThenInclude(c => c.Product.User)
-            .FirstOrDefaultAsync(c => c.UserId == userId && !c.IsCheckedOut);
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
         }
     }
 }

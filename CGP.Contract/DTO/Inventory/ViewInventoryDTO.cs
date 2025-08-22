@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGP.Contract.DTO.Crop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,12 @@ namespace CGP.Contract.DTO.Inventory
 {
     public class ViewInventoryDTO
     {
-        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public string ItemType { get; set; }
-        public int Quantity { get; set; } 
+        public int Quantity { get; set; }
+        public string InventoryType { get; set; }
+        public int SlotIndex { get; set; }
         public DateTime AcquiredAt { get; set; }
+        public ViewCropDTO Crop { get; set; }
     }
 }

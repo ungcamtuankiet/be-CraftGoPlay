@@ -43,7 +43,8 @@ namespace CGP.Application
         IDailyCheckInRepository dailyCheckInRepository { get; }
         IOrderVoucherRepository orderVoucherRepository { get; }
         IOrderAddressRepository orderAddressRepository { get; }
-
+        IFarmlandRepository farmlandRepository { get; }
+        IFarmlandCropRepository farmlandCropRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }
