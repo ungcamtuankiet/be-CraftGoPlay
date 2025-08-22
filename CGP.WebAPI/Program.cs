@@ -11,6 +11,9 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");
+
 {
     builder.Services
         .AddApi()
@@ -147,8 +150,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseSqlTableDependency(builder.Configuration.GetConnectionString("DefaultConnection"));
-
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Run($"http://0.0.0.0:{port}");
 
 app.Run();
