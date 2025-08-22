@@ -1,4 +1,4 @@
-using CGP.Application;
+﻿using CGP.Application;
 using CGP.Infrastructure;
 using CGP.Infrastructure.Data;
 using CGP.WebAPI;
@@ -104,7 +104,7 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
 
     app.UseSwaggerUI();
@@ -117,6 +117,11 @@ else
         c.InjectJavascript("/custom-swagger.js");
         c.RoutePrefix = string.Empty;
     });
+}*/
+
+if (!app.Environment.IsDevelopment())
+{
+    // app.UseHttpsRedirection(); ❌ KHÔNG BẬT trên Render
 }
 
 app.UseExceptionHandler("/Error");
@@ -143,5 +148,7 @@ app.MapControllers();
 
 app.UseSqlTableDependency(builder.Configuration.GetConnectionString("DefaultConnection"));
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Run($"http://0.0.0.0:{port}");
 
 app.Run();
