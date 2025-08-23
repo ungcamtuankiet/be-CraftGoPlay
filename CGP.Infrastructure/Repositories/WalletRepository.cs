@@ -10,8 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CGP.Infrastructure.Repositories
-{
+namespace CGP.Infrastructure.Repositories {
     public class WalletRepository : GenericRepository<Wallet>, IWalletRepository
     {
 

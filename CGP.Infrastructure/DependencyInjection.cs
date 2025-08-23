@@ -6,6 +6,7 @@ using CGP.Contract.Abstractions.CloudinaryService;
 using CGP.Contract.Abstractions.VnPayService;
 using CGP.Domain.Entities;
 using CGP.Infrastructure.Data;
+using CGP.Infrastructure.Jobs;
 using CGP.Infrastructure.Repositories;
 using CGP.Infrastructure.Services;
 using CloudinaryDotNet;
@@ -53,6 +54,7 @@ namespace CGP.Infrastructure
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IVoucherService, VoucherService>();
             services.AddScoped<IDailyCheckInService, DailyCheckInService>();
+            services.AddScoped<IFarmlandService, FarmlandService>();
 
             services.AddMemoryCache();
             //Repositories
@@ -87,6 +89,10 @@ namespace CGP.Infrastructure
             services.AddScoped<IUserQuestRepository, UserQuestRepository>();
             services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddScoped<IDailyCheckInRepository, DailyCheckInRepository>();
+            services.AddScoped<IOrderVoucherRepository, OrderVoucherRepository>();
+            services.AddScoped<IOrderAddressRepository, OrderAddressRepository>();
+            services.AddScoped<IFarmlandRepository, FarmlandRepository>();
+            services.AddScoped<IFarmlandCropRepository, FarmlandCropRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>
@@ -100,6 +106,8 @@ namespace CGP.Infrastructure
             //VnPay
             services.Configure<VnPaySettings>(configuration.GetSection("VnPay"));
 
+            //Job Background Services
+            services.AddHostedService<WalletReleaseJob>();
 
             var redisConnectionString = configuration.GetConnectionString("Redis");
             services.AddSingleton<IConnectionMultiplexer>(_ =>

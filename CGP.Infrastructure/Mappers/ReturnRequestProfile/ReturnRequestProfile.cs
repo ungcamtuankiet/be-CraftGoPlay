@@ -18,6 +18,10 @@ namespace CGP.Infrastructure.Mappers.ReturnRequestProfile
                 .ForMember(rr => rr.User, opt => opt.MapFrom(src => src.User))
                 .ForMember(rr => rr.OrderItem, opt => opt.MapFrom(src => src.OrderItem))
                 .ReverseMap();
+            CreateMap<ReturnRequest,ViewEscalatedDTO>()
+                .ForMember(rr => rr.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(rr => rr.OrderItem, opt => opt.MapFrom(src => src.OrderItem))
+                .ReverseMap();
         }
     }
 }

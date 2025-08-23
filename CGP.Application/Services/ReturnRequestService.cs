@@ -41,6 +41,18 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<object>> GetEscalatedReturnRequestAsync(int pageIndex, int pageSize)
+        {
+            var result = _mapper.Map<List<ViewEscalatedDTO>>(await _unitOfWork.returnRequestRepository.GetEscalatedBAsync(pageIndex, pageSize));
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Lấy danh sách khiếu nại hoàn trả hàng thành công.",
+                Count = result.Count,
+                Data = result
+            };
+        }
+
         public async Task<Result<bool>> RefundOrderAsync(SendRefundRequestDTO dto)
         {
             var orderItem = await _unitOfWork.orderItemRepository.GetOrderItemsByIdAsync(dto.OrderItemId);
@@ -133,7 +145,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<object>> UpdateStatusReturnRequestAsync(Guid returnRequestId, ReturnStatusEnum status)
+        public async Task<Result<object>> UpdateStatusReturnRequestAsync(Guid returnRequestId, ReturnStatusEnum status, RejectReturnReasonEnum rejectReason)
         {
             var getRequest = await _unitOfWork.returnRequestRepository.GetByIdAsync(returnRequestId);
             if (getRequest == null)
@@ -163,6 +175,15 @@ namespace CGP.Application.Services
                 };
             }
 
+            if(status == ReturnStatusEnum.Approved)
+            {
+                getRequest.RejectReturnReasonEnum = null;
+            }
+            if(status == ReturnStatusEnum.Rejected)
+            {
+                getRequest.RejectReturnReasonEnum = rejectReason;
+            }
+
             getRequest.Status = status;
             getRequest.ApprovedAt = DateTime.UtcNow.AddHours(7);
             getRequest.ModificationDate = DateTime.UtcNow.AddHours(7);
@@ -173,6 +194,80 @@ namespace CGP.Application.Services
                 Error = 0,
                 Message = "Cập nhật trạng thái yêu cầu hoàn tiền thành công.",
                 Data = getRequest
+            };
+        }
+
+        public async Task<Result<object>> EscalateReturnRequestAsync(Guid returnRequestId, string reason)
+        {
+            var request = await _unitOfWork.returnRequestRepository.GetByIdAsync(returnRequestId);
+
+            if (request == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Yêu cầu hoàn trả không tồn tại."
+                };
+            }
+
+            if (request.Status != ReturnStatusEnum.Rejected)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Chỉ có thể khiếu nại khi yêu cầu đã bị từ chối."
+                };
+            }
+
+            request.Status = ReturnStatusEnum.Escalated;
+            request.ModificationDate = DateTime.UtcNow.AddHours(7);
+            request.Description = reason;
+
+            _unitOfWork.returnRequestRepository.Update(request);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Đã gửi khiếu nại lên hệ thống. Admin sẽ xem xét.",
+                Data = request
+            };
+        }
+
+        public async Task<Result<object>> ResolveEscalatedRequestAsync(Guid returnRequestId, bool acceptRefund)
+        {
+            var request = await _unitOfWork.returnRequestRepository.GetByIdAsync(returnRequestId);
+
+            if (request == null || request.Status != ReturnStatusEnum.Escalated)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy yêu cầu khiếu nại hoặc yêu cầu không hợp lệ."
+                };
+            }
+
+            if (acceptRefund)
+            {
+                request.Status = ReturnStatusEnum.Refunded;
+                request.ApprovedAt = DateTime.UtcNow.AddHours(7);
+
+                request.OrderItem.Order.Payment.IsRefunded = true;
+            }
+            else
+            {
+                request.Status = ReturnStatusEnum.Resolved;
+            }
+
+            request.ModificationDate = DateTime.UtcNow.AddHours(7);
+            _unitOfWork.returnRequestRepository.Update(request);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Đã xử lý khiếu nại.",
+                Data = request
             };
         }
     }

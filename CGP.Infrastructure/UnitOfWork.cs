@@ -44,8 +44,12 @@ namespace CGP.Infrastructure
         private readonly IUserQuestRepository _userQuestRepository;
         private readonly IVoucherRepository _voucherRepository;
         private readonly IDailyCheckInRepository _dailyCheckInRepository;
+        private readonly IOrderVoucherRepository _orderVoucherRepository;
+        private readonly IOrderAddressRepository _orderAddressRepository;
+        private readonly IFarmlandRepository _farmlandRepository;
+        private readonly IFarmlandCropRepository _farmlandCropRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null, ICraftSkillRepository craftSkillRepository = null, ITransactionRepository transactionRepository = null, IPointRepository pointRepository = null, IRatingRepository ratingRepository = null, IReturnRequestRepository returnRequestRepository = null, IActivityLogRepository activityLogRepository = null, IWalletRepository walletRepository = null, IWalletTransactionRepository walletTransactionRepository = null, IPointTransactionRepository pointTransactionRepository = null, ICropRepository cropRepository = null, IInventoryRepository inventoryRepository = null, IQuestRepository questRepository = null, IUserQuestRepository userQuestRepository = null, IVoucherRepository voucherRepository = null, IDailyCheckInRepository dailyCheckInRepository = null)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null, ICraftSkillRepository craftSkillRepository = null, ITransactionRepository transactionRepository = null, IPointRepository pointRepository = null, IRatingRepository ratingRepository = null, IReturnRequestRepository returnRequestRepository = null, IActivityLogRepository activityLogRepository = null, IWalletRepository walletRepository = null, IWalletTransactionRepository walletTransactionRepository = null, IPointTransactionRepository pointTransactionRepository = null, ICropRepository cropRepository = null, IInventoryRepository inventoryRepository = null, IQuestRepository questRepository = null, IUserQuestRepository userQuestRepository = null, IVoucherRepository voucherRepository = null, IDailyCheckInRepository dailyCheckInRepository = null, IOrderVoucherRepository orderVoucherRepository = null, IOrderAddressRepository orderAddressRepository = null, IFarmlandRepository farmlandRepository = null, IFarmlandCropRepository farmlandCropRepository = null)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
@@ -79,6 +83,10 @@ namespace CGP.Infrastructure
             _userQuestRepository = userQuestRepository;
             _voucherRepository = voucherRepository;
             _dailyCheckInRepository = dailyCheckInRepository;
+            _orderVoucherRepository = orderVoucherRepository;
+            _orderAddressRepository = orderAddressRepository;
+            _farmlandRepository = farmlandRepository;
+            _farmlandCropRepository = farmlandCropRepository;
         }
 
         public IAuthRepository authRepository => _authRepository;
@@ -112,6 +120,10 @@ namespace CGP.Infrastructure
         public IUserQuestRepository userQuestRepository => _userQuestRepository;
         public IVoucherRepository voucherRepository => _voucherRepository;
         public IDailyCheckInRepository dailyCheckInRepository => _dailyCheckInRepository;
+        public IOrderVoucherRepository orderVoucherRepository => _orderVoucherRepository;
+        public IOrderAddressRepository orderAddressRepository => _orderAddressRepository;
+        public IFarmlandRepository farmlandRepository => _farmlandRepository;
+        public IFarmlandCropRepository farmlandCropRepository => _farmlandCropRepository;
 
         public async Task<int> SaveChangeAsync()
         {

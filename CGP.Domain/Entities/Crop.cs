@@ -8,15 +8,15 @@ namespace CGP.Domain.Entities
 {
     public class Crop : BaseEntity
     {
-        public Guid UserId { get; set; }
+        public string Name { get; set; }
+        public string? Description { get; set; }
         public string CropType { get; set; } 
-        public int TileX { get; set; }
-        public int TileY { get; set; }
-        public int GrowthStage { get; set; } = 0;
-        public int WaterCount { get; set; } = 0;
-        public bool IsHarvested { get; set; } = false;
-        public DateTime PlantedAt { get; set; } = DateTime.UtcNow.AddHours(7);
-
-        public ApplicationUser User { get; set; }
+        public int GrowthStage { get; set; } 
+        public int WaterCount { get; set; }
+        public int GrowthTimeHours { get; set; }
+        public int WateringIntervalHours { get; set; }
+        public string? ImageUrl { get; set; }
+        public ICollection<FarmlandCrop> FarmlandCrops { get; set; } = new List<FarmlandCrop>();
+        public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
     }
 }

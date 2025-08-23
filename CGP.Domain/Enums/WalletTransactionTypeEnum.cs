@@ -17,6 +17,8 @@ namespace CGP.Domain.Enums
         TransferOut,     // Chuyển tiền sang ví khác
         Reward,          // Nhận thưởng (từ hệ thống/game hoặc khuyến mãi)
         Penalty,         // Bị phạt trừ tiền (hoặc hệ thống điều chỉnh)
-        SystemAdjustment // Điều chỉnh số dư bởi hệ thống (dương hoặc âm)
+        SystemAdjustment, // Điều chỉnh số dư bởi hệ thống (dương hoặc âm)
+        Pending,        // Giao dịch đang chờ xử lý (ví dụ: thanh toán chưa hoàn tất)
+        Release // Giao dịch đã được xử lý và tiền đã được giải phóng (ví dụ: sau khi chờ )
     }
 }

@@ -24,6 +24,6 @@ namespace CGP.Contract.DTO.Order
         public bool IsPaid { get; set; } = false;
         public DateTime CreationDate { get; set; }
         public List<ViewOrderItemDTO> OrderItems { get; set; } = new List<ViewOrderItemDTO>();
-        public ViewAddressDTO UserAddress { get; set; }
+        public ViewOrderAddressDTO UserAddress { get; set; }
     }
 }

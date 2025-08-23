@@ -50,7 +50,7 @@ namespace CGP.WebAPI.Controllers
 
             if (await _categoryService.GetCategoryByName(CategoryCreate.CategoryName) != null)
             {
-                ModelState.AddModelError("", "Danh mục đã tồn tại.");
+                ModelState.AddModelError("", "Tên danh mục đã tồn tại.");
                 return StatusCode(422, ModelState);
             }
 

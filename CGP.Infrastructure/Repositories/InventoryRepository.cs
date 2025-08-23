@@ -19,6 +19,13 @@ namespace CGP.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<Inventory> CheckSlotIndexInventoryAsync(Guid userId, int slotIndex)
+        {
+            return await _context.Inventory
+                .Where(i => i.UserId == userId && i.SlotIndex == slotIndex)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<Inventory>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Inventory

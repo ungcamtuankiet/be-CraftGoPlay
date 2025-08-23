@@ -25,7 +25,6 @@ namespace CGP.Domain.Entities
         public Guid UserId { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
-        public ICollection<Order> Orders { get; set; } = new List<Order>();
 
     }
 }

@@ -19,19 +19,16 @@ namespace CGP.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<Crop> CheckName(string name)
+        {
+            return await _context.Crop
+                .FirstOrDefaultAsync(c => c.Name == name);
+        }
+
         public async Task<Crop> GetCropsByIdAsync(Guid id)
         {
             return await _context.Crop
-                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.Id == id);
-        }
-
-        public async Task<List<Crop>> GetCropsByUserIdAsync(Guid userId)
-        {
-            return await _context.Crop
-                .Include(c => c.User)
-                .Where(c => c.UserId == userId)
-                .ToListAsync();
         }
     }
 }

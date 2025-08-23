@@ -9,7 +9,10 @@ namespace CGP.Contract.DTO.Inventory
     public class AddToInventoryDTO
     {
         public Guid UserId { get; set; }
+        public Guid? CropId { get; set; } 
         public string ItemType { get; set; }
         public int Quantity { get; set; }
+        public string InventoryType { get; set; }
+        public int SlotIndex { get; set; }
     }
 }

@@ -45,35 +45,37 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<ViewInventoryDTO>> GetInventoryById(Guid inventoryId)
-        {
-            var inventory = _mapper.Map<ViewInventoryDTO>(await _unitOfWork.inventoryRepository.GetByIdAsync(inventoryId));
-            if (inventory == null)
-            {
-                return new Result<ViewInventoryDTO>()
-                {
-                    Error = 1,
-                    Message = "Kho đồ không tồn tại.",
-                    Data = null
-                };
-            }
-            return new Result<ViewInventoryDTO>()
-            {
-                Error = 0,
-                Message = "Lấy kho đồ thành công.",
-                Data = inventory
-            };
-        }
-
         public async Task<Result<object>> AddToInventoryAsync(AddToInventoryDTO addToInventoryDTO)
         {
             var checkUser = await _unitOfWork.userRepository.GetByIdAsync(addToInventoryDTO.UserId);
+            var checkInventory = await _unitOfWork.inventoryRepository.CheckSlotIndexInventoryAsync(addToInventoryDTO.UserId, addToInventoryDTO.SlotIndex);
+            var checkCrop = await _unitOfWork.cropRepository.GetByIdAsync((Guid)addToInventoryDTO.CropId);
             if (checkUser == null)
             {
                 return new Result<object>()
                 {
                     Error = 1,
                     Message = "Người dùng không tồn tại.",
+                    Data = null
+                };
+            }
+
+            if(checkInventory != null)
+            {
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Kho đồ đã tồn tại tại vị trí này.",
+                    Data = null
+                };
+            }
+
+            if(checkCrop == null)
+            {
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Cây trồng không tồn tại.",
                     Data = null
                 };
             }
@@ -92,12 +94,34 @@ namespace CGP.Application.Services
         public async Task<Result<object>> UpdateInventoryAsync(UpdateInventoryDTO updateInventoryDTO)
         {
             var checkInventory = await _unitOfWork.inventoryRepository.GetByIdAsync(updateInventoryDTO.Id);
+            var checkUser = await _unitOfWork.userRepository.GetByIdAsync(updateInventoryDTO.UserId);
+            var checkInventorySlot = await _unitOfWork.inventoryRepository.CheckSlotIndexInventoryAsync(updateInventoryDTO.UserId, updateInventoryDTO.SlotIndex);
             if (checkInventory == null)
             {
                 return new Result<object>()
                 {
                     Error = 1,
                     Message = "Kho đồ không tồn tại.",
+                    Data = null
+                };
+            }
+
+            if (checkInventorySlot != null)
+            {
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Kho đồ đã tồn tại tại vị trí này.",
+                    Data = null
+                };
+            }
+
+            if (checkUser == null)
+            {
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại.",
                     Data = null
                 };
             }
