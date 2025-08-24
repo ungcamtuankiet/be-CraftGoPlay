@@ -77,7 +77,7 @@ namespace CGP.WebAPI.Controllers
 
         // ======== POST ========
         [HttpPost("SendRequestUpgradeToArtisan")]
-        [Authorize(Policy = "UserPolicy")]
+/*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> SendRequestUpgradeToArtisan([FromForm] SendRequestDTO request)
         {
             var result = await _artisanRequestService.SendRequestAsync(request);

@@ -138,5 +138,11 @@ namespace CGP.Infrastructure.Repositories
                 .Include(r => r.CraftSkills)
                 .FirstOrDefaultAsync(r => r.Id == requestId && r.UserId == userId);
         }
+
+        public async Task<ArtisanRequest> CheckPhoneNo(string phoneNo)
+        {
+            return await _dbContext.ArtisanRequest
+                .FirstOrDefaultAsync(ar => ar.PhoneNumber == phoneNo);
+        }
     }
 }

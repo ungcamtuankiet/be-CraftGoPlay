@@ -18,6 +18,5 @@ namespace CGP.Domain.Entities
         public int RewardAmount { get; set; }
         public bool IsActive { get; set; } = true;
         public ICollection<UserQuest> UserQuests { get; set; } = new List<UserQuest>();
-
     }
 }

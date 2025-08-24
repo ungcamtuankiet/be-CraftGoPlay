@@ -1,4 +1,4 @@
-using CGP.Application;
+﻿using CGP.Application;
 using CGP.Infrastructure;
 using CGP.Infrastructure.Data;
 using CGP.WebAPI;
@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+/*var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");*/
 
 {
     builder.Services
@@ -119,6 +122,11 @@ else
     });
 }
 
+/*if (!app.Environment.IsDevelopment())
+{
+    // app.UseHttpsRedirection(); ❌ KHÔNG BẬT trên Render
+}*/
+
 app.UseExceptionHandler("/Error");
 
 app.UseCors("AllowSpecificOrigin");
@@ -142,6 +150,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseSqlTableDependency(builder.Configuration.GetConnectionString("DefaultConnection"));
-
 
 app.Run();

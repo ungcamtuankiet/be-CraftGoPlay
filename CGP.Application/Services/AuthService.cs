@@ -169,7 +169,7 @@ namespace CGP.Application.Services
                     return new Result<object>
                     {
                         Error = 1,
-                        Message = "Email không tồn tại.",
+                        Message = "Email đã tồn tại.",
                         Data = null
                     };
                 }
@@ -297,7 +297,7 @@ namespace CGP.Application.Services
                 var user = await _userRepository.GetUserByEmail(email);
                 if (user == null)
                 {
-                    throw new KeyNotFoundException("User not found.");
+                    throw new KeyNotFoundException("Không tìm thấy người dùng.");
                 }
 
                 if (user.Otp != otp || user.OtpExpiryTime < DateTime.UtcNow)

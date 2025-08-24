@@ -81,42 +81,107 @@ namespace CGP.Application.Services
 
         public async Task<Result<ViewRequestDTO>> SendRequestAsync(SendRequestDTO requestDto)
         {
-            var existing = await _unitOfWork.artisanRequestRepository.GetPendingRequestByUserId(requestDto.UserId);
-            if (existing != null)
+            try
+            {
+                var existing = await _unitOfWork.artisanRequestRepository.GetPendingRequestByUserId(requestDto.UserId);
+                var checkCraftVillage = await _unitOfWork.craftVillageRepository.GetByIdAsync(requestDto.CraftVillageId);
+                var checkUser = await _unitOfWork.userRepository.GetByIdAsync(requestDto.UserId);
+                var checkPhoneNo = await _unitOfWork.artisanRequestRepository.CheckPhoneNo(requestDto.PhoneNumber);
+                if (existing != null)
+                {
+                    return new Result<ViewRequestDTO>
+                    {
+                        Error = 1,
+                        Message = "Bạn đã gửi yêu cầu trước đó và đang chờ duyệt.",
+                        Data = null
+                    };
+                }
+
+                if(requestDto.Image == null || requestDto.Image.Length == 0)
+                {
+                    return new Result<ViewRequestDTO>
+                    {
+                        Error = 1,
+                        Message = "Vui lòng tải lên hình ảnh.",
+                        Data = null
+                    };
+                }
+
+                if(checkCraftVillage == null)
+                {
+                    return new Result<ViewRequestDTO>
+                    {
+                        Error = 1,
+                        Message = "Làng nghề không tồn tại.",
+                        Data = null
+                    };
+                }
+
+                if(checkUser == null)
+                {
+                    return new Result<ViewRequestDTO>
+                    {
+                        Error = 1,
+                        Message = "Người dùng không tồn tại.",
+                        Data = null
+                    };
+                }
+
+                if(checkPhoneNo != null)
+                {
+                    return new Result<ViewRequestDTO>
+                    {
+                        Error = 1,
+                        Message = "Số điện thoại đã được đăng kí trước đó.",
+                        Data = null
+                    };
+                }
+
+                if(requestDto.YearsOfExperience < 0)
+                {
+                    return new Result<ViewRequestDTO>
+                    {
+                        Error = 1,
+                        Message = "Số năm kinh nghiệm không được nhỏ hơn 0.",
+                        Data = null
+                    };
+                }
+
+                var request = _mapper.Map<ArtisanRequest>(requestDto);
+
+                var image = await _cloudinaryService.UploadProductImage(requestDto.Image, FOLDER);
+                request.FullAddress = $"{requestDto.HomeNumber}, {requestDto.WardName}, {requestDto.DistrictName}, {requestDto.ProviceName}";
+                request.Image = image.SecureUrl.ToString();
+                if (requestDto.CraftIds != null && requestDto.CraftIds.Any())
+                {
+                    var craftSkills = await _unitOfWork.craftSkillRepository.GetByIdsAsyncs(requestDto.CraftIds);
+                    request.CraftSkills = craftSkills;
+                }
+                await _unitOfWork.artisanRequestRepository.SendNewRequest(request);
+                await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
+                {
+                    UserId = requestDto.UserId,
+                    Action = "Gửi yêu cầu.",
+                    EntityType = "Auth",
+                    Description = "Bạn đã gửi yêu cầu trở thành nghệ nhân thành công.",
+                    EntityId = request.Id,
+                });
+                return new Result<ViewRequestDTO>
+                {
+                    Error = 0,
+                    Message = "Yêu cầu gửi thành công.",
+                    Data = _mapper.Map<ViewRequestDTO>(request)
+                };
+            }
+            catch (Exception ex)
             {
                 return new Result<ViewRequestDTO>
                 {
                     Error = 1,
-                    Message = "Bạn đã gửi yêu cầu trước đó và đang chờ duyệt.",
+                    Message = "Đã xảy ra lỗi khi tải lên hình ảnh: " + ex.Message,
                     Data = null
                 };
             }
-
-            var request = _mapper.Map<ArtisanRequest>(requestDto);
-
-            var image = await _cloudinaryService.UploadProductImage(requestDto.Image, FOLDER);
-            request.FullAddress = $"{requestDto.HomeNumber}, {requestDto.WardName}, {requestDto.DistrictName}, {requestDto.ProviceName}";
-            request.Image = image.SecureUrl.ToString();
-            if (requestDto.CraftIds != null && requestDto.CraftIds.Any())
-            {
-                var craftSkills = await _unitOfWork.craftSkillRepository.GetByIdsAsyncs(requestDto.CraftIds);
-                request.CraftSkills = craftSkills;
-            }
-            await _unitOfWork.artisanRequestRepository.SendNewRequest(request);
-            await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
-            {
-                UserId = requestDto.UserId,
-                Action = "Gửi yêu cầu.",
-                EntityType = "Auth",
-                Description = "Bạn đã gửi yêu cầu trở thành nghệ nhân thành công.",
-                EntityId = request.Id,
-            });
-            return new Result<ViewRequestDTO>
-            {
-                Error = 0,
-                Message = "Yêu cầu gửi thành công.",
-                Data = _mapper.Map<ViewRequestDTO>(request)
-            };
         }
 
         public async Task<ArtisanRequest?> GetPendingRequestByUserId(Guid userId)

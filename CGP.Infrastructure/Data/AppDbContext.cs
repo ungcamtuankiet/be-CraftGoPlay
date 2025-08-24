@@ -49,6 +49,9 @@ public class AppDbContext : DbContext
     public DbSet<OrderAddress> OrderAddress { get; set; }
     public DbSet<FarmLand> FarmLand { get; set; }
     public DbSet<FarmlandCrop> FarmlandCrop { get; set; }
+    public DbSet<SaleTransaction> SaleTransaction { get; set; }
+    public DbSet<ShopPrice> ShopPrice { get; set; }
+    public DbSet<Item> Items { get; set; }
     #endregion
 
 
@@ -567,6 +570,16 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<Inventory>(e =>
+        {
+            e.ToTable("Inventory");
+            e.HasKey(i => i.Id);
+            e.HasOne(i => i.Item)
+            .WithMany(u => u.Inventories)
+            .HasForeignKey(i => i.ItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
         //UserQuest
         modelBuilder.Entity<UserQuest>(e =>
         {
@@ -579,6 +592,45 @@ public class AppDbContext : DbContext
             e.HasOne(uq => uq.Quest)
             .WithMany(q => q.UserQuests)
             .HasForeignKey(uq => uq.QuestId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Item
+        modelBuilder.Entity<Item>(e =>
+        {
+            e.ToTable("Item");
+            e.HasKey(i => i.Id);
+            e.Property(i => i.NameItem)
+            .IsRequired()
+            .HasMaxLength(50);
+            e.Property(i => i.ItemType)
+            .HasMaxLength(50).HasConversion(v => v.ToString(), v => (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), v));
+        });
+
+        //ShopPPrice
+        modelBuilder.Entity<ShopPrice>(e =>
+        {
+            e.ToTable("ShopPrice");
+            e.HasKey(sp => sp.Id);
+            e.HasOne(sp => sp.Item)
+            .WithOne(i => i.ShopPrice)
+            .HasForeignKey<ShopPrice>(sp => sp.ItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+
+        //SaleTransaction
+        modelBuilder.Entity<SaleTransaction>(e =>
+        {
+            e.ToTable("SaleTransaction");
+            e.HasKey(st => st.Id);
+            e.HasOne(st => st.User)
+            .WithMany(u => u.SaleTransactions)
+            .HasForeignKey(st => st.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(st => st.Item)
+            .WithMany(i => i.SaleTransactions)
+            .HasForeignKey(st => st.ItemId)
             .OnDelete(DeleteBehavior.Restrict);
         });
     }
