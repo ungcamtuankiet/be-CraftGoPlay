@@ -33,7 +33,7 @@ namespace CGP.Infrastructure.Repositories
         public async Task<Cart?> GetCartByUserIdAsync(Guid userId)
         {
             return await _dbContext.Cart
-            .Include(c => c.Items)
+            .Include(c => c.Items.Where(i => !i.IsDeleted))
             .ThenInclude(i => i.Product)
             .ThenInclude(i => i.ProductImages)
             .Include(c => c.Items)
