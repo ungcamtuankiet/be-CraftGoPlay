@@ -1545,12 +1545,6 @@ namespace CGP.Application.Services
         public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, OrderStatusEnum statusDto)
         {
             var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(orderId);
-            var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
-            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
-            var getPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(order.Id);
-            var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
-            var getTransaction = await _unitOfWork.transactionRepository.GetTransactionByOrderId(order.Id);
-
             if (order == null)
             {
                 return new Result<bool>()
@@ -1560,6 +1554,21 @@ namespace CGP.Application.Services
                     Data = false
                 };
             }
+
+            if(statusDto == null)
+            {
+                return new Result<bool>()
+                {
+                    Error = 1,
+                    Message = "Trạng thái đơn hàng không được để trống.",
+                    Data = false
+                };
+            }
+            var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
+            var getPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(order.Id);
+            var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
+            var getTransaction = await _unitOfWork.transactionRepository.GetTransactionByOrderId(order.Id);
 
             if(statusDto == OrderStatusEnum.Cancelled)
             {

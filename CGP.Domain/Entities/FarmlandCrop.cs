@@ -17,7 +17,6 @@ namespace CGP.Domain.Entities
         public DateTime PlantDate { get; set; }
         public bool IsHarvested { get; set; } = false;
         public DateTime? HarvestDate { get; set; }
-
         public int WateredCount { get; set; } = 0;
         public DateTime? LastWateredAt { get; set; }
     }

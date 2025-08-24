@@ -86,6 +86,17 @@ namespace CGP.Application.Services
             string cacheKey = $"product:search:{search}:{pageIndex}:{pageSize}:{from}:{to}:{sortOrder}";
             var cachedData = await _redisService.GetCacheAsync<List<ViewProductDTO>>(cacheKey);
 
+            if(pageIndex < 1 || pageIndex < 1)
+            {
+                return new ResponseProductsStatus<List<ViewProductDTO>>
+                {
+                    Error = 1,
+                    Message = "Chỉ số trang và kích thước trang phải lớn hơn 0.",
+                    Count = 0,
+                    Data = null
+                };
+            }
+
             if (cachedData != null)
             {
                 return new ResponseProductsStatus<List<ViewProductDTO>>
@@ -135,7 +146,16 @@ namespace CGP.Application.Services
         {
             string cacheKey = $"product:status:{pageIndex}:{pageSize}:{productStatus}";
             var cachedData = await _redisService.GetCacheAsync<List<ViewProductDTO>>(cacheKey);
-
+            if (pageIndex < 1 || pageIndex < 1)
+            {
+                return new ResponseProductsStatus<List<ViewProductDTO>>
+                {
+                    Error = 1,
+                    Message = "Chỉ số trang và kích thước trang phải lớn hơn 0.",
+                    Count = 0,
+                    Data = null
+                };
+            }
             if (cachedData != null)
             {
                 return new ResponseProductsStatus<List<ViewProductDTO>>

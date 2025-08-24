@@ -12,6 +12,7 @@ namespace CGP.Application.Interfaces
     {
         Task<Result<List<ViewInventoryDTO>>> GetByUserIdAsync(Guid userId);
         Task<Result<object>> AddToInventoryAsync(AddToInventoryDTO addToInventoryDTO);
+        Task<Result<object>> AddItemToInventoryAsync(AddItemToInventoryDTO addItemToInventoryDTO);
         Task<Result<object>> UpdateInventoryAsync(UpdateInventoryDTO updateInventoryDTO);
         Task<Result<object>> DeleteInventoryAsync(Guid inventoryId);
     }

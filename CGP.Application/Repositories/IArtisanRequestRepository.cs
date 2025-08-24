@@ -21,5 +21,6 @@ namespace CGP.Application.Repositories
         public Task RejectRequest(ArtisanRequest artisanRequest);
         public Task<ArtisanRequest?> GetLatestRequestByUserId(Guid userId);
         public Task<ArtisanRequest?> GetRequestByIdAndUserId(Guid requestId, Guid userId);
+        public Task<ArtisanRequest> CheckPhoneNo(string phoneNo);
     }
 }

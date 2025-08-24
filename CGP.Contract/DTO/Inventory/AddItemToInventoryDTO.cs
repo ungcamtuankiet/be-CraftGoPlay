@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace CGP.Contract.DTO.Inventory
 {
-    public class UpdateInventoryDTO
+    public class AddItemToInventoryDTO
     {
-        public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public Guid? CropId { get; set; }
         public Guid? ItemId { get; set; }
-        public string ItemType { get; set; }
         public int Quantity { get; set; }
         public string InventoryType { get; set; }
         public int SlotIndex { get; set; }

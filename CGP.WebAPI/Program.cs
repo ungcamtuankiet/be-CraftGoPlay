@@ -11,8 +11,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://*:{port}");
+/*var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");*/
 
 {
     builder.Services
@@ -107,7 +107,7 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 
 // Configure the HTTP request pipeline.
-/*if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
 
     app.UseSwaggerUI();
@@ -120,12 +120,12 @@ else
         c.InjectJavascript("/custom-swagger.js");
         c.RoutePrefix = string.Empty;
     });
-}*/
+}
 
-if (!app.Environment.IsDevelopment())
+/*if (!app.Environment.IsDevelopment())
 {
     // app.UseHttpsRedirection(); ❌ KHÔNG BẬT trên Render
-}
+}*/
 
 app.UseExceptionHandler("/Error");
 

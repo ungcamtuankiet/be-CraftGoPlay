@@ -37,6 +37,17 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPost("AddItemToInventory")]
+        public async Task<IActionResult> AddItemToInventory([FromForm] AddItemToInventoryDTO addItemToInventoryDTO)
+        {
+            var result = await _inventoryService.AddItemToInventoryAsync(addItemToInventoryDTO);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         [HttpPut("UpdateInventory")]
         public async Task<IActionResult> UpdateInventoryAsync([FromForm] UpdateInventoryDTO updateInventoryDTO)
         {

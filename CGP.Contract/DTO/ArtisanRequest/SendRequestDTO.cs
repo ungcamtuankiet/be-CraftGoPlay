@@ -11,10 +11,19 @@ namespace CGP.Contract.DTO.ArtisanRequest
     public class SendRequestDTO
     {
         public IFormFile Image { get; set; }
+
+        [Required(ErrorMessage = "Mã làng là bắt buộc.")]
         public Guid CraftVillageId { get; set; }
+
+        [Required(ErrorMessage = "Mã người dùng là bắt buộc.")]
         public Guid UserId { get; set; }
+
+        [Required(ErrorMessage = "Số điện thoại là bắt buộc.")]
         public string PhoneNumber { get; set; }
+        [Required(ErrorMessage = "Số năm kinh nghiệm là bắt buộc.")]
         public int YearsOfExperience { get; set; }
+
+        [MaxLength(255, ErrorMessage = "Mô tả sản phẩm phải ít hơn 255 ký tự.")]
         public string Description { get; set; }
         [Required(ErrorMessage = "Mã tỉnh(Thành phố) là bắt buộc.")]
         public int ProviceId { get; set; }

@@ -45,6 +45,9 @@ namespace CGP.Application
         IOrderAddressRepository orderAddressRepository { get; }
         IFarmlandRepository farmlandRepository { get; }
         IFarmlandCropRepository farmlandCropRepository { get; }
+        IItemRepository itemRepository { get; }
+        ISaleTransactionRepository saleTransactionRepository { get; }
+        IShopPriceRepository shopPriceRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

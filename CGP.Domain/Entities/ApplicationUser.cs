@@ -49,5 +49,6 @@ namespace CGP.Domain.Entities
         public ICollection<UserQuest> UserQuests { get; set; } = new List<UserQuest>();
         public ICollection<DailyCheckIn> DailyCheckIns { get; set; } = new List<DailyCheckIn>();
         public ICollection<FarmLand> FarmLands { get; set; } = new List<FarmLand>();
+        public ICollection<SaleTransaction> SaleTransactions { get; set; } = new List<SaleTransaction>();
     }
 }
