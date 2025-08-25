@@ -26,16 +26,12 @@ namespace CGP.Application.Interfaces
         Task<Result<object>> RegisterUserAsync(UserRegistrationDTO userRegistrationDto);
         Task<ApplicationUser> GetByVerificationToken(string token);
         Task<bool> VerifyOtpAsync(string email, string otp);
-
-
-
         //Task RegisterShopAsync(ShopRegisterDTO shopRegisterDTO);
         Task<bool> VerifyOtpAndCompleteRegistrationAsync(string email, string otp);
         //Google
         /*        Task<Result<object>> UserCompleteSignUpByGoogle(SignupGoogleRequest userRegistrationDto);*/
         //CHANGE PASSWORD 
         Task ChangePasswordAsync(string email, ChangePasswordDTO changePasswordDto);
-
         //FORGOT PASSWORD
         Task RequestPasswordResetAsync(ForgotPasswordRequestDTO forgotPasswordRequestDto);
         Task ResetPasswordAsync(ResetPasswordDTO resetPasswordDto);
