@@ -81,6 +81,7 @@ namespace CGP.Application.Services
             }
 
             var result = _mapper.Map<Inventory>(addItemToInventoryDTO);
+            result.ItemType = checkItem.ItemType.ToString();
             if (checkItem.IsStackable)
             {
                 result.Quantity = addItemToInventoryDTO.Quantity;
