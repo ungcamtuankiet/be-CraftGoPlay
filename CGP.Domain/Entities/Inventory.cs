@@ -9,7 +9,6 @@ namespace CGP.Domain.Entities
     public class Inventory : BaseEntity
     {
         public Guid UserId { get; set; }
-        public Guid? CropId { get; set; }
         public Guid? ItemId { get; set; }
         public string ItemType { get; set; }
         public int Quantity { get; set; } = 0;
@@ -17,5 +16,6 @@ namespace CGP.Domain.Entities
         public int SlotIndex { get; set; }
         public DateTime AcquiredAt { get; set; } = DateTime.UtcNow.AddHours(7);
         public ApplicationUser User { get; set; }
+        public Item Item { get; set; }
     }
 }

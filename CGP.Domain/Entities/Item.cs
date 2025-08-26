@@ -15,5 +15,6 @@ namespace CGP.Domain.Entities
         public bool IsStackable { get; set; }
         public ShopPrice ShopPrice { get; set; }
         public ICollection<SaleTransaction> SaleTransactions { get; set; } = new List<SaleTransaction>();
+        public ICollection<Inventory> Inventories { get; set; }
     }
 }

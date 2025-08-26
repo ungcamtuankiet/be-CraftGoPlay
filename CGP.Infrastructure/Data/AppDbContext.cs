@@ -560,6 +560,14 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<Inventory>(e =>
+        {
+            e.HasOne(i => i.Item)
+            .WithMany(i => i.Inventories)
+            .HasForeignKey(i => i.ItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
         //UserQuest
         modelBuilder.Entity<UserQuest>(e =>
         {

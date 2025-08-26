@@ -24,7 +24,7 @@ namespace CGP.Infrastructure.Jobs
 
                 try
                 {
-                    await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
                 }
                 catch (TaskCanceledException)
                 {
