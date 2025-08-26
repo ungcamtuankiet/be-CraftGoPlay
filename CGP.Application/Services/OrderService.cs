@@ -812,7 +812,6 @@ namespace CGP.Application.Services
             };
         }
 
-
         public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, string voucherDeliveryCode, string? voucherProductCode, CreateDirectOrderDto dto)
         {
             var product = await _unitOfWork.productRepository.GetByIdAsync(dto.ProductId);
