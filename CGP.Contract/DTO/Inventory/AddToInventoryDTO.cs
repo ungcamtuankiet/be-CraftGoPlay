@@ -12,6 +12,7 @@ namespace CGP.Contract.DTO.Inventory
         public Guid? CropId { get; set; } 
         public int Quantity { get; set; }
         public string InventoryType { get; set; }
+
         public int SlotIndex { get; set; }
     }
 }
