@@ -116,7 +116,7 @@ namespace CGP.Application.Services
 
         public async Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status)
         {
-            var currentArtisanId = _claimsService.GetCurrentUserId;
+/*            var currentArtisanId = _claimsService.GetCurrentUserId;
 
             if (artisanId != currentArtisanId)
             {
@@ -128,7 +128,7 @@ namespace CGP.Application.Services
                     TotalPrice = 0,
                     Data = null
                 };
-            }
+            }*/
 
             var orders = await _unitOfWork.orderRepository.GetOrdersByArtisanIdAsync(artisanId, pageIndex, pageSize, status);
             var filteredOrders = orders.Select(order =>

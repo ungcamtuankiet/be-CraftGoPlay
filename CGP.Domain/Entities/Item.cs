@@ -14,7 +14,6 @@ namespace CGP.Domain.Entities
         public ItemTypeEnum ItemType { get; set; }
         public bool IsStackable { get; set; }
         public ShopPrice ShopPrice { get; set; }
-        public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
         public ICollection<SaleTransaction> SaleTransactions { get; set; } = new List<SaleTransaction>();
     }
 }
