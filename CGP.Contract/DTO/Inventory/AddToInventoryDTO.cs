@@ -13,6 +13,7 @@ namespace CGP.Contract.DTO.Inventory
         public int Quantity { get; set; }
         public string ItemType { get; set; }
         public string InventoryType { get; set; }
+
         public int SlotIndex { get; set; }
     }
 }
