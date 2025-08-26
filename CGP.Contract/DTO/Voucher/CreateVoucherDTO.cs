@@ -37,6 +37,8 @@ namespace CGP.Contract.DTO.Voucher
         [Range(0, double.MaxValue, ErrorMessage = "Giá trị lớn nhất để sử dụng mã giảm giá phải lớn hơn hoặc bằng 0.")]
         public double MaxDiscountAmount { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Điểm đổi lớn hơn 0.")]
+        public double PointChangeAmount { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0.")]
         public int Quantity { get; set; }
