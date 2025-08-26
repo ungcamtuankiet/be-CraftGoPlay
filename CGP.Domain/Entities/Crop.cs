@@ -17,6 +17,5 @@ namespace CGP.Domain.Entities
         public int WateringIntervalHours { get; set; }
         public string? ImageUrl { get; set; }
         public ICollection<FarmlandCrop> FarmlandCrops { get; set; } = new List<FarmlandCrop>();
-        public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
     }
 }

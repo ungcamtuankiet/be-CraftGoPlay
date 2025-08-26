@@ -560,26 +560,6 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         });
 
-        modelBuilder.Entity<Inventory>(e =>
-        {
-            e.ToTable("Inventory");
-            e.HasKey(i => i.Id);
-            e.HasOne(i => i.Crop)
-            .WithMany(u => u.Inventories)
-            .HasForeignKey(i => i.CropId)
-            .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        modelBuilder.Entity<Inventory>(e =>
-        {
-            e.ToTable("Inventory");
-            e.HasKey(i => i.Id);
-            e.HasOne(i => i.Item)
-            .WithMany(u => u.Inventories)
-            .HasForeignKey(i => i.ItemId)
-            .OnDelete(DeleteBehavior.Restrict);
-        });
-
         //UserQuest
         modelBuilder.Entity<UserQuest>(e =>
         {

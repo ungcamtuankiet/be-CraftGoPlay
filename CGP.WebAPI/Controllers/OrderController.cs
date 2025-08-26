@@ -46,10 +46,6 @@ namespace CGP.WebAPI.Controllers
             {
                 return NotFound(result);
             }
-            if (result.Error == 2)
-            {
-                return Forbid();
-            }
             return Ok(result);
         }
 

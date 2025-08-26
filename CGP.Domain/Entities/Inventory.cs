@@ -16,9 +16,6 @@ namespace CGP.Domain.Entities
         public string InventoryType { get; set; } 
         public int SlotIndex { get; set; }
         public DateTime AcquiredAt { get; set; } = DateTime.UtcNow.AddHours(7);
-
-        public Crop? Crop { get; set; }
-        public Item? Item { get; set; }
         public ApplicationUser User { get; set; }
     }
 }
