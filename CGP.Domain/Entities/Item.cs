@@ -10,7 +10,7 @@ namespace CGP.Domain.Entities
     public class Item : BaseEntity
     {
         public string NameItem { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public ItemTypeEnum ItemType { get; set; }
         public bool IsStackable { get; set; }
         public ShopPrice ShopPrice { get; set; }
