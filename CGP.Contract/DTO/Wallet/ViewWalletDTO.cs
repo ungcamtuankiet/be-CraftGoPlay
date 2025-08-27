@@ -13,7 +13,8 @@ namespace CGP.Contract.DTO.Wallet
         public Guid Id { get; set; }
         public Guid User_Id { get; set; }
         public WalletTypeEnum Type { get; set; }
-        public float Balance { get; set; }
+        public decimal PendingBalance { get; set; }
+        public decimal AvailableBalance { get; set; }
         public List<ViewWalletTransactionDTO> WalletTransactions { get; set; }
     }
 }
