@@ -9,6 +9,6 @@ namespace CGP.Application.Repositories
 {
     public interface IWalletTransactionRepository : IGenericRepository<WalletTransaction>
     {
-        Task<List<WalletTransaction>> GetPendingTransactionsAsync();
+        Task<List<WalletTransaction>> GetPendingTransactionsAsync(DateTime now);
     }
 }

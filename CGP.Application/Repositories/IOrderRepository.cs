@@ -3,6 +3,7 @@ using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,5 +16,10 @@ namespace CGP.Application.Repositories
         Task<List<Order>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<List<Order>> GetListOrderAsync(int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status);
+
+        //Dashboard
+        Task<int> CountAsync(Guid artisanId, Expression<Func<Order, bool>> predicate = null);
+        Task<decimal> SumRevenueForArtisanAsync(Guid artisanId, DateTime? from = null, DateTime? to = null);
+        Task<Dictionary<string, int>> GetStatusCountsAsync(Guid artisanId);
     }
 }

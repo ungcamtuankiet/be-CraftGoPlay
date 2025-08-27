@@ -21,10 +21,11 @@ namespace CGP.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<List<WalletTransaction>> GetPendingTransactionsAsync()
+        public async Task<List<WalletTransaction>> GetPendingTransactionsAsync(DateTime now)
         {
             return await _context.WalletTransaction
-                .Where(t => t.Type == WalletTransactionTypeEnum.Pending && t.UnlockDate <= DateTime.UtcNow.AddHours(7))
+                 .Where(t => t.Type == WalletTransactionTypeEnum.Pending && t.UnlockDate <= now)
+                .Include(t => t.Wallet)
                 .ToListAsync();
         }
     }

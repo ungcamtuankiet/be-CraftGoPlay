@@ -57,20 +57,20 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task CreatePendingTransactionAsync(Guid shopId, decimal amount, int holdDays)
+        public async Task CreatePendingTransactionAsync(Guid artisanId, decimal amount, int holdDays)
         {
-            var wallet = await _unitOfWork.walletRepository.GetWalletByArtisanIdAsync(shopId);
+            var wallet = await _unitOfWork.walletRepository.GetWalletByArtisanIdAsync(artisanId);
 
             if (wallet == null)
                throw new Exception("Ví nghệ nhân không tồn tại");
 
             var transaction = new WalletTransaction
             {
-                Wallet_Id = shopId,
+                Wallet_Id = wallet.Id,
                 Amount = amount,
                 Description = "Số tiền đang được chờ thanh toán cho đơn hàng hoàn thành",
                 Type = WalletTransactionTypeEnum.Pending,
-                UnlockDate = DateTime.UtcNow.AddDays(holdDays)
+                UnlockDate = DateTime.UtcNow.AddMinutes(holdDays)
             };
 
             wallet.PendingBalance += amount;
@@ -81,35 +81,39 @@ namespace CGP.Application.Services
         }
 
         public async Task ReleasePendingTransactionsAsync()
+        
         {
-            var pendingTransactions = await _unitOfWork.walletTransactionRepository.GetPendingTransactionsAsync();
+            var now = DateTime.UtcNow;
+
+            // Lấy tất cả transaction đến hạn
+            var pendingTransactions = await _unitOfWork.walletTransactionRepository
+                .GetPendingTransactionsAsync(now);
 
             foreach (var transaction in pendingTransactions)
             {
-                if (transaction.UnlockDate <= DateTime.UtcNow)
+                var wallet = transaction.Wallet;
+                if (wallet == null) continue;
+
+                wallet.PendingBalance -= transaction.Amount;
+                wallet.AvailableBalance += transaction.Amount;
+
+                // Update transaction status
+                transaction.Type = WalletTransactionTypeEnum.Release;
+
+                // Nếu muốn log lịch sử, có thể tạo record mới
+                await _unitOfWork.walletTransactionRepository.AddAsync(new WalletTransaction
                 {
-                    var wallet = await _unitOfWork.walletRepository.GetWalletByArtisanIdAsync(transaction.Wallet_Id);
-                    if (wallet != null)
-                    {
-                        wallet.PendingBalance -= transaction.Amount;
-                        wallet.AvailableBalance += transaction.Amount;
-                        transaction.Type = WalletTransactionTypeEnum.Release;
+                    Wallet_Id = transaction.Wallet_Id,
+                    Amount = transaction.Amount,
+                    Description = "Số tiền đã được thanh toán cho đơn hàng",
+                    Type = WalletTransactionTypeEnum.Release,
+                    UnlockDate = now
+                });
 
-                        var walletTransaction = new WalletTransaction
-                        {
-                            Wallet_Id = transaction.Wallet_Id,
-                            Amount = transaction.Amount,
-                            Description = "Số tiền đã được thanh toán cho đơn hàng",
-                            Type = WalletTransactionTypeEnum.Release
-                        };
-
-                        await _unitOfWork.walletTransactionRepository.AddAsync(walletTransaction);
-                        _unitOfWork.walletRepository.Update(wallet);
-                    }
-                }
+                _unitOfWork.walletRepository.Update(wallet);
+                _unitOfWork.walletTransactionRepository.Update(transaction);
             }
 
-            // Save thay vì gọi trong foreach
             await _unitOfWork.SaveChangeAsync();
         }
 

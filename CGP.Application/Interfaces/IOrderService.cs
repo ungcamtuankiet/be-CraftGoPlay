@@ -1,4 +1,5 @@
 ﻿using CGP.Contract.Abstractions.Shared;
+using CGP.Contract.DTO.DashBoard;
 using CGP.Contract.DTO.Order;
 using CGP.Contract.DTO.Product;
 using CGP.Contract.DTO.RefundRequest;
@@ -24,6 +25,8 @@ namespace CGP.Application.Interfaces
         Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, string voucherDeliveryCode, string? voucherProductCode, CreateDirectOrderDto dto);
         Task<Result<string>> CreateVnPayUrlAsync(Guid transactionId, HttpContext httpContext);
         Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query);
-        
+
+        //Dashboard
+        Task<Result<OrderDashboardForArtisanDto>> GetDashboardAsync(RevenueFilterDto filter);
     }
 }

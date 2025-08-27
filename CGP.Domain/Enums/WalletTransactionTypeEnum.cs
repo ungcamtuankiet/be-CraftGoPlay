@@ -12,7 +12,7 @@ namespace CGP.Domain.Enums
         Purchase,        // Thanh toán đơn hàng (trừ tiền)
         Refund,          // Hoàn tiền đơn hàng (cộng tiền)
         Withdrawal,      // Rút tiền về ngân hàng (trừ tiền)
-        ReceiveFromCOD,  // Người bán nhận tiền từ đơn COD (cộng tiền)
+        ReceiveFromOrder,  // Người bán nhận tiền từ đơn COD (cộng tiền)
         TransferIn,      // Nhận chuyển tiền từ ví khác
         TransferOut,     // Chuyển tiền sang ví khác
         Reward,          // Nhận thưởng (từ hệ thống/game hoặc khuyến mãi)
