@@ -6,7 +6,6 @@ using CGP.Contract.Abstractions.CloudinaryService;
 using CGP.Contract.Abstractions.VnPayService;
 using CGP.Domain.Entities;
 using CGP.Infrastructure.Data;
-using CGP.Infrastructure.Jobs;
 using CGP.Infrastructure.Repositories;
 using CGP.Infrastructure.Services;
 using CloudinaryDotNet;
@@ -110,9 +109,6 @@ namespace CGP.Infrastructure
 
             //VnPay
             services.Configure<VnPaySettings>(configuration.GetSection("VnPay"));
-
-            //Job Background Services
-            services.AddHostedService<WalletReleaseJob>();
 
             var redisConnectionString = configuration.GetConnectionString("Redis");
             services.AddSingleton<IConnectionMultiplexer>(_ =>

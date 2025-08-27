@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -126,5 +127,39 @@ namespace CGP.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        //Dashboard
+
+        public async Task<int> CountAsync(Guid artisanId, Expression<Func<Order, bool>> predicate = null)
+        {
+            return await _dbContext.OrderItem
+                .Where(i => i.ArtisanId == artisanId)
+                .Select(i => i.OrderId)
+                .Distinct()
+                .CountAsync();
+        }
+
+        // Doanh thu trong khoảng thời gian
+        public async Task<decimal> SumRevenueForArtisanAsync(Guid artisanId, DateTime? from = null, DateTime? to = null)
+        {
+            var query = _dbContext.OrderItem
+                .Where(i => i.ArtisanId == artisanId && i.Status == OrderStatusEnum.Completed);
+
+            if (from.HasValue)
+                query = query.Where(i => i.Order.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(i => i.Order.CreationDate <= to.Value);
+
+            return await query.SumAsync(i => (decimal?)(i.UnitPrice * i.Quantity)) ?? 0;
+        }
+
+        public async Task<Dictionary<string, int>> GetStatusCountsAsync(Guid artisanId)
+        {
+            return await _dbContext.OrderItem
+                .Where(i => i.ArtisanId == artisanId)
+                .GroupBy(i => i.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Select(x => x.OrderId).Distinct().Count() })
+                .ToDictionaryAsync(x => x.Status, x => x.Count);
+        }
     }
 }

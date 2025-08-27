@@ -1,8 +1,11 @@
 ﻿using CGP.Application;
+using CGP.Application.Interfaces;
 using CGP.Infrastructure;
 using CGP.Infrastructure.Data;
 using CGP.WebAPI;
 using CGP.WebAPI.Middlewares;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -97,6 +100,24 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
+// Add Hangfire server
+builder.Services.AddHangfire(config =>
+{
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+          .UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings()
+          .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+          {
+              CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+              SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+              QueuePollInterval = TimeSpan.Zero,
+              UseRecommendedIsolationLevel = true,
+              DisableGlobalLocks = true
+          });
+});
+// Add Hangfire server
+builder.Services.AddHangfireServer();
+
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
@@ -146,6 +167,13 @@ app.UseAuthentication();
 app.UseMiddleware<TokenBlacklistMiddleware>();
 app.UseAuthorization();
 
+app.UseHangfireDashboard();
+// Đăng ký recurring job
+RecurringJob.AddOrUpdate<IWalletService>(
+    "release-wallet-job",  // id job
+    x => x.ReleasePendingTransactionsAsync(),
+    "*/5 * * * *"          // cron expression = mỗi 5 phút chạy
+);
 
 app.MapControllers();
 
