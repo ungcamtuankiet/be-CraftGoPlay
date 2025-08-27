@@ -37,8 +37,8 @@ namespace CGP.Application.Services
             if (cart == null)
                 return new Result<CartDto>
                 {
-                    Error = 1,
-                    Message = "Giỏ hàng không tồn tại",
+                    Error = 0,
+                    Message = "Giỏ hàng không tồn tại sản phẩm nào",
                     Data = null
                 };
 
