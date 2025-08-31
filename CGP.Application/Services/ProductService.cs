@@ -443,8 +443,6 @@ namespace CGP.Application.Services
             }
         }
 
-
-
         public async Task<Result<object>> DeleteProduct(Guid id)
         {
             var getProduct = await _unitOfWork.productRepository.GetProductById(id);
@@ -458,18 +456,13 @@ namespace CGP.Application.Services
                 };
             }
 
-            await _unitOfWork.productRepository.DeleteProduct(getProduct);
-            if (getProduct.ProductImages?.Any() == true)
-            {
-                foreach (var image in getProduct.ProductImages)
-                {
-                    await _cloudinaryService.DeleteImageAsync(image.ImageUrl); 
-                }
-            }
+            getProduct.Status = ProductStatusEnum.InActive;
+            await _unitOfWork.SaveChangeAsync();
+
             return new Result<object>
             {
                 Error = 0,
-                Message = "Xóa sản phẩm thành công.",
+                Message = "Ẩn sản phẩm thành công.",
                 Data = null
             };
         }

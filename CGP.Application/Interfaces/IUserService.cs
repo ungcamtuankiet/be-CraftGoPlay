@@ -30,5 +30,6 @@ namespace CGP.Application.Interfaces
         Task<Result<object>> DeleteAddress(Guid id);
         Task<Result<object>> UpdateUserInfoAsync(UpdateInfoUserDTO updateDto);
         Task<Result<ViewAddressOfArtisanDTO>> GetAddressOfArtisan(Guid userId);
+        Task<Result<ArtisanDTO>> GetCurrentArtisanById(Guid artisanId);
     }
 }

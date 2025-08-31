@@ -28,7 +28,23 @@ namespace CGP.WebAPI.Controllers
                     Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
                 });
             }
-            var dashboard = await _orderService.GetDashboardAsync(filterDto);
+            var dashboard = await _orderService.GetDashboardForArtisan(filterDto);
+            return Ok(dashboard);
+        }
+
+        [HttpGet("DashboardForAdmin")]
+        public async Task<IActionResult> GetAdminDashboard([FromQuery] RevenueFilterForAdmin filterDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Dữ liệu không hợp lệ.",
+                    Data = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                });
+            }
+            var dashboard = await _orderService.GetDashboardForAdmin(filterDto);
             return Ok(dashboard);
         }
     }
