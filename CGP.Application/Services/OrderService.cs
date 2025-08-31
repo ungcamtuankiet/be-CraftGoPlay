@@ -1507,7 +1507,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletSystem.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Purchase,
-                        Description = $"Thanh toán đơn hàng {order.Id} có mức giá: {order.TotalPrice} với phương thức thanh toán VNPay.",
+                        Description = @$"Thanh toán đơn hàng ""{order.Id}"" có mức giá: {order.TotalPrice}VND với phương thức thanh toán VNPay.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -1803,7 +1803,7 @@ namespace CGP.Application.Services
                             Wallet_Id = getWalletSystem.Id,
                             Amount = order.TotalPrice,
                             Type = WalletTransactionTypeEnum.Purchase,
-                            Description = $"Thanh toán đơn hàng {order.Id} có mức giá: {order.TotalPrice} với phương thức thanh toán COD.",
+                            Description = @$"Thanh toán đơn hàng ""{order.Id}"" có mức giá {order.TotalPrice}VNĐ với phương thức thanh toán COD.",
                             CreationDate = DateTime.UtcNow.AddHours(7),
                             CreatedAt = DateTime.UtcNow.AddHours(7),
                             IsDeleted = false
@@ -1832,23 +1832,27 @@ namespace CGP.Application.Services
                     var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
                     product.QuantitySold = product.QuantitySold + item.Quantity;
                     _unitOfWork.productRepository.Update(product);
-                    await _walletService.CreatePendingTransactionAsync(product.Artisan_id, item.UnitPrice * item.Quantity, 3);
+                    var amountRefundArtisan = Math.Round((item.UnitPrice * item.Quantity) * 0.95m);
+                    await _walletService.CreatePendingTransactionAsync(product.Artisan_id, amountRefundArtisan, 3);
 
-                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - order.TotalPrice;
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefundArtisan;
                     _unitOfWork.walletRepository.Update(getWalletSystem);
 
                     var addMoneyToWalletSystem = new WalletTransaction
                     {
                         Wallet_Id = getWalletSystem.Id,
-                        Amount = order.TotalPrice,
+                        Amount = amountRefundArtisan,
                         Type = WalletTransactionTypeEnum.Purchase,
-                        Description = $"Hoàn trả tiền đơn hàng: {order.Id} cho nghệ nhân có mức giá: {order.TotalPrice}.",
+                        Description = @$"Hoàn trả tiền đơn hàng ""{order.Id}"" cho nghệ nhân có mức giá {amountRefundArtisan}VND.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
                     };
                     await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
                 }
+
+                var amountRefunDeliverySystem = Math.Round(order.Delivery_Amount * 0.15);
+
             }
             order.Status = statusDto;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
@@ -1870,13 +1874,13 @@ namespace CGP.Application.Services
         }
 
         //Dashboard
-        public async Task<Result<OrderDashboardForArtisanDto>> GetDashboardAsync(RevenueFilterDto filter)
+        public async Task<Result<OrderDashboardForArtisanDto>> GetDashboardForArtisan(RevenueFilterDto filter)
         {
             var now = DateTime.UtcNow.AddHours(7);
             DateTime? from = null, to = null;
 
-            var totalOrders = await _unitOfWork.orderRepository.CountAsync(filter.ArtisanId);
-            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsync(filter.ArtisanId);
+            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForArtisan(filter.ArtisanId);
+            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForArtisan(filter.ArtisanId);
 
             switch (filter.Type)
             {
@@ -1911,6 +1915,61 @@ namespace CGP.Application.Services
             }
 
             decimal totalRevenue = await _unitOfWork.orderRepository.SumRevenueForArtisanAsync(filter.ArtisanId, from, to);
+
+            return new Result<OrderDashboardForArtisanDto>
+            {
+                Error = 0,
+                Message = "Lấy dữ liệu dashboard thành công.",
+                Data = new OrderDashboardForArtisanDto
+                {
+                    TotalOrders = totalOrders,
+                    TotalRevenue = totalRevenue,
+                    OrderStatusCounts = statusCounts
+                }
+            };
+        }
+
+        public async Task<Result<OrderDashboardForArtisanDto>> GetDashboardForAdmin(RevenueFilterForAdmin filter)
+        {
+            var now = DateTime.UtcNow.AddHours(7);
+            DateTime? from = null, to = null;
+
+            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForAdmin();
+            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForAdmin();
+
+            switch (filter.Type)
+            {
+                case RevenueFilterType.Day:
+                    from = now.Date;
+                    to = now.Date.AddDays(1).AddTicks(-1).AddHours(7);
+                    break;
+
+                case RevenueFilterType.Week:
+                    var startOfWeek = now.AddDays(-(int)now.DayOfWeek).Date.AddHours(7);
+                    from = startOfWeek;
+                    to = startOfWeek.AddDays(7).AddTicks(-1).AddHours(7);
+                    break;
+
+                case RevenueFilterType.Month:
+                    from = new DateTime(now.Year, now.Month, 1).AddHours(7);
+                    to = from.Value.AddMonths(1).AddTicks(-1).AddHours(7);
+                    break;
+
+                case RevenueFilterType.Year:
+                    from = new DateTime(now.Year, 1, 1).AddHours(7);
+                    to = from.Value.AddYears(1).AddTicks(-1).AddHours(7);
+                    break;
+
+                case RevenueFilterType.Custom:
+                    from = filter.From;
+                    to = filter.To;
+                    break;
+
+                default:
+                    throw new ArgumentException("Filter type không hợp lệ.");
+            }
+
+            decimal totalRevenue = await _unitOfWork.orderRepository.SumRevenueForAdminAsync(from, to);
 
             return new Result<OrderDashboardForArtisanDto>
             {

@@ -81,7 +81,6 @@ namespace CGP.Application.Services
         }
 
         public async Task ReleasePendingTransactionsAsync()
-        
         {
             var now = DateTime.UtcNow;
 
@@ -113,7 +112,6 @@ namespace CGP.Application.Services
                 _unitOfWork.walletRepository.Update(wallet);
                 _unitOfWork.walletTransactionRepository.Update(transaction);
             }
-
             await _unitOfWork.SaveChangeAsync();
         }
 

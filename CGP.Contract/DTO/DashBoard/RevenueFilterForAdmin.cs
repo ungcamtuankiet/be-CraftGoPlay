@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace CGP.Contract.DTO.DashBoard
 {
-    public class RevenueFilterDto
+    public class RevenueFilterForAdmin
     {
-        [Required(ErrorMessage = "Mã nghệ nhân là bắt buộc.")]
-        public Guid ArtisanId { get; set; }
-
         // Kiểu filter: "day", "week", "month", "year", hoặc "custom"
         public RevenueFilterType Type { get; set; }
 

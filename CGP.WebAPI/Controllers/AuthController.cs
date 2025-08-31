@@ -229,7 +229,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("user/register/user")]
         [SwaggerResponse(201, "Tạo thành công")]
         [SwaggerResponse(400, "Dữ liệu không hợp lệ")]
-        public async Task<IActionResult> RegisterUser([FromForm] UserRegistrationDTO userRegistrationDto)
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDTO userRegistrationDto)
         {
             // Check if the user is authenticated
             if (User.Identity.IsAuthenticated)

@@ -129,13 +129,38 @@ namespace CGP.Infrastructure.Repositories
 
         //Dashboard
 
-        public async Task<int> CountAsync(Guid artisanId, Expression<Func<Order, bool>> predicate = null)
+        public async Task<int> CountAsyncForArtisan(Guid artisanId, Expression<Func<Order, bool>> predicate = null)
         {
             return await _dbContext.OrderItem
                 .Where(i => i.ArtisanId == artisanId)
                 .Select(i => i.OrderId)
                 .Distinct()
                 .CountAsync();
+        }
+
+        public async Task<int> CountAsyncForAdmin(Expression<Func<Order, bool>> predicate = null)
+        {
+            return await _dbContext.OrderItem
+                .Select(i => i.OrderId)
+                .Distinct()
+                .CountAsync();
+        }
+
+        public async Task<Dictionary<string, int>> GetStatusCountsAsyncForArtisan(Guid artisanId)
+        {
+            return await _dbContext.OrderItem
+                .Where(i => i.ArtisanId == artisanId)
+                .GroupBy(i => i.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Select(x => x.OrderId).Distinct().Count() })
+                .ToDictionaryAsync(x => x.Status, x => x.Count);
+        }
+
+        public async Task<Dictionary<string, int>> GetStatusCountsAsyncForAdmin()
+        {
+            return await _dbContext.OrderItem
+                .GroupBy(i => i.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Select(x => x.OrderId).Distinct().Count() })
+                .ToDictionaryAsync(x => x.Status, x => x.Count);
         }
 
         // Doanh thu trong khoảng thời gian
@@ -153,13 +178,18 @@ namespace CGP.Infrastructure.Repositories
             return await query.SumAsync(i => (decimal?)(i.UnitPrice * i.Quantity)) ?? 0;
         }
 
-        public async Task<Dictionary<string, int>> GetStatusCountsAsync(Guid artisanId)
+        public async Task<decimal> SumRevenueForAdminAsync(DateTime? from = null, DateTime? to = null)
         {
-            return await _dbContext.OrderItem
-                .Where(i => i.ArtisanId == artisanId)
-                .GroupBy(i => i.Status)
-                .Select(g => new { Status = g.Key.ToString(), Count = g.Select(x => x.OrderId).Distinct().Count() })
-                .ToDictionaryAsync(x => x.Status, x => x.Count);
+            var query = _dbContext.OrderItem
+                .Where(i => i.Status == OrderStatusEnum.Completed);
+
+            if (from.HasValue)
+                query = query.Where(i => i.Order.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(i => i.Order.CreationDate <= to.Value);
+
+            return await query.SumAsync(i => (decimal?)(i.Order.TotalPrice)) ?? 0;
         }
     }
 }

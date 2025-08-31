@@ -18,8 +18,11 @@ namespace CGP.Application.Repositories
         Task<List<Order>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status);
 
         //Dashboard
-        Task<int> CountAsync(Guid artisanId, Expression<Func<Order, bool>> predicate = null);
+        Task<int> CountAsyncForArtisan(Guid artisanId, Expression<Func<Order, bool>> predicate = null);
+        Task<int> CountAsyncForAdmin(Expression<Func<Order, bool>> predicate = null);
+        Task<Dictionary<string, int>> GetStatusCountsAsyncForArtisan(Guid artisanId);
+        Task<Dictionary<string, int>> GetStatusCountsAsyncForAdmin();
         Task<decimal> SumRevenueForArtisanAsync(Guid artisanId, DateTime? from = null, DateTime? to = null);
-        Task<Dictionary<string, int>> GetStatusCountsAsync(Guid artisanId);
+        Task<decimal> SumRevenueForAdminAsync(DateTime? from = null, DateTime? to = null);
     }
 }

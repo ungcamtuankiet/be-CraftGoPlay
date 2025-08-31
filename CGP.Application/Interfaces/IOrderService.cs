@@ -27,6 +27,7 @@ namespace CGP.Application.Interfaces
         Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query);
 
         //Dashboard
-        Task<Result<OrderDashboardForArtisanDto>> GetDashboardAsync(RevenueFilterDto filter);
+        Task<Result<OrderDashboardForArtisanDto>> GetDashboardForArtisan(RevenueFilterDto filter);
+        Task<Result<OrderDashboardForArtisanDto>> GetDashboardForAdmin(RevenueFilterForAdmin filter);
     }
 }
