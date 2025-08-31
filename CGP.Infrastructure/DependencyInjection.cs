@@ -48,7 +48,6 @@ namespace CGP.Infrastructure
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IReturnRequestService, ReturnRequestService>();
             services.AddScoped<IPointService, PointService>();
-            services.AddScoped<ICropService, CropService>();
             services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IVoucherService, VoucherService>();
@@ -84,7 +83,6 @@ namespace CGP.Infrastructure
             services.AddScoped<IWalletRepository, WalletRepository>();
             services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
             services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
-            services.AddScoped<ICropRepository, CropRepository>();
             services.AddScoped<IInventoryRepository, InventoryRepository>();
             services.AddScoped<IQuestRepository, QuestRepository>();
             services.AddScoped<IUserQuestRepository, UserQuestRepository>();

@@ -106,6 +106,7 @@ namespace CGP.Application.Services
             var checkInventory = await _unitOfWork.inventoryRepository.GetByIdAsync(updateInventoryDTO.Id);
             var checkUser = await _unitOfWork.userRepository.GetByIdAsync(updateInventoryDTO.UserId);
             var checkInventorySlot = await _unitOfWork.inventoryRepository.CheckSlotIndexInventoryAsync(updateInventoryDTO.UserId, updateInventoryDTO.SlotIndex);
+            var checkItem = await _unitOfWork.itemRepository.GetByIdAsync((Guid)updateInventoryDTO.ItemId);
             if (checkInventory == null)
             {
                 return new Result<object>()
@@ -137,6 +138,7 @@ namespace CGP.Application.Services
             }
 
             var result = _mapper.Map(updateInventoryDTO, checkInventory);
+            result.ItemType = checkItem.ItemType.ToString();
             _unitOfWork.inventoryRepository.Update(result);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()

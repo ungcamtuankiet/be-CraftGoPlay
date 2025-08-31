@@ -12,7 +12,7 @@ namespace CGP.Application.Interfaces
     {
         Task<Result<List<ViewFarmlandDTO>>> GetFarmlandsByUserIdAsync(Guid userId);
         Task<Result<bool>> DigAsync(Guid plotId);
-        Task<Result<bool>> PlantAsync(Guid plotId, Guid cropId);
+        Task<Result<bool>> PlantAsync(Guid plotId);
         Task<Result<bool>> WaterAsync(Guid plotId);
         Task<Result<bool>> HarvestAsync(Guid plotId);
         Task<Result<bool>> ResetAsync(Guid plotId);
