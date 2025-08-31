@@ -90,7 +90,6 @@ namespace CGP.Application.Services
             }
 
             var result = _mapper.Map<Inventory>(addItemToInventoryDTO);
-            result.ItemType = checkItem.ItemType.ToString();
             await _unitOfWork.inventoryRepository.AddAsync(result);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()
@@ -138,7 +137,6 @@ namespace CGP.Application.Services
             }
 
             var result = _mapper.Map(updateInventoryDTO, checkInventory);
-            result.ItemType = checkItem.ItemType.ToString();
             _unitOfWork.inventoryRepository.Update(result);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()

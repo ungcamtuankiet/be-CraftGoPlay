@@ -24,5 +24,17 @@ namespace CGP.Infrastructure.Repositories
             return await _context.FarmlandCrop
                 .FirstOrDefaultAsync(fc => fc.FarmlandId == plotId);
         }
+
+        public async Task<FarmlandCrop?> GetByFarmlandIdAsync(Guid farmlandId)
+        {
+            return await _context.FarmlandCrop
+                .FirstOrDefaultAsync(fc => fc.FarmlandId == farmlandId && fc.IsActive);
+        }
+
+        public Task<FarmlandCrop> GetFarmLandCropWithUserIdAndTileIdAsync(Guid userId, int titleId)
+        {
+            return _context.FarmlandCrop
+                .FirstOrDefaultAsync(fc => fc.UserId == userId && fc.TileId == titleId);
+        }
     }
 }
