@@ -44,7 +44,6 @@ namespace CGP.Domain.Entities
         public ICollection<ReturnRequest> ReturnRequests { get; set; }
 
         //Game
-        public ICollection<Crop> Crops { get; set; } = new List<Crop>();
         public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
         public ICollection<UserQuest> UserQuests { get; set; } = new List<UserQuest>();
         public ICollection<DailyCheckIn> DailyCheckIns { get; set; } = new List<DailyCheckIn>();

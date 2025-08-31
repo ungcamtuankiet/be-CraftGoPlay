@@ -33,10 +33,10 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPut("Plant/{plotId}/{cropId}")]
+        [HttpPut("Plant/{plotId}")]
         public async Task<IActionResult> PlantAsync(Guid plotId, Guid cropId)
         {
-            var result = await _farmlandService.PlantAsync(plotId, cropId);
+            var result = await _farmlandService.PlantAsync(plotId);
             if (result.Error != 0)
             {
                 return BadRequest(result);

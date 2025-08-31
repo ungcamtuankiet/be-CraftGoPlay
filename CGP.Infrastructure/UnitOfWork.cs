@@ -38,7 +38,6 @@ namespace CGP.Infrastructure
         private readonly IWalletRepository _walletRepository;
         private readonly IWalletTransactionRepository _walletTransactionRepository;
         private readonly IPointTransactionRepository _pointTransactionRepository;
-        private readonly ICropRepository _cropRepository;
         private readonly IInventoryRepository _inventoryRepository;
         private readonly IQuestRepository _questRepository;
         private readonly IUserQuestRepository _userQuestRepository;
@@ -52,7 +51,7 @@ namespace CGP.Infrastructure
         private readonly IShopPriceRepository _shopPriceRepository;
         private readonly ISaleTransactionRepository _saleTransactionRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null, ICraftSkillRepository craftSkillRepository = null, ITransactionRepository transactionRepository = null, IPointRepository pointRepository = null, IRatingRepository ratingRepository = null, IReturnRequestRepository returnRequestRepository = null, IActivityLogRepository activityLogRepository = null, IWalletRepository walletRepository = null, IWalletTransactionRepository walletTransactionRepository = null, IPointTransactionRepository pointTransactionRepository = null, ICropRepository cropRepository = null, IInventoryRepository inventoryRepository = null, IQuestRepository questRepository = null, IUserQuestRepository userQuestRepository = null, IVoucherRepository voucherRepository = null, IDailyCheckInRepository dailyCheckInRepository = null, IOrderVoucherRepository orderVoucherRepository = null, IOrderAddressRepository orderAddressRepository = null, IFarmlandRepository farmlandRepository = null, IFarmlandCropRepository farmlandCropRepository = null, IItemRepository itemRepository = null, IShopPriceRepository shopPriceRepository = null, ISaleTransactionRepository saleTransactionRepository = null)
+        public UnitOfWork(AppDbContext dbContext, IAuthRepository authRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subCategoryRepository, IProductRepository productRepository, IMeterialRepository meterialRepository, ICraftVillageRepository craftVillageRepository, IUserAddressRepository userAddressRepository, IProductImageRepository productImageRepository, IArtisanRequestRepository artisanRequestRepository, ICartRepository cartRepository = null, ICartItemRepository cartItemRepository = null, IFavouriteRepository favouriteRepository = null, IPaymentRepository paymentRepository = null, IOrderItemRepository orderItemRepository = null, IOrderRepository orderRepository = null, ICraftSkillRepository craftSkillRepository = null, ITransactionRepository transactionRepository = null, IPointRepository pointRepository = null, IRatingRepository ratingRepository = null, IReturnRequestRepository returnRequestRepository = null, IActivityLogRepository activityLogRepository = null, IWalletRepository walletRepository = null, IWalletTransactionRepository walletTransactionRepository = null, IPointTransactionRepository pointTransactionRepository = null, IInventoryRepository inventoryRepository = null, IQuestRepository questRepository = null, IUserQuestRepository userQuestRepository = null, IVoucherRepository voucherRepository = null, IDailyCheckInRepository dailyCheckInRepository = null, IOrderVoucherRepository orderVoucherRepository = null, IOrderAddressRepository orderAddressRepository = null, IFarmlandRepository farmlandRepository = null, IFarmlandCropRepository farmlandCropRepository = null, IItemRepository itemRepository = null, IShopPriceRepository shopPriceRepository = null, ISaleTransactionRepository saleTransactionRepository = null)
         {
             _dbContext = dbContext;
             _authRepository = authRepository;
@@ -80,7 +79,6 @@ namespace CGP.Infrastructure
             _walletRepository = walletRepository;
             _walletTransactionRepository = walletTransactionRepository;
             _pointTransactionRepository = pointTransactionRepository;
-            _cropRepository = cropRepository;
             _inventoryRepository = inventoryRepository;
             _questRepository = questRepository;
             _userQuestRepository = userQuestRepository;
@@ -120,7 +118,6 @@ namespace CGP.Infrastructure
         public IWalletRepository walletRepository => _walletRepository;
         public IWalletTransactionRepository walletTransactionRepository => _walletTransactionRepository;
         public IPointTransactionRepository pointTransactionRepository => _pointTransactionRepository;
-        public ICropRepository cropRepository => _cropRepository;
         public IInventoryRepository inventoryRepository => _inventoryRepository;
         public IQuestRepository questRepository => _questRepository;
         public IUserQuestRepository userQuestRepository => _userQuestRepository;

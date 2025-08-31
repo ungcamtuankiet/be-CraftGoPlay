@@ -16,5 +16,6 @@ namespace CGP.Domain.Entities
         public ShopPrice ShopPrice { get; set; }
         public ICollection<SaleTransaction> SaleTransactions { get; set; } = new List<SaleTransaction>();
         public ICollection<Inventory> Inventories { get; set; }
+        public ICollection<FarmlandCrop> FarmlandCrops { get; set; } = new List<FarmlandCrop>();
     }
 }

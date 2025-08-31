@@ -35,7 +35,6 @@ namespace CGP.Application
         IWalletRepository walletRepository { get; }
         IWalletTransactionRepository walletTransactionRepository { get; }
         IPointTransactionRepository pointTransactionRepository { get; }
-        ICropRepository cropRepository { get; }
         IInventoryRepository inventoryRepository { get; }
         IQuestRepository questRepository { get; }
         IUserQuestRepository userQuestRepository { get; }

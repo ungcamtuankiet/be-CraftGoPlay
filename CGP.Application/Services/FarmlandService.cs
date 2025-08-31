@@ -57,7 +57,6 @@ namespace CGP.Application.Services
                 };
             }
 
-            plot.IsDug = true;
             _unitOfWork.farmlandRepository.Update(plot);
             await _unitOfWork.SaveChangeAsync();
             return new Result<bool>
@@ -68,7 +67,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<bool>> PlantAsync(Guid plotId, Guid cropId)
+        public async Task<Result<bool>> PlantAsync(Guid plotId)
         {
             var plot = await _unitOfWork.farmlandRepository.GetFarmlandByIdAsync(plotId);
             var activeCrop = await _unitOfWork.farmlandCropRepository.GetActiveCropAsync(plotId);
@@ -91,35 +90,6 @@ namespace CGP.Application.Services
                     Data = false
                 };
             }
-
-            if (!plot.IsDug)
-            {
-                return new Result<bool>
-                {
-                    Error = 1,
-                    Message = "Đất phải được đào trước khi trồng",
-                    Data = false
-                };
-            }
-
-            if (plot.HasCrop)
-            {
-                return new Result<bool>
-                {
-                    Error = 1,
-                    Message = "Ô đất đã có cây trồng",
-                    Data = false
-                };
-            }
-
-            plot.HasCrop = true;
-            var farmlandCrop = new FarmlandCrop
-            {
-                CropId = cropId,
-                FarmlandId = plotId,
-                PlantDate = DateTime.UtcNow.AddHours(7)
-            };
-            await _unitOfWork.farmlandCropRepository.AddAsync(farmlandCrop);
             plot.PlantedAt = DateTime.UtcNow;
 
             _unitOfWork.farmlandRepository.Update(plot);
@@ -143,16 +113,6 @@ namespace CGP.Application.Services
                     Message = "Ô đất không tồn tại",
                     Data = false
                 };
-            }
-
-
-            plot.IsDug = false;
-            plot.HasCrop = false;
-
-            foreach (var fc in plot.FarmlandCrops.Where(fc => !fc.IsHarvested))
-            {
-                fc.IsHarvested = true;
-                fc.HarvestDate = DateTime.UtcNow.AddHours(7);
             }
 
             _unitOfWork.farmlandRepository.Update(plot);
