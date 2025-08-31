@@ -11,10 +11,9 @@ namespace CGP.Application.Interfaces
     public interface IFarmlandService
     {
         Task<Result<List<ViewFarmlandDTO>>> GetFarmlandsByUserIdAsync(Guid userId);
-        Task<Result<bool>> DigAsync(Guid plotId);
-        Task<Result<bool>> PlantAsync(Guid plotId);
-        Task<Result<bool>> WaterAsync(Guid plotId);
-        Task<Result<bool>> HarvestAsync(Guid plotId);
-        Task<Result<bool>> ResetAsync(Guid plotId);
+        Task<Result<object>> PlantCropAsync(PlantCropDTO plant);
+        Task<Result<object>> WaterAsync(WateredCropDTO water);
+        Task<Result<object>> PlowAsync(PlowCropDTO plowCropDTO);
+        Task<Result<object>> HarvestAsync(HavestCropDTO havest);
     }
 }

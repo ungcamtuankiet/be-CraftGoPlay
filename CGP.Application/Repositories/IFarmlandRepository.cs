@@ -11,5 +11,6 @@ namespace CGP.Application.Repositories
     {
         Task<List<FarmLand>> GetByUserIdAsync(Guid userId);
         Task<FarmLand> GetFarmlandByIdAsync(Guid id);
+        Task<FarmLand> GetFarmLandWithUserIdAndTileIdAsync(Guid userId, int titleId);
     }
 }

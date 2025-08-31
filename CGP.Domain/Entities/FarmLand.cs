@@ -10,10 +10,12 @@ namespace CGP.Domain.Entities
     public class FarmLand : BaseEntity
     {
         public Guid UserId { get; set; }
+        public int TileId { get; set; }
         public bool Watered { get; set; }
-        public DateTime WaterExpiresAt { get; set; }
-        public DateTime PlantedAt { get; set; }
+        public DateTime? WaterExpiresAt { get; set; }
+        public DateTime? PlantedAt { get; set; }
         public FarmLandStatus Status { get; set; }
+        public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow.AddHours(7);
         public ApplicationUser User { get; set; }
         public ICollection<FarmlandCrop> FarmlandCrops { get; set; } = new List<FarmlandCrop>();
     }
