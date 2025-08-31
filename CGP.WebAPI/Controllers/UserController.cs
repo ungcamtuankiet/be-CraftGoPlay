@@ -30,6 +30,13 @@ namespace CGP.WebAPI.Controllers
             return Ok(getUser);
         }
 
+        [HttpGet("GetCurrentArtisan/{artisanId}")]
+        public async Task<IActionResult> GetCurrentArtisan(Guid artisanId)
+        {
+            var getUser = await _userService.GetCurrentArtisanById(artisanId);
+            return Ok(getUser);
+        }
+
         [HttpGet("GetActivityByUserId/{userId}")]
         [Authorize]
         public async Task<IActionResult> GetActivityByUserId(Guid userId, int pageIndex = 0, int pageSize = 10)
@@ -90,7 +97,7 @@ namespace CGP.WebAPI.Controllers
 
         // ======== PUT ========
         [HttpPut("UpdateInfoUser")]
-        [Authorize(Policy = "UserPolicy")]
+        [Authorize]
         public async Task<IActionResult> UpdateUserInfo([FromForm] UpdateInfoUserDTO updateDto)
         {
             if (!ModelState.IsValid)

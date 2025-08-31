@@ -12,6 +12,7 @@ using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -118,6 +119,28 @@ namespace CGP.Application.Services
             var userId = Guid.Parse(jwtToken.Claims.First(claim => claim.Type == "id").Value);
             var result = _mapper.Map<UserDTO>(await _unitOfWork.userRepository.GetAllUserById(userId));
             return new Result<UserDTO>() { Error = 0, Message = "Lấy thông tin người dùng thành công", Data = result };
+        }
+
+        public async Task<Result<ArtisanDTO>> GetCurrentArtisanById(Guid artisanId)
+        {
+            var getArtisan = await _unitOfWork.userRepository.GetUserById(artisanId);
+            if (getArtisan == null)
+            {
+                return new Result<ArtisanDTO>()
+                {
+                    Error = 1,
+                    Message = "Danh sách địa chỉ trống.",
+                    Data = null
+                };
+            }
+
+            var result = _mapper.Map<ArtisanDTO>(await _unitOfWork.userRepository.GetUserById(artisanId));
+            return new Result<ArtisanDTO>() 
+            { 
+                Error = 0, 
+                Message = "Lấy thông tin nghệ nhân thành công", 
+                Data = result 
+            };
         }
 
         public async Task<Result<List<ViewAddressDTO>>> GetListAddressByUserId(Guid userId)

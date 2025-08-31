@@ -184,7 +184,7 @@ namespace CGP.Application.Services
                     Status = StatusEnum.Pending,
                     Otp = otp,
                     RoleId = 4,
-                    CreationDate = DateTime.Now,
+                    CreationDate = DateTime.Now.AddHours(7),
                     OtpExpiryTime = DateTime.UtcNow.AddMinutes(10)
                 };
 
