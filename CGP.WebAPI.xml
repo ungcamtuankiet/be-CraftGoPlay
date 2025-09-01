@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CGP.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:CGP.WebAPI.Controllers.AuthController.RegisterUser(CGP.Contract.DTO.User.UserRegistrationDTO)">
+            <summary>
+            Đăng ký tài khoản người dùng mới
+            </summary>
+            <remarks>
+            ### Mô tả chi tiết:
+            - API này cho phép đăng ký tài khoản người dùng mới trong hệ thống.
+            - Sau khi đăng ký thành công, hệ thống sẽ gửi OTP xác thực qua email.
+            - Người dùng cần xác thực OTP để kích hoạt tài khoản.
+            
+            ### Yêu cầu dữ liệu:
+            | Trường         | Kiểu dữ liệu | Ràng buộc                             | Ví dụ             |
+            |----------------|--------------|---------------------------------------|-------------------|
+            | UserName       | string       | 6-50 ký tự, không chứa ký tự đặc biệt | "user123"         |
+            | Email          | string       | Định dạng email hợp lệ                | "user@email.com"  |
+            | PhoneNo        | string       | Đúng 10 chữ số                        | "0987654321"      |
+            | PasswordHash   | string       | 8-20 ký tự, gồm chữ hoa, thường, số và ký tự đặc biệt | "Pass@123" |
+            
+            ### Ví dụ request:
+            ```json
+            {
+              "userName": "user123",
+              "email": "user@email.com",
+              "phoneNo": "0987654321",
+              "passwordHash": "Pass@123"
+            }
+            ```
+            </remarks>
+            <param name="request">Đối tượng chứa thông tin đăng ký</param>
+            <returns>Thông báo kết quả đăng ký</returns>
+            <response code="201">Đăng ký thành công. OTP đã được gửi qua email</response>
+            <response code="400">
+            Các lỗi có thể xảy ra:
+            - Đã đăng nhập
+            - Dữ liệu không hợp lệ
+            - Email/Username đã tồn tại
+            </response>
+        </member>
+        <member name="M:CGP.WebAPI.Controllers.AuthController.ChangePassword(CGP.Contract.DTO.User.ChangePasswordDTO)">
+            <summary>
+            Changes the user's password.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:CGP.WebAPI.Controllers.AuthController.ForgotPassword(CGP.Contract.DTO.User.ForgotPasswordRequestDTO)" -->
+        <member name="M:CGP.WebAPI.Controllers.AuthController.ResetPassword(CGP.Contract.DTO.User.ResetPasswordDTO)">
+            <summary>
+            Resets the user's password.
+            </summary>
+        </member>
+    </members>
+</doc>
