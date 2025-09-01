@@ -48,7 +48,7 @@ namespace CGP.Application.Services
         public async Task<Result<object>> AddItemToInventoryAsync(AddItemToInventoryDTO addItemToInventoryDTO)
         {
             var checkUser = await _unitOfWork.userRepository.GetByIdAsync(addItemToInventoryDTO.UserId);
-            var checkInventory = await _unitOfWork.inventoryRepository.CheckSlotIndexInventoryAsync(addItemToInventoryDTO.UserId, addItemToInventoryDTO.SlotIndex);
+            var checkInventory = await _unitOfWork.inventoryRepository.CheckItemInSlotIndexAsync(addItemToInventoryDTO.UserId, addItemToInventoryDTO.SlotIndex, addItemToInventoryDTO.InventoryType);
             var checkItem = await _unitOfWork.itemRepository.GetByIdAsync((Guid)addItemToInventoryDTO.ItemId);
             if (checkUser == null)
             {
@@ -60,12 +60,12 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (checkInventory != null)
+            if(checkInventory != null)
             {
                 return new Result<object>()
                 {
                     Error = 1,
-                    Message = "Kho đồ đã tồn tại tại vị trí này.",
+                    Message = "Vị trí đã tồn tại vật phẩm.",
                     Data = null
                 };
             }
