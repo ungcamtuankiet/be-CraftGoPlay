@@ -4,6 +4,7 @@ using CGP.Application.Repositories;
 using CGP.Contract.DTO.Farmland;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,136 +45,275 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<bool>> DigAsync(Guid plotId)
+        public async Task<Result<object>> PlowAsync(PlowCropDTO plowCropDTO)
         {
-            var plot = await _unitOfWork.farmlandRepository.GetFarmlandByIdAsync(plotId);
-            if (plot == null)
+            var user = await _unitOfWork.userRepository.GetByIdAsync(plowCropDTO.UserId);
+            var getFarmLandCrop = await _unitOfWork.farmlandRepository.GetFarmLandWithUserIdAndTileIdAsync(plowCropDTO.UserId, plowCropDTO.TileId);
+
+            if (user == null)
             {
-                return new Result<bool>
+                return new Result<object>
                 {
                     Error = 1,
-                    Message = "Ô đất không tồn tại",
-                    Data = false
+                    Message = "Người dùng không tồn tại",
+                    Data = null
                 };
             }
 
-            plot.IsDug = true;
-            _unitOfWork.farmlandRepository.Update(plot);
+            if (getFarmLandCrop == null)
+            {
+                var newFarmLand = new FarmLand
+                {
+                    UserId = plowCropDTO.UserId,
+                    TileId = plowCropDTO.TileId,
+                    Watered = false,
+                    Status = FarmLandStatus.Plowed,
+                };
+                await _unitOfWork.farmlandRepository.AddAsync(newFarmLand);
+                await _unitOfWork.SaveChangeAsync();
+                return new Result<object>
+                {
+                    Error = 0,
+                    Message = "Xới đất thành công",
+                    Data = null
+                };
+            }
+            ;
+            if (getFarmLandCrop.Status != FarmLandStatus.Empty)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Ô đất vẫn đang có cây trồng hoặc đã được xới",
+                    Data = null
+                };
+            }
+            getFarmLandCrop.Status = FarmLandStatus.Plowed;
+            _unitOfWork.farmlandRepository.Update(getFarmLandCrop);
             await _unitOfWork.SaveChangeAsync();
-            return new Result<bool>
+            return new Result<object>
             {
                 Error = 0,
-                Message = "Đào đất thành công",
-                Data = true
+                Message = "Xới đất thành công",
+                Data = null
             };
         }
 
-        public async Task<Result<bool>> PlantAsync(Guid plotId, Guid cropId)
+        public async Task<Result<object>> PlantCropAsync(PlantCropDTO plant)
         {
-            var plot = await _unitOfWork.farmlandRepository.GetFarmlandByIdAsync(plotId);
-            var activeCrop = await _unitOfWork.farmlandCropRepository.GetActiveCropAsync(plotId);
-            if (plot == null)
+            var user = await _unitOfWork.userRepository.GetByIdAsync(plant.UserId);
+            var item = await _unitOfWork.itemRepository.GetByIdAsync(plant.ItemId);
+            var getFarmLand = await _unitOfWork.farmlandRepository.GetFarmLandWithUserIdAndTileIdAsync(plant.UserId, plant.TileId);
+            var getFarmLandCrop = await _unitOfWork.farmlandCropRepository.GetFarmLandCropWithUserIdAndTileIdAsync(plant.UserId, plant.TileId);
+
+            if (user == null)
             {
-                return new Result<bool>
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại",
+                    Data = null
+                };
+            }
+
+            if (getFarmLand == null)
+            {
+                return new Result<object>
                 {
                     Error = 1,
                     Message = "Ô đất không tồn tại",
-                    Data = false
+                    Data = null
                 };
             }
 
-            if(activeCrop != null)
+            if (item == null || item.ItemType != ItemTypeEnum.Seed)
             {
-                return new Result<bool>
+                return new Result<object>
                 {
                     Error = 1,
-                    Message = "Ô đất đang có cây trồng chưa thu hoạch",
-                    Data = false
+                    Message = "Hạt giống không tồn tại hoặc không hợp lệ",
+                    Data = null
                 };
             }
 
-            if (!plot.IsDug)
+            if (getFarmLand.Status == FarmLandStatus.Empty)
             {
-                return new Result<bool>
+                return new Result<object>
                 {
                     Error = 1,
-                    Message = "Đất phải được đào trước khi trồng",
-                    Data = false
+                    Message = "Đất chưa được xới nên không thể trồng cây",
+                    Data = null
                 };
             }
 
-            if (plot.HasCrop)
+            if (getFarmLand.Status == FarmLandStatus.Planted)
             {
-                return new Result<bool>
+                return new Result<object>
                 {
                     Error = 1,
-                    Message = "Ô đất đã có cây trồng",
-                    Data = false
+                    Message = "Đất đang được trồng cây",
+                    Data = null
                 };
             }
 
-            plot.HasCrop = true;
-            var farmlandCrop = new FarmlandCrop
+            if(getFarmLandCrop == null)
             {
-                CropId = cropId,
-                FarmlandId = plotId,
-                PlantDate = DateTime.UtcNow.AddHours(7)
-            };
-            await _unitOfWork.farmlandCropRepository.AddAsync(farmlandCrop);
-            plot.PlantedAt = DateTime.UtcNow;
+                var farmlandCrop = new FarmlandCrop
+                {
+                    FarmlandId = getFarmLand.Id,
+                    UserId = plant.UserId,
+                    TileId = plant.TileId,
+                    SeedId = plant.ItemId,
+                    Stage = 0,
+                    NeedsWater = false,
+                    NextWaterDueAtUtc = plant.NextWaterDueAtUtc,
+                    PlantedAtUtc = DateTime.UtcNow.AddHours(7),
+                    IsActive = true
+                };
+                await _unitOfWork.farmlandCropRepository.AddAsync(farmlandCrop);
+            }
+            else
+            {
+                if(getFarmLandCrop.IsActive)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Ô đất vẫn đang có cây trồng",
+                        Data = null
+                    };
+                }
+                else
+                {
+                    getFarmLandCrop.SeedId = plant.ItemId;
+                    getFarmLandCrop.Stage = 0;
+                    getFarmLandCrop.NeedsWater = false;
+                    getFarmLandCrop.NextWaterDueAtUtc = plant.NextWaterDueAtUtc;
+                    getFarmLandCrop.PlantedAtUtc = DateTime.UtcNow.AddHours(7);
+                    getFarmLandCrop.IsActive = true;
+                    _unitOfWork.farmlandCropRepository.Update(getFarmLandCrop);
+                }
+            }
 
-            _unitOfWork.farmlandRepository.Update(plot);
+            getFarmLand.Status = FarmLandStatus.Planted;
+            getFarmLand.PlantedAt = DateTime.UtcNow.AddHours(7);
+            getFarmLand.ModificationDate = DateTime.UtcNow.AddHours(7);
+            _unitOfWork.farmlandRepository.Update(getFarmLand);
             await _unitOfWork.SaveChangeAsync();
-            return new Result<bool>
+
+            return new Result<object>
             {
                 Error = 0,
                 Message = "Trồng cây thành công",
-                Data = true
+                Data = null
             };
         }
 
-        public async Task<Result<bool>> ResetAsync(Guid plotId)
+        public async Task<Result<object>> HarvestAsync(HavestCropDTO havest)
         {
-            var plot = await _unitOfWork.farmlandRepository.GetFarmlandByIdAsync(plotId);
-            if (plot == null)
+            var user = await _unitOfWork.userRepository.GetByIdAsync(havest.UserId);
+            var getFarmLand = await _unitOfWork.farmlandRepository.GetFarmLandWithUserIdAndTileIdAsync(havest.UserId, havest.TileId);
+            var getFarmLandCrop = await _unitOfWork.farmlandCropRepository.GetFarmLandCropWithUserIdAndTileIdAsync(havest.UserId, havest.TileId);
+            if (getFarmLand == null)
             {
-                return new Result<bool>
+                return new Result<object>
                 {
                     Error = 1,
                     Message = "Ô đất không tồn tại",
-                    Data = false
+                    Data = null
+                };
+            };
+
+            if (getFarmLand.Status != FarmLandStatus.Planted)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Đất chưa được trồng nên không thể thu hoạch",
+                    Data = null
                 };
             }
 
-
-            plot.IsDug = false;
-            plot.HasCrop = false;
-
-            foreach (var fc in plot.FarmlandCrops.Where(fc => !fc.IsHarvested))
+            if(getFarmLandCrop == null || !getFarmLandCrop.IsActive)
             {
-                fc.IsHarvested = true;
-                fc.HarvestDate = DateTime.UtcNow.AddHours(7);
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Ô đất chưa có cây trồng để thu hoạch",
+                    Data = null
+                };
             }
 
-            _unitOfWork.farmlandRepository.Update(plot);
-            await _unitOfWork.SaveChangeAsync();
+            getFarmLand.Status =FarmLandStatus.Empty;
+            getFarmLand.PlantedAt = null;   
+            getFarmLand.ModificationDate = DateTime.UtcNow.AddHours(7);
+            _unitOfWork.farmlandRepository.Update(getFarmLand);
 
-            return new Result<bool>
+            getFarmLandCrop.Stage = 0;
+            getFarmLandCrop.NeedsWater = false;
+            getFarmLandCrop.NextWaterDueAtUtc = null;
+            getFarmLandCrop.PlantedAtUtc = null;
+            getFarmLandCrop.StageEndsAtUtc = null;
+            getFarmLandCrop.HarvestedAtUtc = DateTime.UtcNow.AddHours(7);
+            getFarmLandCrop.IsActive = false;
+            _unitOfWork.farmlandCropRepository.Update(getFarmLandCrop);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<object>
             {
                 Error = 0,
-                Message = "Đặt lại ô đất thành công",
-                Data = true
+                Message = "Thu hoạch cây trồng thành công",
+                Data = null
             };
         }
 
-        public Task<Result<bool>> WaterAsync(Guid plotId)
+        public async Task<Result<object>> WaterAsync(WateredCropDTO water)
         {
-            throw new NotImplementedException();
-        }
+            var user = await _unitOfWork.userRepository.GetByIdAsync(water.UserId);
+            var getFarmLand = await _unitOfWork.farmlandRepository.GetFarmLandWithUserIdAndTileIdAsync(water.UserId, water.TileId);
+            var getFarmLandCrop = await _unitOfWork.farmlandCropRepository.GetFarmLandCropWithUserIdAndTileIdAsync(water.UserId, water.TileId);
+            if (getFarmLand == null)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Ô đất không tồn tại",
+                    Data = null
+                };
+            }
+            ;
 
-        public Task<Result<bool>> HarvestAsync(Guid plotId)
-        {
-            throw new NotImplementedException();
+            if (getFarmLand.Status != FarmLandStatus.Planted)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Đất chưa được trồng nên không thể tưới nước",
+                    Data = null
+                };
+            }
+
+            if (getFarmLandCrop == null || !getFarmLandCrop.IsActive)
+            {
+                return new Result<object>
+                {
+                    Error = 1,
+                    Message = "Ô đất chưa có cây trồng để thu hoạch",
+                    Data = null
+                };
+            }
+            getFarmLandCrop.Stage++;
+            getFarmLandCrop.NeedsWater = false;
+            getFarmLandCrop.NextWaterDueAtUtc = water.NextWaterDueAtUtc;
+
+            _unitOfWork.farmlandCropRepository.Update(getFarmLandCrop);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Tưới nước thành công",
+                Data = null
+            };
         }
     }
 }

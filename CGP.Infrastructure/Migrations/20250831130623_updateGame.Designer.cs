@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250831130623_updateGame")]
+    partial class updateGame
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 31, 23, 15, 15, 146, DateTimeKind.Local).AddTicks(7743),
+                            CreationDate = new DateTime(2025, 8, 31, 20, 6, 20, 934, DateTimeKind.Local).AddTicks(8741),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -217,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 31, 23, 15, 15, 146, DateTimeKind.Local).AddTicks(7790),
+                            CreationDate = new DateTime(2025, 8, 31, 20, 6, 20, 934, DateTimeKind.Local).AddTicks(8992),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -608,9 +611,6 @@ namespace CGP.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -632,19 +632,16 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("PlantedAt")
+                    b.Property<DateTime>("PlantedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("TileId")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("WaterExpiresAt")
+                    b.Property<DateTime>("WaterExpiresAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("Watered")
@@ -702,7 +699,7 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("NextWaterDueAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("PlantedAtUtc")
+                    b.Property<DateTime>("PlantedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("SeedId")
@@ -713,9 +710,6 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Property<DateTime?>("StageEndsAtUtc")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("TileId")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");

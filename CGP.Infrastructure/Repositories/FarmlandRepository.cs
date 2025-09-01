@@ -36,5 +36,13 @@ namespace CGP.Infrastructure.Repositories
                 .Include(f => f.FarmlandCrops)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
+
+        public async Task<FarmLand> GetFarmLandWithUserIdAndTileIdAsync(Guid userId, int titleId)
+        {
+            return await _context.FarmLand
+                .Include(f => f.User)
+                .Include(f => f.FarmlandCrops)
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.TileId == titleId);
+        }
     }
 }

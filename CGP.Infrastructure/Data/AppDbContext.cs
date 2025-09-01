@@ -41,7 +41,6 @@ public class AppDbContext : DbContext
     public DbSet<ActivityLog> ActivityLog { get; set; }
     public DbSet<WalletTransaction> WalletTransaction { get; set; }
     public DbSet<PointTransaction> PointTransactions { get; set; }
-    public DbSet<Crop> Crop { get; set; }
     public DbSet<Inventory> Inventory { get; set; }
     public DbSet<UserQuest> UserQuest { get; set; }
     public DbSet<Quest> Quest { get; set; }
@@ -536,9 +535,9 @@ public class AppDbContext : DbContext
             .WithMany(f => f.FarmlandCrops)
             .HasForeignKey(fc => fc.FarmlandId)
             .OnDelete(DeleteBehavior.Restrict);
-            e.HasOne(fc => fc.Crop)
+            e.HasOne(fc => fc.Item)
             .WithMany(c => c.FarmlandCrops)
-            .HasForeignKey(fc => fc.CropId)
+            .HasForeignKey(fc => fc.SeedId)
             .OnDelete(DeleteBehavior.Restrict);
         });
 

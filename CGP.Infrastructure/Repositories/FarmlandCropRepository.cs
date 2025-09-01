@@ -22,8 +22,19 @@ namespace CGP.Infrastructure.Repositories
         public async Task<FarmlandCrop?> GetActiveCropAsync(Guid plotId)
         {
             return await _context.FarmlandCrop
-                .Include(fc => fc.Crop)
-                .FirstOrDefaultAsync(fc => fc.FarmlandId == plotId && !fc.IsHarvested);
+                .FirstOrDefaultAsync(fc => fc.FarmlandId == plotId);
+        }
+
+        public async Task<FarmlandCrop?> GetByFarmlandIdAsync(Guid farmlandId)
+        {
+            return await _context.FarmlandCrop
+                .FirstOrDefaultAsync(fc => fc.FarmlandId == farmlandId && fc.IsActive);
+        }
+
+        public Task<FarmlandCrop> GetFarmLandCropWithUserIdAndTileIdAsync(Guid userId, int titleId)
+        {
+            return _context.FarmlandCrop
+                .FirstOrDefaultAsync(fc => fc.UserId == userId && fc.TileId == titleId);
         }
     }
 }

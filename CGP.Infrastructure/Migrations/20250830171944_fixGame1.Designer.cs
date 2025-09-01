@@ -4,6 +4,7 @@ using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250830171944_fixGame1")]
+    partial class fixGame1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 8, 31, 23, 15, 15, 146, DateTimeKind.Local).AddTicks(7743),
+                            CreationDate = new DateTime(2025, 8, 31, 0, 19, 42, 960, DateTimeKind.Local).AddTicks(4866),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -217,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 8, 31, 23, 15, 15, 146, DateTimeKind.Local).AddTicks(7790),
+                            CreationDate = new DateTime(2025, 8, 31, 0, 19, 42, 960, DateTimeKind.Local).AddTicks(4893),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -608,9 +611,6 @@ namespace CGP.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -632,19 +632,16 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("PlantedAt")
+                    b.Property<DateTime>("PlantedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("TileId")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("WaterExpiresAt")
+                    b.Property<DateTime>("WaterExpiresAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("Watered")
@@ -678,10 +675,10 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<Guid>("FarmlandId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("HarvestableAtUtc")
+                    b.Property<DateTime>("HarvestableAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("HarvestedAtUtc")
+                    b.Property<DateTime>("HarvestedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
@@ -699,10 +696,10 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<bool>("NeedsWater")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("NextWaterDueAtUtc")
+                    b.Property<DateTime>("NextWaterDueAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("PlantedAtUtc")
+                    b.Property<DateTime>("PlantedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("SeedId")
@@ -711,14 +708,11 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<int>("Stage")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("StageEndsAtUtc")
+                    b.Property<DateTime>("StageEndsAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("TileId")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -801,6 +795,10 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Property<Guid?>("ItemId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ItemType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("ModificationBy")
                         .HasColumnType("uniqueidentifier");
