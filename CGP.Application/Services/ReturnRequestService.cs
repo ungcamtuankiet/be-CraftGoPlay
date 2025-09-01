@@ -261,7 +261,7 @@ namespace CGP.Application.Services
                     Wallet_Id = walletUser.Id,
                     Amount = request.OrderItem.UnitPrice * request.OrderItem.Quantity,
                     Type = WalletTransactionTypeEnum.Refund,
-                    Description = @$"Hoàn tiền sản phẩm có mã đơn hàng chi tiết ""{request.OrderItemId}"" với số tiền {request.OrderItem.UnitPrice * request.OrderItem.Quantity}VND.",
+                    Description = @$"Sản phẩm có mã đơn hàng chi tiết là ""{request.OrderItemId}"" được hoàn tiền {request.OrderItem.UnitPrice * request.OrderItem.Quantity}VND.",
                     CreationDate = DateTime.UtcNow.AddHours(7),
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                     IsDeleted = false
