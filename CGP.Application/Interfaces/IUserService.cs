@@ -13,7 +13,7 @@ namespace CGP.Application.Interfaces
     {
         Task<IList<ApplicationUser>> GetALl();
         Task<List<ViewActivityDTO>> ViewActivityDTOs(Guid userId, int pageIndex, int pageSize);
-        Task<AccountResponse<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status);
+        Task<AccountResponse<List<UserDTO>>> GetAllAccount(int pageIndex, int pageSize, StatusEnum? status, RoleEnum? role);
         Task<Result<object>> CreateNewAccountAsync(CreateNewAccountDTO createNewAccountDTO);
         Task<Result<object>> UpdateAccountAsync(UpdateAccountDTO updateAccountDTO);
         Task<Result<object>> DeleteAccountAsync(Guid id);
@@ -31,5 +31,6 @@ namespace CGP.Application.Interfaces
         Task<Result<object>> UpdateUserInfoAsync(UpdateInfoUserDTO updateDto);
         Task<Result<ViewAddressOfArtisanDTO>> GetAddressOfArtisan(Guid userId);
         Task<Result<ArtisanDTO>> GetCurrentArtisanById(Guid artisanId);
+        Task<Result<Dictionary<string, int>>> GetUserCountByRoleAsync();
     }
 }

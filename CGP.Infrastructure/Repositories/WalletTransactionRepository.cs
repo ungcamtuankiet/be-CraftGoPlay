@@ -26,6 +26,7 @@ namespace CGP.Infrastructure.Repositories
             return await _context.WalletTransaction
                  .Where(t => t.Type == WalletTransactionTypeEnum.Pending && t.UnlockDate <= now)
                 .Include(t => t.Wallet)
+                .OrderByDescending(t => t.ModificationDate)
                 .ToListAsync();
         }
     }

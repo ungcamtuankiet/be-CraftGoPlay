@@ -1836,7 +1836,6 @@ namespace CGP.Application.Services
                     await _walletService.CreatePendingTransactionAsync(product.Artisan_id, amountRefundArtisan, 3);
 
                     getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefundArtisan;
-                    _unitOfWork.walletRepository.Update(getWalletSystem);
 
                     var addMoneyToWalletSystem = new WalletTransaction
                     {
@@ -1851,8 +1850,21 @@ namespace CGP.Application.Services
                     await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
                 }
 
-                var amountRefunDeliverySystem = Math.Round(order.Delivery_Amount * 0.15);
+                var amountRefunDeliverySystem = (decimal)(order.Delivery_Amount * 0.85); //tiền ship mà web nhận
+                getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliverySystem;
+                _unitOfWork.walletRepository.Update(getWalletSystem);
 
+                var addTotalAfterDeductions = new WalletTransaction
+                {
+                    Wallet_Id = getWalletSystem.Id,
+                    Amount = amountRefunDeliverySystem,
+                    Type = WalletTransactionTypeEnum.Purchase,
+                    Description = @$"Hoàn trả tiền phí vận chuyển của đơn hàng ""{order.Id}"" cho đơn vị vận chuyển với mức giá {amountRefunDeliverySystem}VND.",
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+                await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
             }
             order.Status = statusDto;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
@@ -1870,6 +1882,52 @@ namespace CGP.Application.Services
                 Error = 0,
                 Message = "Cập nhật trạng thái đơn hàng thành công",
                 Data = true
+            };
+        }
+
+        public async Task<Result<OrderCountDto>> CountAllOrdersAsync()
+        {
+            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForAdmin();
+            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForAdmin();
+
+            var result = new OrderCountDto
+            {
+                TotalOrders = totalOrders,
+                CompletedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Completed.ToString(), 0),
+                CancelledOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Cancelled.ToString(), 0),
+                RefundedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Refunded.ToString(), 0),
+                RejectedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Rejected.ToString(), 0),
+                DeliveryFailedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.DeliveryFailed.ToString(), 0)
+            };
+
+            return new Result<OrderCountDto>()
+            {
+                Error = 0,
+                Message = "Đếm tổng số đơn hàng và trạng thái thành công",
+                Data = result
+            };
+        }
+
+        public async Task<Result<OrderCountDto>> CountOrdersByArtisanIdAsync(Guid artisanId)
+        {
+            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForArtisan(artisanId);
+            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForArtisan(artisanId);
+
+            var result = new OrderCountDto
+            {
+                TotalOrders = totalOrders,
+                CompletedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Completed.ToString(), 0),
+                CancelledOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Cancelled.ToString(), 0),
+                RefundedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Refunded.ToString(), 0),
+                RejectedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Rejected.ToString(), 0),
+                DeliveryFailedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.DeliveryFailed.ToString(), 0)
+            };
+
+            return new Result<OrderCountDto>()
+            {
+                Error = 0,
+                Message = "Đếm số đơn hàng theo artisan và trạng thái thành công",
+                Data = result
             };
         }
 

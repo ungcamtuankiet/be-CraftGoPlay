@@ -13,7 +13,7 @@ namespace CGP.Application.Repositories
     public interface IUserRepository : IGenericRepository<ApplicationUser>
     {
         Task<IList<ApplicationUser>> GetALl();
-        Task<IList<ApplicationUser>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status);
+        Task<IList<ApplicationUser>> GetAllAccount(int pageIndex, int pageSize, StatusEnum? status, RoleEnum? role);
         Task<ApplicationUser?> FindByEmail(string email);
         Task<ApplicationUser?> FindByPhoneNoAsync(string phoneNo);
 
@@ -33,6 +33,6 @@ namespace CGP.Application.Repositories
 
         //Forget Password
         Task<ApplicationUser> GetUserByResetToken(string resetToken);
-
+        Task<Dictionary<string, int>> CountUsersByRoleAsync();
     }
 }

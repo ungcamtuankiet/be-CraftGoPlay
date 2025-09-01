@@ -237,6 +237,7 @@ namespace CGP.Application.Services
         public async Task<Result<object>> ResolveEscalatedRequestAsync(Guid returnRequestId, bool acceptRefund)
         {
             var request = await _unitOfWork.returnRequestRepository.GetByIdAsync(returnRequestId);
+            var walletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(request.UserId);
 
             if (request == null || request.Status != ReturnStatusEnum.Escalated)
             {
@@ -251,12 +252,26 @@ namespace CGP.Application.Services
             {
                 request.Status = ReturnStatusEnum.Refunded;
                 request.ApprovedAt = DateTime.UtcNow.AddHours(7);
-
+                request.OrderItem.Order.Status = OrderStatusEnum.Refunded;
                 request.OrderItem.Order.Payment.IsRefunded = true;
+                walletUser.AvailableBalance = request.OrderItem.UnitPrice * request.OrderItem.Quantity;
+
+                var addMoneyToWalletUser = new WalletTransaction
+                {
+                    Wallet_Id = walletUser.Id,
+                    Amount = request.OrderItem.UnitPrice * request.OrderItem.Quantity,
+                    Type = WalletTransactionTypeEnum.Refund,
+                    Description = @$"Hoàn tiền sản phẩm có mã đơn hàng chi tiết ""{request.OrderItemId}"" với số tiền {request.OrderItem.UnitPrice * request.OrderItem.Quantity}VND.",
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+                await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletUser);
             }
             else
             {
                 request.Status = ReturnStatusEnum.Resolved;
+                request.OrderItem.Order.Status = OrderStatusEnum.Completed;
             }
 
             request.ModificationDate = DateTime.UtcNow.AddHours(7);
