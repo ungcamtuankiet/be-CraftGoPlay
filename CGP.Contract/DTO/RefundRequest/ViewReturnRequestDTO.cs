@@ -17,6 +17,7 @@ namespace CGP.Contract.DTO.RefundRequest
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
         public ReturnStatusEnum Status { get; set; }
+        public RejectReturnReasonEnum? RejectReturnReasonEnum { get; set; }
         public DateTime RequestedAt { get; set; }
         public DateTime? ApprovedAt { get; set; }
         public DateTime? ReceivedAt { get; set; }

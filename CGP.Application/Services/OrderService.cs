@@ -1885,29 +1885,6 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<OrderCountDto>> CountAllOrdersAsync()
-        {
-            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForAdmin();
-            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForAdmin();
-
-            var result = new OrderCountDto
-            {
-                TotalOrders = totalOrders,
-                CompletedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Completed.ToString(), 0),
-                CancelledOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Cancelled.ToString(), 0),
-                RefundedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Refunded.ToString(), 0),
-                RejectedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.Rejected.ToString(), 0),
-                DeliveryFailedOrders = statusCounts.GetValueOrDefault(OrderStatusEnum.DeliveryFailed.ToString(), 0)
-            };
-
-            return new Result<OrderCountDto>()
-            {
-                Error = 0,
-                Message = "Đếm tổng số đơn hàng và trạng thái thành công",
-                Data = result
-            };
-        }
-
         public async Task<Result<OrderCountDto>> CountOrdersByArtisanIdAsync(Guid artisanId)
         {
             var totalOrders = await _unitOfWork.orderRepository.CountAsyncForArtisan(artisanId);
@@ -1936,9 +1913,6 @@ namespace CGP.Application.Services
         {
             var now = DateTime.UtcNow.AddHours(7);
             DateTime? from = null, to = null;
-
-            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForArtisan(filter.ArtisanId);
-            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForArtisan(filter.ArtisanId);
 
             switch (filter.Type)
             {
@@ -1973,6 +1947,8 @@ namespace CGP.Application.Services
             }
 
             decimal totalRevenue = await _unitOfWork.orderRepository.SumRevenueForArtisanAsync(filter.ArtisanId, from, to);
+            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForArtisan(filter.ArtisanId, from, to);
+            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForArtisan(filter.ArtisanId, from, to);
 
             return new Result<OrderDashboardForArtisanDto>
             {
@@ -1991,9 +1967,6 @@ namespace CGP.Application.Services
         {
             var now = DateTime.UtcNow.AddHours(7);
             DateTime? from = null, to = null;
-
-            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForAdmin();
-            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForAdmin();
 
             switch (filter.Type)
             {
@@ -2027,7 +2000,10 @@ namespace CGP.Application.Services
                     throw new ArgumentException("Filter type không hợp lệ.");
             }
 
-            decimal totalRevenue = await _unitOfWork.orderRepository.SumRevenueForAdminAsync(from, to);
+            decimal totalRevenueBeforeFee = await _unitOfWork.orderRepository.SumRevenueForAdminBeforFeeAsync(from, to);
+            decimal totalRevenueAfterFee = await _unitOfWork.orderRepository.SumRevenueForAdminAfterFeeAsync(from, to);
+            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForAdmin(from, to);
+            var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForAdmin(from, to);
 
             return new Result<OrderDashboardForArtisanDto>
             {
@@ -2036,7 +2012,8 @@ namespace CGP.Application.Services
                 Data = new OrderDashboardForArtisanDto
                 {
                     TotalOrders = totalOrders,
-                    TotalRevenue = totalRevenue,
+                    TotalRevenueBeforeFee = totalRevenueBeforeFee,
+                    TotalRevenueAfterFee = totalRevenueAfterFee,
                     OrderStatusCounts = statusCounts
                 }
             };
