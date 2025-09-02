@@ -22,11 +22,11 @@ namespace CGP.WebAPI.Controllers
             _orderService = orderService;
         }
 
-        [HttpGet("GetAllAccountByStatus")]
-        [Authorize(Policy = "AdminOrStaffPolicy")]
-        public async Task<IActionResult> GetAllAccountByStatus([FromQuery]int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] StatusEnum status = StatusEnum.Active)
+        [HttpGet("GetAllAccount")]
+        //[Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> GetAllAccount([FromQuery]int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] StatusEnum? status = null, [FromQuery] RoleEnum? role = null)
         {
-            var result = await _userService.GetAllAccountByStatusAsync(pageIndex, pageSize, status);
+            var result = await _userService.GetAllAccount(pageIndex, pageSize, status, role);
             if (result.Error != 0)
             {
                 return NotFound(result);
@@ -34,12 +34,24 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetOrders")]
-/*        [Authorize(Policy = "AdminOrStaffPolicy")]*/
-        public async Task<IActionResult> GetOrders([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
+        [HttpGet("CountAllOrders")]
+        //[Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> CountAllOrders()
         {
-            var result = await _orderService.GetOrdersAsync(pageIndex, pageSize, status);
+            var result = await _orderService.CountAllOrdersAsync();
             return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
+        [HttpGet("CountAccountByRole")]
+        //[Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> CountUsersByRole()
+        {
+            var result = await _userService.GetUserCountByRoleAsync();
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         [HttpPost("CreateStaffAccount")]

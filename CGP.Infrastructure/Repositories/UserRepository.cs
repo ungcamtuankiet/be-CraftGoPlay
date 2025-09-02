@@ -42,7 +42,7 @@ namespace CGP.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<IList<ApplicationUser>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)
+        public async Task<IList<ApplicationUser>> GetAllAccount(int pageIndex, int pageSize, StatusEnum? status, RoleEnum? role)
         {
             var query =  _dbContext.User
                 .Include(u => u.Role)
@@ -51,9 +51,9 @@ namespace CGP.Infrastructure.Repositories
                 .Include(u => u.UserAddresses)
                 .AsQueryable();
 
-                if (!string.IsNullOrWhiteSpace(status.ToString()))
+                if (status.HasValue)
                 {
-                    switch (status.ToString().ToLower())
+                    switch (status?.ToString().ToLower())
                     {
                         case "active":
                             query = query.Where(x => x.Status == StatusEnum.Active);
@@ -68,17 +68,36 @@ namespace CGP.Infrastructure.Repositories
                             query = query.Where(x => x.Status == StatusEnum.Rejected);
                             break;
                         default:
-                            query = query.Where(p => p.Status == StatusEnum.Active);
+                            query = query.Where(p => p.Status == status);
                             break;
                     }
                 }
-                else
+
+                if (role.HasValue)
                 {
-                    query = query = query.Where(p => p.Status == status);
+                    switch (role?.ToString().ToLower())
+                    {
+                        case "admin":
+                            query = query.Where(x => x.Role.RoleName == RoleEnum.Admin.ToString());
+                            break;
+                        case "staff":
+                            query = query.Where(x => x.Role.RoleName == RoleEnum.Staff.ToString());
+                            break;
+                        case "artisan":
+                            query = query.Where(x => x.Role.RoleName == RoleEnum.Artisan.ToString());
+                            break;
+                        case "user":
+                            query = query.Where(x => x.Role.RoleName == RoleEnum.User.ToString());
+                            break;
+                        default:
+                            query = query.Where(x => x.Role.RoleName == role.ToString());
+                            break;
+                    }
                 }
             return await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
+                .OrderByDescending(t => t.CreationDate)
                 .ToListAsync();
         }
 
@@ -178,6 +197,33 @@ namespace CGP.Infrastructure.Repositories
                 .Include(u => u.Wallet)
                 .Include(u => u.UserAddresses)
                 .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNo);
+        }
+
+        public async Task<Dictionary<string, int>> CountUsersByRoleAsync()
+        {
+            var roleCounts = await _dbContext.User
+                .GroupBy(u => u.Role.RoleName)
+                .Where(g => new[] { RoleEnum.User.ToString(), RoleEnum.Artisan.ToString(), RoleEnum.Staff.ToString() }.Contains(g.Key))
+                .Select(g => new { RoleName = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(k => k.RoleName, v => v.Count);
+
+            // Đảm bảo tất cả các role được yêu cầu đều có trong kết quả, kể cả khi số lượng bằng 0
+            var result = new Dictionary<string, int>
+            {
+                { RoleEnum.User.ToString(), 0 },
+                { RoleEnum.Artisan.ToString(), 0 },
+                { RoleEnum.Staff.ToString(), 0 }
+             };
+
+            foreach (var roleCount in roleCounts)
+            {
+                if (result.ContainsKey(roleCount.Key))
+                {
+                    result[roleCount.Key] = roleCount.Value;
+                }
+            }
+
+            return result;
         }
     }
 }

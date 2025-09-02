@@ -66,9 +66,9 @@ namespace CGP.Application.Services
             return result;
         }
 
-        public async Task<AccountResponse<List<UserDTO>>> GetAllAccountByStatusAsync(int pageIndex, int pageSize, StatusEnum status)
+        public async Task<AccountResponse<List<UserDTO>>> GetAllAccount(int pageIndex, int pageSize, StatusEnum? status, RoleEnum? role)
         {
-            var getUser = _mapper.Map<List<UserDTO>>(await _unitOfWork.userRepository.GetAllAccountByStatusAsync(pageIndex, pageSize, status));
+            var getUser = _mapper.Map<List<UserDTO>>(await _unitOfWork.userRepository.GetAllAccount(pageIndex, pageSize, status, role));
             return new AccountResponse<List<UserDTO>>()
             {
                 Error = 0,
@@ -548,6 +548,17 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
+        }
+
+        public async Task<Result<Dictionary<string, int>>> GetUserCountByRoleAsync()
+        {
+            var roleCounts = await _unitOfWork.userRepository.CountUsersByRoleAsync();
+            return new Result<Dictionary<string, int>>
+            {
+                Error = 0,
+                Message = "Lấy số lượng người dùng theo vai trò thành công.",
+                Data = roleCounts
+            };
         }
     }
 }

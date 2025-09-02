@@ -8,7 +8,9 @@ namespace CGP.Domain.Enums
 {
     public enum RoleEnum
     {
+        Admin = 4,
         Staff = 3,
-        Admin = 4
+        Artisan = 2,
+        User = 1,
     }
 }
