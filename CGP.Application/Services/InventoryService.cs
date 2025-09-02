@@ -102,11 +102,11 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> UpdateInventoryAsync(UpdateInventoryDTO updateInventoryDTO)
         {
-            var checkInventory = await _unitOfWork.inventoryRepository.GetByIdAsync(updateInventoryDTO.Id);
+            var getInventory = await _unitOfWork.inventoryRepository.GetByIdAsync(updateInventoryDTO.Id);
             var checkUser = await _unitOfWork.userRepository.GetByIdAsync(updateInventoryDTO.UserId);
-            var checkInventorySlot = await _unitOfWork.inventoryRepository.CheckSlotIndexInventoryAsync(updateInventoryDTO.UserId, updateInventoryDTO.SlotIndex);
+            var checkInventory = await _unitOfWork.inventoryRepository.CheckItemInSlotIndexAsync(updateInventoryDTO.UserId, updateInventoryDTO.SlotIndex, updateInventoryDTO.InventoryType);
             var checkItem = await _unitOfWork.itemRepository.GetByIdAsync((Guid)updateInventoryDTO.ItemId);
-            if (checkInventory == null)
+            if (getInventory == null)
             {
                 return new Result<object>()
                 {
@@ -116,7 +116,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (checkInventorySlot != null)
+            if (checkInventory != null)
             {
                 return new Result<object>()
                 {
@@ -136,14 +136,13 @@ namespace CGP.Application.Services
                 };
             }
 
-            var result = _mapper.Map(updateInventoryDTO, checkInventory);
-            _unitOfWork.inventoryRepository.Update(result);
+            _mapper.Map(updateInventoryDTO, getInventory);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()
             {
                 Error = 0,
                 Message = "Cập nhật kho đồ thành công.",
-                Data = result
+                Data = null
             };
         }
 
