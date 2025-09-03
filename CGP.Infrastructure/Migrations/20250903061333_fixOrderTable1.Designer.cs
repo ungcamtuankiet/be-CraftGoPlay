@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250903034950_fixOrderTable1")]
+    [Migration("20250903061333_fixOrderTable1")]
     partial class fixOrderTable1
     {
         /// <inheritdoc />
@@ -207,7 +207,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 9, 3, 10, 49, 50, 102, DateTimeKind.Local).AddTicks(1833),
+                            CreationDate = new DateTime(2025, 9, 3, 13, 13, 31, 590, DateTimeKind.Local).AddTicks(4492),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -220,7 +220,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 9, 3, 10, 49, 50, 102, DateTimeKind.Local).AddTicks(1868),
+                            CreationDate = new DateTime(2025, 9, 3, 13, 13, 31, 590, DateTimeKind.Local).AddTicks(4515),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -2122,8 +2122,8 @@ namespace CGP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("PointChangeAmount")
-                        .HasColumnType("float");
+                    b.Property<int>("PointChangeAmount")
+                        .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
