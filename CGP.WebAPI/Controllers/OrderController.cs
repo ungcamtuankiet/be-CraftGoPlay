@@ -108,9 +108,9 @@ namespace CGP.WebAPI.Controllers
 
         [HttpPut("Status/{orderId}")]
 /*        [Authorize]*/
-        public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromForm] OrderStatusEnum statusDto)
+        public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromForm] OrderStatusEnum statusDto, [FromForm] ReasonDeliveryFailed reason)
         {
-            var result = await _orderService.UpdateOrderStatusAsync(orderId, statusDto);
+            var result = await _orderService.UpdateOrderStatusAsync(orderId, statusDto, reason);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
     }
