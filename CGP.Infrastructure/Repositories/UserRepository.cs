@@ -225,5 +225,30 @@ namespace CGP.Infrastructure.Repositories
 
             return result;
         }
+
+        public async Task<bool> CheckExistUserVoucher(Guid userId, Guid voucherId)
+        {
+            var userHasVoucher = await _dbContext.User
+                .Where(u => u.Id == userId)
+                .SelectMany(u => u.Vouchers)
+                .AnyAsync(v => v.Id == voucherId);
+
+            if(userHasVoucher)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<List<ApplicationUser>> GetAllsVoucherByUserId(Guid userId, VoucherTypeEnum voucherTypeEnum)
+        {
+            return await _dbContext.User
+                .Include(u => u.Vouchers.Where(v => v.Type == voucherTypeEnum))
+                .Where(u => u.Id == userId)
+                .ToListAsync();
+        }
     }
 }
