@@ -34,26 +34,6 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("CountAllOrders")]
-        //[Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> CountAllOrders()
-        {
-            var result = await _orderService.CountAllOrdersAsync();
-            return StatusCode(result.Error == 0 ? 200 : 400, result);
-        }
-
-        [HttpGet("CountAccountByRole")]
-        //[Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> CountUsersByRole()
-        {
-            var result = await _userService.GetUserCountByRoleAsync();
-            if (result.Error != 0)
-            {
-                return BadRequest(result);
-            }
-            return Ok(result);
-        }
-
         [HttpPost("CreateStaffAccount")]
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> CreateStaffAccount([FromForm] CreateNewAccountDTO createNewAccountDTO)

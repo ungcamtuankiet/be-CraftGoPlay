@@ -129,37 +129,63 @@ namespace CGP.Infrastructure.Repositories
 
         //Dashboard
 
-        public async Task<int> CountAsyncForArtisan(Guid artisanId, Expression<Func<Order, bool>> predicate = null)
+        public async Task<int> CountAsyncForArtisan(Guid artisanId, DateTime? from = null, DateTime? to = null)
         {
-            return await _dbContext.OrderItem
-                .Where(i => i.ArtisanId == artisanId)
-                .Select(i => i.OrderId)
-                .Distinct()
-                .CountAsync();
+            var query = _dbContext.Order
+                .Where(o => o.OrderItems.Any(oi => oi.ArtisanId == artisanId));
+
+            if (from.HasValue)
+                query = query.Where(o => o.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(o => o.CreationDate <= to.Value);
+
+            return await query.CountAsync();
         }
 
-        public async Task<int> CountAsyncForAdmin(Expression<Func<Order, bool>> predicate = null)
+        public async Task<int> CountAsyncForAdmin(DateTime? from = null, DateTime? to = null)
         {
-            return await _dbContext.OrderItem
-                .Select(i => i.OrderId)
-                .Distinct()
-                .CountAsync();
+            var query = _dbContext.Order.AsQueryable();
+
+            if (from.HasValue)
+                query = query.Where(o => o.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(o => o.CreationDate <= to.Value);
+
+            return await query.CountAsync();
         }
 
-        public async Task<Dictionary<string, int>> GetStatusCountsAsyncForArtisan(Guid artisanId)
+        public async Task<Dictionary<string, int>> GetStatusCountsAsyncForArtisan(Guid artisanId, DateTime? from = null, DateTime? to = null)
         {
-            return await _dbContext.OrderItem
-                .Where(i => i.ArtisanId == artisanId)
-                .GroupBy(i => i.Status)
-                .Select(g => new { Status = g.Key.ToString(), Count = g.Select(x => x.OrderId).Distinct().Count() })
+            var query = _dbContext.Order
+                .Where(o => o.OrderItems.Any(oi => oi.ArtisanId == artisanId));
+
+            if (from.HasValue)
+                query = query.Where(o => o.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(o => o.CreationDate <= to.Value);
+
+            return await query
+                .GroupBy(o => o.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
                 .ToDictionaryAsync(x => x.Status, x => x.Count);
         }
 
-        public async Task<Dictionary<string, int>> GetStatusCountsAsyncForAdmin()
+        public async Task<Dictionary<string, int>> GetStatusCountsAsyncForAdmin(DateTime? from = null, DateTime? to = null)
         {
-            return await _dbContext.OrderItem
-                .GroupBy(i => i.Status)
-                .Select(g => new { Status = g.Key.ToString(), Count = g.Select(x => x.OrderId).Distinct().Count() })
+            var query = _dbContext.Order.AsQueryable();
+
+            if (from.HasValue)
+                query = query.Where(o => o.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(o => o.CreationDate <= to.Value);
+
+            return await query
+                .GroupBy(o => o.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
                 .ToDictionaryAsync(x => x.Status, x => x.Count);
         }
 
@@ -175,10 +201,11 @@ namespace CGP.Infrastructure.Repositories
             if (to.HasValue)
                 query = query.Where(i => i.Order.CreationDate <= to.Value);
 
-            return await query.SumAsync(i => (decimal?)(i.UnitPrice * i.Quantity)) ?? 0;
+            // Fix: Remove ?? 0 (not needed for decimal), and close parenthesis for Math.Round
+            return await query.SumAsync(i => Math.Round((i.UnitPrice * i.Quantity) * 0.95m));
         }
 
-        public async Task<decimal> SumRevenueForAdminAsync(DateTime? from = null, DateTime? to = null)
+        public async Task<decimal> SumRevenueForAdminBeforFeeAsync(DateTime? from = null, DateTime? to = null)
         {
             var query = _dbContext.OrderItem
                 .Where(i => i.Status == OrderStatusEnum.Completed);
@@ -190,6 +217,27 @@ namespace CGP.Infrastructure.Repositories
                 query = query.Where(i => i.Order.CreationDate <= to.Value);
 
             return await query.SumAsync(i => (decimal?)(i.Order.TotalPrice)) ?? 0;
+        }
+
+        public async Task<decimal> SumRevenueForAdminAfterFeeAsync(DateTime? from = null, DateTime? to = null)
+        {
+            var query = _dbContext.OrderItem
+                .Where(i => i.Status == OrderStatusEnum.Completed);
+
+            if (from.HasValue)
+                query = query.Where(i => i.Order.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(i => i.Order.CreationDate <= to.Value);
+
+            return await query.SumAsync
+                (
+                i => (decimal)(i.Order.TotalPrice) 
+                - (decimal)(i.Order.Delivery_Amount * 0.85) 
+                - (decimal)(i.Order.DeliveryDiscount) 
+                - (decimal)(i.Order.Product_Amount * 0.95) 
+                - (decimal)(i.Order.ProductDiscount)
+                );
         }
     }
 }
