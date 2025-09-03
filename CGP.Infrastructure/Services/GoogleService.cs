@@ -24,15 +24,17 @@ namespace CGP.Infrastructure.Services
         private readonly IRedisService _redisService;
         private readonly IUserRepository _userRepository;
         private readonly IAuthRepository _authRepository;
+        private readonly IUserQuestService _userQuestService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public GoogleService(IConfiguration configuration, IRedisService redisService, IUserRepository userRepository, IAuthRepository authRepository, IUnitOfWork unitOfWork)
+        public GoogleService(IConfiguration configuration, IRedisService redisService, IUserRepository userRepository, IAuthRepository authRepository, IUnitOfWork unitOfWork, IUserQuestService userQuestService)
         {
             _configuration = configuration;
             _redisService = redisService;
             _userRepository = userRepository;
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
+            _userQuestService = userQuestService;
         }
 
         public async Task<string> GoogleCallback(string code)
@@ -91,7 +93,9 @@ namespace CGP.Infrastructure.Services
                         RefreshToken = null
                     };
                 }
+                var user = (ApplicationUser)getAccount.Data;
                 var token = await GenerateJwtToken((ApplicationUser)getAccount.Data);
+                await _userQuestService.EnsureDailyQuestAsync(user.Id);
                 return token;
             }
             catch (InvalidJwtException ex)

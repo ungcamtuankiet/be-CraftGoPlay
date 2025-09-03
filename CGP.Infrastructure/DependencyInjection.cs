@@ -56,6 +56,8 @@ namespace CGP.Infrastructure
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IShopPriceService, ShopPriceService>();
             services.AddScoped<IUserVoucherService, UserVoucherService>();
+            services.AddScoped<IQuestService, QuestService>();
+            services.AddScoped<IUserQuestService, UserQuestService>();
 
             services.AddMemoryCache();
             //Repositories
