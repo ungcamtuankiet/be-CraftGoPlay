@@ -1558,7 +1558,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if(statusDto == null)
+            if (statusDto == null)
             {
                 return new Result<bool>()
                 {
@@ -1573,7 +1573,7 @@ namespace CGP.Application.Services
             var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
             var getTransaction = await _unitOfWork.transactionRepository.GetTransactionByOrderId(order.Id);
 
-            if(statusDto == OrderStatusEnum.Cancelled)
+            if (statusDto == OrderStatusEnum.Cancelled)
             {
                 if (statusDto == OrderStatusEnum.Rejected)
                 {
@@ -1584,7 +1584,7 @@ namespace CGP.Application.Services
                         Data = false
                     };
                 }
-                
+
                 if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
                 {
                     if (order.Status == OrderStatusEnum.Shipped || order.Status == OrderStatusEnum.Delivered)
@@ -1669,7 +1669,7 @@ namespace CGP.Application.Services
                 }
             }
 
-            if(statusDto == OrderStatusEnum.Rejected)
+            if (statusDto == OrderStatusEnum.Rejected)
             {
                 if (order.Status == OrderStatusEnum.Cancelled)
                 {
@@ -1681,7 +1681,7 @@ namespace CGP.Application.Services
                     };
                 }
 
-                if(order.Status == OrderStatusEnum.Rejected)
+                if (order.Status == OrderStatusEnum.Rejected)
                 {
                     return new Result<bool>()
                     {
@@ -1691,7 +1691,7 @@ namespace CGP.Application.Services
                     };
                 }
 
-                if(order.Status != OrderStatusEnum.Created)
+                if (order.Status != OrderStatusEnum.Created)
                 {
                     return new Result<bool>()
                     {
@@ -1816,9 +1816,9 @@ namespace CGP.Application.Services
                 order.IsPaid = true;
             }
 
-            if(statusDto == OrderStatusEnum.DeliveryAttemptFailed)
+            if (statusDto == OrderStatusEnum.DeliveryAttemptFailed)
             {
-                if(order.Status != OrderStatusEnum.Shipped)
+                if (order.Status != OrderStatusEnum.Shipped)
                 {
                     return new Result<bool>()
                     {
@@ -1828,7 +1828,7 @@ namespace CGP.Application.Services
                     };
                 }
 
-                if(reason == null || reason == ReasonDeliveryFailed.Empty)
+                if (reason == null || reason == ReasonDeliveryFailed.Empty)
                 {
                     return new Result<bool>()
                     {
@@ -1838,7 +1838,7 @@ namespace CGP.Application.Services
                     };
                 }
                 order.DeliveriesCount++;
-                if(order.DeliveriesCount >= 3)
+                if (order.DeliveriesCount >= 3)
                 {
                     order.Status = OrderStatusEnum.DeliveryFailed;
                     order.ReasonDeliveryFailed = reason;
@@ -1871,9 +1871,9 @@ namespace CGP.Application.Services
                 }
             }
 
-            if(statusDto == OrderStatusEnum.Completed)
+            if (statusDto == OrderStatusEnum.Completed)
             {
-                if(order.Status != OrderStatusEnum.Delivered)
+                if (order.Status != OrderStatusEnum.Delivered)
                 {
                     return new Result<bool>()
                     {

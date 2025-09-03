@@ -13,8 +13,8 @@ namespace CGP.Infrastructure.Mappers.FarmlandCropProfile
     {
         public FarmlandCropProfile()
         {
-            CreateMap<FarmlandCrop, ViewFarmlandCropDTO>()
-                .ReverseMap();
+            // CreateMap<Source, Destination>();
+            CreateMap<FarmlandCrop, ViewFarmlandCropDTO>();
         }
     }
 }

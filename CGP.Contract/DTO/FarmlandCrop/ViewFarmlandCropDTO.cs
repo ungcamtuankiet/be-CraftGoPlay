@@ -9,7 +9,7 @@ namespace CGP.Contract.DTO.FarmlandCrop
 {
     public class ViewFarmlandCropDTO
     {
-        public Guid Id { get; set; }
+        public Guid FarmlandId { get; set; }
         public int TileId { get; set; }
         public Guid SeedId { get; set; }
         public Guid UserId { get; set; }

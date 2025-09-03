@@ -36,7 +36,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if(getUser == null)
+            if (getUser == null)
             {
                 return new Result<object>
                 {
@@ -45,8 +45,8 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
-            
-            if(getVoucher.PointChangeAmount > userPoint.Amount)
+
+            if (getVoucher.PointChangeAmount > userPoint.Amount)
             {
                 return new Result<object>
                 {
