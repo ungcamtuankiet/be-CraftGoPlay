@@ -15,7 +15,5 @@ namespace CGP.Contract.DTO.DashBoard
 
         //Doanh thu
         public decimal TotalRevenue { get; set; }
-        public decimal TotalRevenueBeforeFee { get; set; }
-        public decimal TotalRevenueAfterFee { get; set; }
     }
 }

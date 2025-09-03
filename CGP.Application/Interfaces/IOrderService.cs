@@ -28,7 +28,7 @@ namespace CGP.Application.Interfaces
         Task<Result<OrderCountDto>> CountOrdersByArtisanIdAsync(Guid artisanId);
         //Dashboard
         Task<Result<OrderDashboardForArtisanDto>> GetDashboardForArtisan(RevenueFilterDto filter);
-        Task<Result<OrderDashboardForArtisanDto>> GetDashboardForAdmin(RevenueFilterForAdmin filter);
+        Task<Result<OrderDashboardForAdminDto>> GetDashboardForAdmin(RevenueFilterForAdmin filter);
         Task<Result<ProductCountByMonthDto>> GetProductCountsByMonthAsync(int year, Guid? artisanId = null);
     }
 }
