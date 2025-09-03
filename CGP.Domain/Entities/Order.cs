@@ -14,12 +14,14 @@ namespace CGP.Domain.Entities
         public Guid TransactionId { get; set; }
         public double Product_Amount { get; set; }
         public double Delivery_Amount { get; set; }
-        public double ProductDiscount { get; set; } 
+        public double ProductDiscount { get; set; }
         public double DeliveryDiscount { get; set; }
         public double TotalDiscount { get; set; }
-        public decimal TotalPrice { get; set; } 
+        public decimal TotalPrice { get; set; }
+        public int DeliveriesCount { get; set; } = 0;
         public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Created;
         public PaymentMethodEnum PaymentMethod { get; set; }
+        public ReasonDeliveryFailed ReasonDeliveryFailed { get; set; } = ReasonDeliveryFailed.Empty;
         public bool IsPaid { get; set; } = false;
         public ApplicationUser User { get; set; }
         public Payment? Payment { get; set; }

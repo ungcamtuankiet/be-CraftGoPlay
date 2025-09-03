@@ -1545,7 +1545,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, OrderStatusEnum statusDto)
+        public async Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, OrderStatusEnum statusDto, ReasonDeliveryFailed reason)
         {
             var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
@@ -1558,7 +1558,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if(statusDto == null)
+            if (statusDto == null)
             {
                 return new Result<bool>()
                 {
@@ -1573,7 +1573,7 @@ namespace CGP.Application.Services
             var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(order.UserId);
             var getTransaction = await _unitOfWork.transactionRepository.GetTransactionByOrderId(order.Id);
 
-            if(statusDto == OrderStatusEnum.Cancelled)
+            if (statusDto == OrderStatusEnum.Cancelled)
             {
                 if (statusDto == OrderStatusEnum.Rejected)
                 {
@@ -1584,7 +1584,7 @@ namespace CGP.Application.Services
                         Data = false
                     };
                 }
-                
+
                 if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
                 {
                     if (order.Status == OrderStatusEnum.Shipped || order.Status == OrderStatusEnum.Delivered)
@@ -1669,7 +1669,7 @@ namespace CGP.Application.Services
                 }
             }
 
-            if(statusDto == OrderStatusEnum.Rejected)
+            if (statusDto == OrderStatusEnum.Rejected)
             {
                 if (order.Status == OrderStatusEnum.Cancelled)
                 {
@@ -1681,7 +1681,7 @@ namespace CGP.Application.Services
                     };
                 }
 
-                if(order.Status == OrderStatusEnum.Rejected)
+                if (order.Status == OrderStatusEnum.Rejected)
                 {
                     return new Result<bool>()
                     {
@@ -1691,7 +1691,7 @@ namespace CGP.Application.Services
                     };
                 }
 
-                if(order.Status != OrderStatusEnum.Created)
+                if (order.Status != OrderStatusEnum.Created)
                 {
                     return new Result<bool>()
                     {
@@ -1815,9 +1815,65 @@ namespace CGP.Application.Services
                 order.ModificationDate = DateTime.UtcNow.AddHours(7);
                 order.IsPaid = true;
             }
-            if(statusDto == OrderStatusEnum.Completed)
+
+            if (statusDto == OrderStatusEnum.DeliveryAttemptFailed)
             {
-                if(order.Status != OrderStatusEnum.Delivered)
+                if (order.Status != OrderStatusEnum.Shipped)
+                {
+                    return new Result<bool>()
+                    {
+                        Error = 1,
+                        Message = "Chỉ có thể cập nhật trạng thái khi đơn hàng đang trong quá trình vận chuyển.",
+                        Data = false
+                    };
+                }
+
+                if (reason == null || reason == ReasonDeliveryFailed.Empty)
+                {
+                    return new Result<bool>()
+                    {
+                        Error = 1,
+                        Message = "Cần có lý do cho việc giao hàng không thành công.",
+                        Data = false
+                    };
+                }
+                order.DeliveriesCount++;
+                if (order.DeliveriesCount >= 3)
+                {
+                    order.Status = OrderStatusEnum.DeliveryFailed;
+                    order.ReasonDeliveryFailed = reason;
+                    order.ModificationDate = DateTime.UtcNow.AddHours(7);
+                    foreach (var item in orderItems)
+                    {
+                        item.Status = OrderStatusEnum.DeliveryFailed;
+                        item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                        _unitOfWork.orderItemRepository.Update(item);
+                    }
+                    await _unitOfWork.SaveChangeAsync();
+                    return new Result<bool>()
+                    {
+                        Error = 0,
+                        Message = "Đơn hàng đã thử giao 3 lần không thành công và được đánh dấu là giao hàng thất bại.",
+                        Data = true
+                    };
+                }
+                else
+                {
+                    order.Status = statusDto;
+                    order.ReasonDeliveryFailed = reason;
+                    order.ModificationDate = DateTime.UtcNow.AddHours(7);
+                    foreach (var item in orderItems)
+                    {
+                        item.Status = OrderStatusEnum.DeliveryAttemptFailed;
+                        item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                        _unitOfWork.orderItemRepository.Update(item);
+                    }
+                }
+            }
+
+            if (statusDto == OrderStatusEnum.Completed)
+            {
+                if (order.Status != OrderStatusEnum.Delivered)
                 {
                     return new Result<bool>()
                     {
