@@ -47,5 +47,21 @@ namespace CGP.WebAPI.Controllers
             var dashboard = await _orderService.GetDashboardForAdmin(filterDto);
             return Ok(dashboard);
         }
+
+        [HttpGet("ProductCountsByMonth")]
+        public async Task<IActionResult> GetProductCountsByMonth([FromQuery] int year, [FromQuery] Guid? artisanId = null)
+        {
+            if (year < 1900 || year > DateTime.UtcNow.Year)
+            {
+                return BadRequest(new Result<object>
+                {
+                    Error = 1,
+                    Message = "Năm không hợp lệ."
+                });
+            }
+
+            var result = await _orderService.GetProductCountsByMonthAsync(year, artisanId);
+            return Ok(result);
+        }
     }
 }

@@ -8,7 +8,6 @@ namespace CGP.Domain.Enums
 {
     public enum PaymentMethodEnum
     {
-        All,
         Cash,
         Online
     }

@@ -1,4 +1,5 @@
-﻿using CGP.Domain.Entities;
+﻿using CGP.Contract.DTO.DashBoard;
+using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -25,5 +26,6 @@ namespace CGP.Application.Repositories
         Task<decimal> SumRevenueForArtisanAsync(Guid artisanId, DateTime? from = null, DateTime? to = null);
         Task<decimal> SumRevenueForAdminBeforFeeAsync(DateTime? from = null, DateTime? to = null);
         Task<decimal> SumRevenueForAdminAfterFeeAsync(DateTime? from = null, DateTime? to = null);
+        Task<ProductCountByMonthDto> GetProductCountsByMonthAsync(int year, Guid? artisanId = null);
     }
 }

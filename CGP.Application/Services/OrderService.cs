@@ -314,7 +314,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (totalProductAmount < getVoucherProduct.MinOrderValue || totalProductAmount > getVoucherProduct.MaxDiscountAmount)
+                            if (totalProductAmount < getVoucherProduct.MinOrderValue)
                             {
                                 return new Result<Guid>()
                                 {
@@ -599,7 +599,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (totalProductAmount < getVoucherProduct.MinOrderValue || totalProductAmount > getVoucherProduct.MaxDiscountAmount)
+                            if (totalProductAmount < getVoucherProduct.MinOrderValue)
                             {
                                 return new Result<Guid>()
                                 {
@@ -913,7 +913,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherProduct.MaxDiscountAmount)
+                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue)
                         {
                             return new Result<Guid>()
                             {
@@ -1154,7 +1154,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherProduct.MaxDiscountAmount)
+                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue)
                         {
                             return new Result<Guid>()
                             {
@@ -2016,6 +2016,27 @@ namespace CGP.Application.Services
                     TotalRevenueAfterFee = totalRevenueAfterFee,
                     OrderStatusCounts = statusCounts
                 }
+            };
+        }
+
+        public async Task<Result<ProductCountByMonthDto>> GetProductCountsByMonthAsync(int year, Guid? artisanId = null)
+        {
+            if (year < 1900 || year > DateTime.UtcNow.Year)
+            {
+                return new Result<ProductCountByMonthDto>
+                {
+                    Error = 1,
+                    Message = "Năm không hợp lệ."
+                };
+            }
+
+            var data = await _unitOfWork.orderRepository.GetProductCountsByMonthAsync(year, artisanId);
+
+            return new Result<ProductCountByMonthDto>
+            {
+                Error = 0,
+                Message = "Lấy dữ liệu biểu đồ thành công.",
+                Data = data
             };
         }
     }

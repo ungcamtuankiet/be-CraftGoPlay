@@ -1,5 +1,6 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
+using CGP.Contract.DTO.DashBoard;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
@@ -238,6 +239,58 @@ namespace CGP.Infrastructure.Repositories
                 - (decimal)(i.Order.Product_Amount * 0.95) 
                 - (decimal)(i.Order.ProductDiscount)
                 );
+        }
+
+        public async Task<ProductCountByMonthDto> GetProductCountsByMonthAsync(int year, Guid? artisanId = null)
+        {
+            // Initialize lists for 12 months (Jan-Dec)
+            var availableProducts = new List<int>(new int[12]);
+            var soldProducts = new List<int>(new int[12]);
+
+            // Query for available products (QuantityInStock > 0)
+            var availableQuery = _dbContext.Product
+                .Where(p => p.QuantitySold > 0 && p.CreationDate.Year <= year);
+
+            if (artisanId.HasValue)
+            {
+                availableQuery = availableQuery.Where(p => p.Artisan_id == artisanId.Value);
+            }
+
+            var availableProductsByMonth = await availableQuery
+                .GroupBy(p => p.CreationDate.Month - 1) // 0-based index for months (0 = Jan, 11 = Dec)
+                .Select(g => new { MonthIndex = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            foreach (var item in availableProductsByMonth)
+            {
+                availableProducts[item.MonthIndex] = item.Count;
+            }
+
+            // Query for sold products (OrderItems with Status == Completed)
+            var soldQuery = _dbContext.OrderItem
+                .Where(oi => oi.Status == OrderStatusEnum.Completed && oi.Order.CreationDate.Year == year);
+
+            if (artisanId.HasValue)
+            {
+                soldQuery = soldQuery.Where(oi => oi.ArtisanId == artisanId.Value);
+            }
+
+            var soldProductsByMonth = await soldQuery
+                .GroupBy(oi => oi.Order.CreationDate.Month - 1) // 0-based index for months
+                .Select(g => new { MonthIndex = g.Key, Count = g.Sum(oi => oi.Quantity) })
+                .ToListAsync();
+
+            foreach (var item in soldProductsByMonth)
+            {
+                soldProducts[item.MonthIndex] = item.Count;
+            }
+
+            return new ProductCountByMonthDto
+            {
+                AvailableProducts = availableProducts,
+                SoldProducts = soldProducts,
+                Year = year
+            };
         }
     }
 }
