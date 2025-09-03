@@ -21,10 +21,7 @@ namespace CGP.Domain.Enums
         Cancelled,           // Đơn hàng bị hủy (bởi người dùng, artisan, hoặc hệ thống)
         ReturnRequested,     // Người dùng yêu cầu trả hàng
         Returned,            // Đơn hàng đã được trả lại
-        PartialReturn,       // Hoàn trả 1 phần
-        FullReturn,          // Hoàn trả toàn phần
         Refunded,            // Đơn hàng đã được hoàn tiền
-        DeliveryAttemptFailed, // Thử giao hàng không thành công (người dùng không có mặt)
         DeliveryFailed       // Giao hàng thất bại (địa chỉ sai, không liên lạc được)
     }
 }

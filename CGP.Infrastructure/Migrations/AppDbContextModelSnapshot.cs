@@ -204,7 +204,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 9, 3, 10, 49, 50, 102, DateTimeKind.Local).AddTicks(1833),
+                            CreationDate = new DateTime(2025, 8, 31, 23, 15, 15, 146, DateTimeKind.Local).AddTicks(7743),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -217,7 +217,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 9, 3, 10, 49, 50, 102, DateTimeKind.Local).AddTicks(1868),
+                            CreationDate = new DateTime(2025, 8, 31, 23, 15, 15, 146, DateTimeKind.Local).AddTicks(7790),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -933,9 +933,6 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<DateTime?>("DeletionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeliveriesCount")
-                        .HasColumnType("int");
-
                     b.Property<double>("DeliveryDiscount")
                         .HasColumnType("float");
 
@@ -962,9 +959,6 @@ namespace CGP.Infrastructure.Migrations
 
                     b.Property<double>("Product_Amount")
                         .HasColumnType("float");
-
-                    b.Property<int>("ReasonDeliveryFailed")
-                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

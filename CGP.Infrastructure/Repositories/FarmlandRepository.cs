@@ -25,7 +25,6 @@ namespace CGP.Infrastructure.Repositories
             return await _context.FarmLand
                 .Include(f => f.User)
                 .Include(f => f.FarmlandCrops)
-                .ThenInclude(f => f.Item)
                 .Where(f => f.UserId == userId)
                 .ToListAsync();
         }
@@ -35,7 +34,6 @@ namespace CGP.Infrastructure.Repositories
             return await _context.FarmLand
                 .Include(f => f.User)
                 .Include(f => f.FarmlandCrops)
-                .ThenInclude(f => f.Item)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 
@@ -44,7 +42,6 @@ namespace CGP.Infrastructure.Repositories
             return await _context.FarmLand
                 .Include(f => f.User)
                 .Include(f => f.FarmlandCrops)
-                .ThenInclude(f => f.Item)
                 .FirstOrDefaultAsync(f => f.UserId == userId && f.TileId == titleId);
         }
     }

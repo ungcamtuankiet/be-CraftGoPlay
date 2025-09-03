@@ -1,6 +1,4 @@
-﻿using CGP.Contract.DTO.FarmlandCrop;
-using CGP.Domain.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,12 +10,11 @@ namespace CGP.Contract.DTO.Farmland
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public int TileId { get; set; }
-        public bool Watered { get; set; }
-        public DateTime? WaterExpiresAt { get; set; }
-        public DateTime? PlantedAt { get; set; }
-        public FarmLandStatus Status { get; set; }
-        public DateTime CreatedAtUtc { get; set; }
-        public List<ViewFarmlandCropDTO> FarmlandCrops { get; set; } = new List<ViewFarmlandCropDTO>();
+        public int PlotIndex { get; set; }
+        public bool IsDug { get; set; }
+        public bool HasCrop { get; set; }
+        public DateTime PlantedAt { get; set; }
+        public int PositionX { get; set; }
+        public int PositionY { get; set; }
     }
 }
