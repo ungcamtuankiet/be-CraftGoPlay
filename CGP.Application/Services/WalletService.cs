@@ -96,8 +96,7 @@ namespace CGP.Application.Services
                 wallet.PendingBalance -= transaction.Amount;
                 wallet.AvailableBalance += transaction.Amount;
 
-                // Update transaction status
-                transaction.Type = WalletTransactionTypeEnum.Release;
+                transaction.UnlockDate = now;
 
                 // Nếu muốn log lịch sử, có thể tạo record mới
                 await _unitOfWork.walletTransactionRepository.AddAsync(new WalletTransaction

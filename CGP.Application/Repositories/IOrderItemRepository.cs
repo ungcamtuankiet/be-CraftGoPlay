@@ -11,5 +11,6 @@ namespace CGP.Application.Repositories
     {
         public Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid orderId);
         public Task<OrderItem> GetOrderItemsByIdAsync(Guid orderItemId);
+        public Task<List<OrderItem>> GetOrderItemsWithDeliveryStatusAsync();
     }
 }

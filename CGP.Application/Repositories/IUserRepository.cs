@@ -37,6 +37,6 @@ namespace CGP.Application.Repositories
 
         //Voucher
         Task<bool> CheckExistUserVoucher(Guid userId, Guid voucherId);
-        Task<List<ApplicationUser>> GetAllsVoucherByUserId(Guid userId, VoucherTypeEnum voucherTypeEnum);
+        Task<List<ApplicationUser>> GetAllsVoucherByUserId(Guid userId, VoucherTypeEnum? voucherTypeEnum);
     }
 }

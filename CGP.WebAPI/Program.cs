@@ -2,6 +2,7 @@
 using CGP.Application.Interfaces;
 using CGP.Infrastructure;
 using CGP.Infrastructure.Data;
+using CGP.Infrastructure.Jobs;
 using CGP.WebAPI;
 using CGP.WebAPI.Middlewares;
 using Hangfire;
@@ -169,11 +170,7 @@ app.UseAuthorization();
 
 app.UseHangfireDashboard();
 // Đăng ký recurring job
-RecurringJob.AddOrUpdate<IWalletService>(
-    "release-wallet-job",  // id job
-    x => x.ReleasePendingTransactionsAsync(),
-    "*/5 * * * *"          // cron expression = mỗi 5 phút chạy
-);
+HangfireJobs.RegisterJobs();
 
 app.MapControllers();
 

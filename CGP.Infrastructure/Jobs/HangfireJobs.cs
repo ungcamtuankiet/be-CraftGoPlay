@@ -17,6 +17,11 @@ namespace CGP.Infrastructure.Jobs
                 x => x.ReleasePendingTransactionsAsync(),
                 "*/5 * * * *" // cron expression: mỗi 5 phút
             );
+            RecurringJob.AddOrUpdate<IOrderService>(
+                "auto-completed-job",
+                x => x.AutoCompleteOrderItemsAsync(),
+                "*/5 * * * *" // cron expression: mỗi 5 phút
+            );
         }
     }
 }
