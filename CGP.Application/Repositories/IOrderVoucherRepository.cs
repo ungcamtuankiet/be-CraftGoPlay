@@ -9,5 +9,6 @@ namespace CGP.Application.Repositories
 {
     public interface IOrderVoucherRepository : IGenericRepository<OrderVoucher>
     {
+        Task<OrderVoucher> CheckVoucherUsed(Guid userId, Guid voucherId);
     }
 }
