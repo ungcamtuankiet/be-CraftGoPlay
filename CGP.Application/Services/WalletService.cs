@@ -68,9 +68,9 @@ namespace CGP.Application.Services
             {
                 Wallet_Id = wallet.Id,
                 Amount = amount,
-                Description = "Số tiền đang được chờ thanh toán cho đơn hàng hoàn thành",
+                Description = "Số tiền đang được chờ thanh toán cho sản phẩm hoàn thành",
                 Type = WalletTransactionTypeEnum.Pending,
-                UnlockDate = DateTime.UtcNow.AddMinutes(holdDays)
+                UnlockDate = DateTime.UtcNow.AddHours(7).AddMinutes(holdDays)
             };
 
             wallet.PendingBalance += amount;
@@ -82,7 +82,7 @@ namespace CGP.Application.Services
 
         public async Task ReleasePendingTransactionsAsync()
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.UtcNow.AddHours(7);
 
             // Lấy tất cả transaction đến hạn
             var pendingTransactions = await _unitOfWork.walletTransactionRepository
@@ -95,15 +95,15 @@ namespace CGP.Application.Services
 
                 wallet.PendingBalance -= transaction.Amount;
                 wallet.AvailableBalance += transaction.Amount;
+                transaction.IsDeleted = true;
 
-                transaction.UnlockDate = now;
 
                 // Nếu muốn log lịch sử, có thể tạo record mới
                 await _unitOfWork.walletTransactionRepository.AddAsync(new WalletTransaction
                 {
                     Wallet_Id = transaction.Wallet_Id,
                     Amount = transaction.Amount,
-                    Description = "Số tiền đã được thanh toán cho đơn hàng",
+                    Description = "Số tiền đã được thanh toán cho sản phẩm",
                     Type = WalletTransactionTypeEnum.Release,
                     UnlockDate = now
                 });

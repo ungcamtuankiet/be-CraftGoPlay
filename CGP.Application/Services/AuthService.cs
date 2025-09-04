@@ -304,7 +304,7 @@ namespace CGP.Application.Services
                     throw new KeyNotFoundException("Không tìm thấy người dùng.");
                 }
 
-                if (user.Otp != otp || user.OtpExpiryTime < DateTime.UtcNow)
+                if (user.Otp != otp || user.OtpExpiryTime < DateTime.UtcNow.AddHours(7))
                 {
                     return false;
                 }
@@ -333,7 +333,7 @@ namespace CGP.Application.Services
         public async Task<bool> VerifyOtpAndCompleteRegistrationAsync(string email, string otp)
         {
             var user = await _userRepository.GetUserByEmail(email);
-            if (user == null || user.Otp != otp || user.OtpExpiryTime < DateTime.UtcNow)
+            if (user == null || user.Otp != otp || user.OtpExpiryTime < DateTime.UtcNow.AddHours(7))
             {
                 return false;
             }
@@ -457,7 +457,7 @@ namespace CGP.Application.Services
 
                 var token = GenerateResetToken();
                 user.ResetToken = token;
-                user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+                user.ResetTokenExpiry = DateTime.UtcNow.AddHours(8);
 
                 await _userRepository.UpdateAsync(user);
 
@@ -489,7 +489,7 @@ namespace CGP.Application.Services
             {
                 var user = await _userRepository.GetUserByResetToken(resetPasswordDto.Token);
 
-                if (user == null || user.ResetTokenExpiry < DateTime.UtcNow)
+                if (user == null || user.ResetTokenExpiry < DateTime.UtcNow.AddHours(7))
                 {
                     throw new ArgumentException("Invalid or expired token.");
                 }

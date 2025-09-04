@@ -460,7 +460,7 @@ namespace CGP.Application.Services
                     order.TransactionId = transactionId;
                     order.Status = OrderStatusEnum.AwaitingPayment;
                     order.PaymentMethod = paymentMethod;
-                    order.CreationDate = DateTime.UtcNow;
+                    order.CreationDate = DateTime.UtcNow.AddHours(7);
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
@@ -767,7 +767,7 @@ namespace CGP.Application.Services
                     order.TransactionId = transactionId;
                     order.Status = OrderStatusEnum.Created;
                     order.PaymentMethod = paymentMethod;
-                    order.CreationDate = DateTime.UtcNow;
+                    order.CreationDate = DateTime.UtcNow.AddHours(7);
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
@@ -802,7 +802,7 @@ namespace CGP.Application.Services
                         Notes = $"Đặt hàng từ giỏ hàng với mã đơn hàng là {order.Id} bằng thanh toán tiền mặt.",
                         CreatedBy = order.UserId,
                         IsDeleted = false,
-                        CreationDate = DateTime.UtcNow,
+                        CreationDate = DateTime.UtcNow.AddHours(7),
                     };
                     await _unitOfWork.transactionRepository.AddAsync(transaction);
 
@@ -1132,7 +1132,7 @@ namespace CGP.Application.Services
                 order.PointDiscount = Point * 100;
                 order.PaymentMethod = dto.PaymentMethod;
                 order.Delivery_Amount = Delivery_Amount;
-                order.CreationDate = DateTime.UtcNow;
+                order.CreationDate = DateTime.UtcNow.AddHours(7);
                 order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                 order.OrderItems = new List<OrderItem>
                 {
@@ -1392,7 +1392,7 @@ namespace CGP.Application.Services
                 order.Status = OrderStatusEnum.Created;
                 order.TransactionId = transactionId;
                 order.PaymentMethod = dto.PaymentMethod;
-                order.CreationDate = DateTime.UtcNow;
+                order.CreationDate = DateTime.UtcNow.AddHours(7);
                 order.Delivery_Amount = Delivery_Amount;
                 order.DeliveryDiscount = discountDelivery;
                 order.ProductDiscount = discountProduct;
@@ -1612,7 +1612,7 @@ namespace CGP.Application.Services
                         Notes = $"Thanh toán đơn hàng từ giỏ hàng, tổng cộng {orders.Count} đơn.",
                         CreatedBy = userId,
                         IsDeleted = false,
-                        CreationDate = DateTime.UtcNow
+                        CreationDate = DateTime.UtcNow.AddHours(7)
                     };
                     await _unitOfWork.transactionRepository.AddAsync(transaction);
 

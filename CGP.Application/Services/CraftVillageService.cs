@@ -46,7 +46,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (craftVillage.EstablishedDate > DateTime.UtcNow)
+            if (craftVillage.EstablishedDate > DateTime.UtcNow.AddHours(7))
             {
                 return new Result<CraftVillage>
                 {
@@ -157,7 +157,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (craftVillage.EstablishedDate > DateTime.UtcNow)
+            if (craftVillage.EstablishedDate > DateTime.UtcNow.AddHours(7))
             {
                 return new Result<CraftVillage>
                 {
