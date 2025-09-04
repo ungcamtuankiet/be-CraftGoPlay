@@ -168,5 +168,16 @@ namespace CGP.Application.Services
                 Data = null
             };
         }
+
+        public async Task<Result<List<ViewItemsBackpackDTO>>> GetItemsInInventoryTypeAsync(Guid userId)
+        {
+            var result = _mapper.Map<List<ViewItemsBackpackDTO>>(await _unitOfWork.inventoryRepository.GetItemsInInventoryTypeAsync(userId));
+            return new Result<List<ViewItemsBackpackDTO>>
+            {
+                Error = 0,
+                Message = "Lấy danh sách vật phẩm trong balo thành công.",
+                Data = result
+            };
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CGP.Contract.DTO
+namespace CGP.Contract.DTO.OrderAddress
 {
     public class ViewOrderAddressDTO
     {
