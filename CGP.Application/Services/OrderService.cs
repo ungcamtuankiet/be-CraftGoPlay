@@ -166,8 +166,6 @@ namespace CGP.Application.Services
             var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
             var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
-            var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
-            var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
             double totalShipping = deliveryAmounts.Values.Sum();
             double discountProduct = 0;
             double discountDelivery = 0;
@@ -264,6 +262,7 @@ namespace CGP.Application.Services
                     {
                         if (voucherProductCode != null)
                         {
+                            var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
                             if (getVoucherProduct == null)
                             {
                                 return new Result<Guid>()
@@ -363,6 +362,7 @@ namespace CGP.Application.Services
 
                         if (voucherDeliveryCode != null)
                         {
+                            var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
                             if (getVoucherDelivery == null)
                             {
                                 return new Result<Guid>()
@@ -570,6 +570,7 @@ namespace CGP.Application.Services
                     {
                         if (voucherProductCode != null)
                         {
+                            var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
                             if (getVoucherProduct == null)
                             {
                                 return new Result<Guid>()
@@ -668,6 +669,7 @@ namespace CGP.Application.Services
 
                         if (voucherDeliveryCode != null)
                         {
+                            var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
                             if (getVoucherDelivery == null)
                             {
                                 return new Result<Guid>()
@@ -885,8 +887,6 @@ namespace CGP.Application.Services
             var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
             var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
-            var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
-            var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
             double discountProduct = 0;
             double discountDelivery = 0;
             double totalDiscount = 0;
@@ -927,6 +927,7 @@ namespace CGP.Application.Services
                 {
                     if (voucherProductCode != null)
                     {
+                        var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
                         if (getVoucherProduct == null)
                         {
                             return new Result<Guid>()
@@ -1015,6 +1016,7 @@ namespace CGP.Application.Services
 
                     if (voucherDeliveryCode != null)
                     {
+                        var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
                         if (getVoucherDelivery == null)
                         {
                             return new Result<Guid>()
@@ -1190,7 +1192,8 @@ namespace CGP.Application.Services
                 {
                     if (voucherProductCode != null)
                     {
-                        if( getVoucherProduct == null)
+                        var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
+                        if ( getVoucherProduct == null)
                         {
                             return new Result<Guid>()
                             {
@@ -1278,7 +1281,8 @@ namespace CGP.Application.Services
 
                     if (voucherDeliveryCode != null)
                     {
-                        if( getVoucherDelivery == null)
+                        var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
+                        if ( getVoucherDelivery == null)
                         {
                             return new Result<Guid>()
                             {
@@ -2224,6 +2228,31 @@ namespace CGP.Application.Services
                 Message = "Lấy dữ liệu biểu đồ thành công.",
                 Data = data
             };
+        }
+
+        public async Task AutoCompleteOrderItemsAsync()
+        {
+            var getOrderItems = await _unitOfWork.orderItemRepository.GetOrderItemsWithDeliveryStatusAsync();
+            foreach (var item in getOrderItems)
+            {
+                item.Status = OrderStatusEnum.Completed;
+                item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                _unitOfWork.orderItemRepository.Update(item);
+
+                var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(item.OrderId);
+                if (order != null)
+                {
+                    bool allCompleted = order.OrderItems.All(oi => oi.Status == OrderStatusEnum.Completed);
+                    if (allCompleted)
+                    {
+                        order.Status = OrderStatusEnum.Completed;
+                        order.ModificationDate = DateTime.UtcNow.AddHours(7);
+                        _unitOfWork.orderRepository.Update(order);
+                    }
+                }
+            }
+
+            await _unitOfWork.SaveChangeAsync();
         }
     }
 }

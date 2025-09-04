@@ -10,6 +10,8 @@ namespace CGP.Application.Interfaces
 {
     public interface IQuestService
     {
+        Task<Result<List<ViewQuestDTO>>> GetAllQuests();
+        Task<Result<ViewQuestDTO>> GetQuestById(Guid id);
         Task<Result<object>> CreateQuest(CreateQuestDTO createQuestDTO);
     }
 }

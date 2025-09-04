@@ -15,6 +15,28 @@ namespace CGP.WebAPI.Controllers
         {
             _questService = questService;
         }
+
+        [HttpGet("GetAllQuests")]
+        public async Task<IActionResult> GetAllQuests()
+        {
+            var result = await _questService.GetAllQuests();
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        [HttpGet("GetQuestById/{id}")]
+        public async Task<IActionResult> GetQuestById(Guid id)
+        {
+            var result = await _questService.GetQuestById(id);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         [HttpPost("CreateQuest")]
         public async Task<IActionResult> CreateQuest([FromForm] CreateQuestDTO createQuestDTO)
         {

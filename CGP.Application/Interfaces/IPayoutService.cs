@@ -14,7 +14,7 @@ namespace CGP.Application.Interfaces
     public interface IPayoutService
     {
         Task<string> CreatePaymentUrl(Guid transactionId, decimal totalAmount, HttpContext context);
-        Task<string> CreateWithdrawUrl(WithDraw withDraw);
+        Task<Result<string>> CreateWithdrawUrl(WithDraw withDraw);
         Task<bool> ValidateReturnData(IQueryCollection query);
         Task<Result<bool>> RefundAsync(Guid orderId);
         Task<string> QueryTransactionAsync(string txnRef, string orderInfo, string transactionDate);
