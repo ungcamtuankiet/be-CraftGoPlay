@@ -40,6 +40,40 @@ namespace CGP.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<ReturnRequest> GetReturnRequestById(Guid id)
+        {
+            return await _dbContext.ReturnRequest
+                .Include(o => o.OrderItem)
+                .ThenInclude(o => o.Order)
+                .ThenInclude(o => o.Payment)
+                .FirstOrDefaultAsync(o => o.Id == id);
+        }
+
+        public async Task<List<ReturnRequest>> GetByUserIdAsync(Guid userId, int pageIndex, int pageSize, ReturnStatusEnum? status)
+        {
+            var result = _dbContext.ReturnRequest
+                .Include(rr => rr.OrderItem)
+                .ThenInclude(rr => rr.Product)
+                .ThenInclude(rr => rr.ProductImages)
+                .Include(rr => rr.OrderItem)
+                .ThenInclude(rr => rr.Product)
+                .ThenInclude(rr => rr.User)
+                .Include(rr => rr.User)
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                result = result.Where(o => o.Status == status.Value && o.UserId == userId);
+            }
+
+            return await result
+                .Where(rr => rr.UserId == userId)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .OrderByDescending(rr => rr.ModificationDate)
+                .ToListAsync();
+        }
+
         public async Task<List<ReturnRequest>> GetByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, ReturnStatusEnum? status)
         {
             var result = _dbContext.ReturnRequest
@@ -61,7 +95,7 @@ namespace CGP.Infrastructure.Repositories
                 .Where(rr => rr.OrderItem.ArtisanId == artisanId)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .OrderByDescending(rr => rr.CreationDate)
+                .OrderByDescending(rr => rr.ModificationDate)
                 .ToListAsync();
         }
 
@@ -96,7 +130,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(rr => rr.User)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .OrderByDescending(rr => rr.CreationDate)
+                .OrderByDescending(rr => rr.ModificationDate)
                 .ToListAsync();
 
             return result;

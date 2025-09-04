@@ -31,6 +31,18 @@ namespace CGP.Application.Services
             _orderService = orderService;
         }
 
+        public async Task<Result<object>> GetReturnRequestByUserIdAsync(Guid userId, ReturnStatusEnum? status, int pageIndex, int pageSize)
+        {
+            var result = _mapper.Map<List<ViewReturnRequestDTO>>(await _unitOfWork.returnRequestRepository.GetByUserIdAsync(userId, pageIndex, pageSize, status));
+            return new Result<object>
+            {
+                Error = 0,
+                Message = "Lấy danh sách yêu cầu hoàn trả hàng thành công.",
+                Count = result.Count,
+                Data = result
+            };
+        }
+
         public async Task<Result<object>> GetReturnRequestByArtisanIdAsync(Guid artisanId, ReturnStatusEnum? status, int pageIndex, int pageSize)
         {
             var result = _mapper.Map<List<ViewReturnRequestDTO>>(await _unitOfWork.returnRequestRepository.GetByArtisanIdAsync(artisanId, pageIndex, pageSize, status));
@@ -263,7 +275,7 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> ResolveEscalatedRequestAsync(Guid returnRequestId, bool acceptRefund)
         {
-            var request = await _unitOfWork.returnRequestRepository.GetByIdAsync(returnRequestId);
+            var request = await _unitOfWork.returnRequestRepository.GetReturnRequestById(returnRequestId);
             var walletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(request.UserId);
 
             if (request == null || request.Status != ReturnStatusEnum.Escalated)
