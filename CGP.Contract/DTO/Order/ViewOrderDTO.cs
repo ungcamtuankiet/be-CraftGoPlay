@@ -1,4 +1,5 @@
-﻿using CGP.Contract.DTO.OrderItem;
+﻿using CGP.Contract.DTO.OrderAddress;
+using CGP.Contract.DTO.OrderItem;
 using CGP.Contract.DTO.Product;
 using CGP.Contract.DTO.User;
 using CGP.Contract.DTO.UserAddress;

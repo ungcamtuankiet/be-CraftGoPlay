@@ -11,9 +11,13 @@ namespace CGP.Application.Interfaces
     public interface IShopPriceService
     {
         Task<Result<object>> GetAllItemShopPrice();
+        Task<Result<List<ViewItemsSeillDTO>>> GetItemsSell();
         Task<Result<object>> GetItemShopPrice(Guid shopId);
         Task<Result<object>> CreateShopPriceItem(CreateItemShopPriceDTO dto);
         Task<Result<object>> UpdateShopPriceItem(UpdateItemShopPriceDTO dto);
         Task<Result<object>> RemoveShopPriceItem(Guid id);
+
+        //
+        Task<Result<SellResponse>> SellItem(SellRequest request);
     }
 }

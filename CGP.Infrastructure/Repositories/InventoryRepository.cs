@@ -47,5 +47,18 @@ namespace CGP.Infrastructure.Repositories
                 .Include(i => i.User)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
+
+        public async Task<Inventory> GetItemInInventory(Guid userId, Guid itemId)
+        {
+            return await _context.Inventory
+                .FirstOrDefaultAsync(i => i.UserId == userId && i.ItemId == itemId && i.InventoryType == "Backpack");
+        }
+
+        public async Task<List<Inventory>> GetItemsInInventoryTypeAsync(Guid userId)
+        {
+            return await _context.Inventory
+                .Where(i => i.UserId == userId && i.InventoryType == "Backpack")
+                .ToListAsync();
+        }
     }
 }
