@@ -314,7 +314,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (totalProductAmount < getVoucherProduct.MinOrderValue || totalProductAmount > getVoucherProduct.MaxDiscountAmount)
+                            if (totalProductAmount < getVoucherProduct.MinOrderValue)
                             {
                                 return new Result<Guid>()
                                 {
@@ -599,7 +599,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (totalProductAmount < getVoucherProduct.MinOrderValue || totalProductAmount > getVoucherProduct.MaxDiscountAmount)
+                            if (totalProductAmount < getVoucherProduct.MinOrderValue)
                             {
                                 return new Result<Guid>()
                                 {
@@ -913,7 +913,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherProduct.MaxDiscountAmount)
+                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue)
                         {
                             return new Result<Guid>()
                             {
@@ -1154,7 +1154,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherProduct.MaxDiscountAmount)
+                        if ((double)(product.Price * dto.Quantity) < getVoucherProduct.MinOrderValue)
                         {
                             return new Result<Guid>()
                             {
@@ -2019,7 +2019,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<OrderDashboardForArtisanDto>> GetDashboardForAdmin(RevenueFilterForAdmin filter)
+        public async Task<Result<OrderDashboardForAdminDto>> GetDashboardForAdmin(RevenueFilterForAdmin filter)
         {
             var now = DateTime.UtcNow.AddHours(7);
             DateTime? from = null, to = null;
@@ -2058,20 +2058,45 @@ namespace CGP.Application.Services
 
             decimal totalRevenueBeforeFee = await _unitOfWork.orderRepository.SumRevenueForAdminBeforFeeAsync(from, to);
             decimal totalRevenueAfterFee = await _unitOfWork.orderRepository.SumRevenueForAdminAfterFeeAsync(from, to);
+            decimal totalRevenueDeliveryFee = await _unitOfWork.orderRepository.SumRevenueForAdminDeliveryFeeAsync(from, to);
+            decimal totalRevenueProductFee = await _unitOfWork.orderRepository.SumRevenueForAdminProductFeeAsync(from, to);
             var totalOrders = await _unitOfWork.orderRepository.CountAsyncForAdmin(from, to);
             var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForAdmin(from, to);
 
-            return new Result<OrderDashboardForArtisanDto>
+            return new Result<OrderDashboardForAdminDto>
             {
                 Error = 0,
                 Message = "Lấy dữ liệu dashboard thành công.",
-                Data = new OrderDashboardForArtisanDto
+                Data = new OrderDashboardForAdminDto
                 {
                     TotalOrders = totalOrders,
                     TotalRevenueBeforeFee = totalRevenueBeforeFee,
+                    TotalRevenueDeliveryFee = totalRevenueDeliveryFee,
+                    TotalRevenueProductFee = totalRevenueProductFee,
                     TotalRevenueAfterFee = totalRevenueAfterFee,
                     OrderStatusCounts = statusCounts
                 }
+            };
+        }
+
+        public async Task<Result<ProductCountByMonthDto>> GetProductCountsByMonthAsync(int year, Guid? artisanId = null)
+        {
+            if (year < 1900 || year > DateTime.UtcNow.Year)
+            {
+                return new Result<ProductCountByMonthDto>
+                {
+                    Error = 1,
+                    Message = "Năm không hợp lệ."
+                };
+            }
+
+            var data = await _unitOfWork.orderRepository.GetProductCountsByMonthAsync(year, artisanId);
+
+            return new Result<ProductCountByMonthDto>
+            {
+                Error = 0,
+                Message = "Lấy dữ liệu biểu đồ thành công.",
+                Data = data
             };
         }
     }

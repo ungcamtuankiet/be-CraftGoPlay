@@ -19,14 +19,16 @@ namespace CGP.Application.Services
         private readonly IMapper _mapper;
         private readonly IPayoutService _payoutService;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IOrderService _orderService;
         private static string FOLDER = "return-request";
 
-        public ReturnRequestService(IUnitOfWork unitOfWork, IMapper mapper, IPayoutService payoutService, ICloudinaryService cloudinaryService)
+        public ReturnRequestService(IUnitOfWork unitOfWork, IMapper mapper, IPayoutService payoutService, ICloudinaryService cloudinaryService, IOrderService orderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _payoutService = payoutService;
             _cloudinaryService = cloudinaryService;
+            _orderService = orderService;
         }
 
         public async Task<Result<object>> GetReturnRequestByArtisanIdAsync(Guid artisanId, ReturnStatusEnum? status, int pageIndex, int pageSize)
@@ -59,8 +61,10 @@ namespace CGP.Application.Services
             var returnRequest = _mapper.Map<ReturnRequest>(dto);
             var checkReturnRequest = await _unitOfWork.returnRequestRepository.GetReturnRequestByOrderItemIdAsync(dto.OrderItemId);
             var uploadResult = await _cloudinaryService.UploadProductImage(dto.ImageUrl, FOLDER);
+            var order = await _unitOfWork.orderRepository.GetByIdAsync(orderItem.OrderId);
 
-            if(checkReturnRequest != null)
+            // Kiểm tra yêu cầu hoàn trả đã tồn tại
+            if (checkReturnRequest != null)
             {
                 return new Result<bool>
                 {
@@ -70,6 +74,7 @@ namespace CGP.Application.Services
                 };
             }
 
+            // Kiểm tra trạng thái đơn hàng
             if (orderItem.Status == OrderStatusEnum.Completed)
             {
                 return new Result<bool>
@@ -90,6 +95,7 @@ namespace CGP.Application.Services
                 };
             }
 
+            // Kiểm tra đơn hàng và thanh toán
             if (orderItem == null || orderItem.Order.Payment == null)
             {
                 return new Result<bool>
@@ -109,6 +115,8 @@ namespace CGP.Application.Services
                     Data = false
                 };
             }
+
+            // Kiểm tra hình ảnh
             if (uploadResult == null || string.IsNullOrEmpty(uploadResult.SecureUrl.ToString()))
             {
                 return new Result<bool>
@@ -129,11 +137,30 @@ namespace CGP.Application.Services
                 };
             }
 
+            // Thêm yêu cầu hoàn trả
             returnRequest.ImageUrl = uploadResult.SecureUrl.ToString();
             await _unitOfWork.returnRequestRepository.AddAsync(returnRequest);
 
+            // Cập nhật trạng thái OrderItem
             orderItem.Status = OrderStatusEnum.ReturnRequested;
 
+            // Lấy tất cả OrderItem của Order
+            var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(orderItem.OrderId);
+
+            // Kiểm tra xem tất cả OrderItem có trạng thái ReturnRequested không
+            bool allItemsReturned = orderItems.All(item => item.Status == OrderStatusEnum.ReturnRequested);
+
+            // Cập nhật trạng thái Order
+            if (allItemsReturned)
+            {
+                order.Status = OrderStatusEnum.FullReturn;
+            }
+            else
+            {
+                order.Status = OrderStatusEnum.PartialReturn;
+            }
+
+            _unitOfWork.orderRepository.Update(order);
 
             await _unitOfWork.SaveChangeAsync();
 
