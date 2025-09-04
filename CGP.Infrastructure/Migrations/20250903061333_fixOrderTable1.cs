@@ -19,19 +19,19 @@ namespace CGP.Infrastructure.Migrations
                 oldClrType: typeof(double),
                 oldType: "float");
 
-            //migrationBuilder.AddColumn<int>(
-            //    name: "DeliveriesCount",
-            //    table: "Order",
-            //    type: "int",
-            //    nullable: false,
-            //    defaultValue: 0);
+/*            migrationBuilder.AddColumn<int>(
+                name: "DeliveriesCount",
+                table: "Order",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);*/
 
-            //migrationBuilder.AddColumn<int>(
-            //    name: "ReasonDeliveryFailed",
-            //    table: "Order",
-            //    type: "int",
-            //    nullable: false,
-            //    defaultValue: 0);
+/*            migrationBuilder.AddColumn<int>(
+                name: "ReasonDeliveryFailed",
+                table: "Order",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);*/
 
             migrationBuilder.UpdateData(
                 table: "User",

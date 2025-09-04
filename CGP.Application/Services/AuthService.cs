@@ -39,12 +39,13 @@ namespace CGP.Application.Services
         private readonly IRedisService _redisService;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserQuestService _userQuestService;
         private static string FOLDER = "thumbnail";
 
         public AuthService(IAuthRepository authRepository, TokenGenerators tokenGenerators,
             IUserRepository userRepository, IHttpContextAccessor httpContextAccessor,
             IEmailService emailService, IConfiguration configuration, IOtpService otpService,
-            IMapper mapper, IRedisService redisService, ICloudinaryService cloudinaryService, IUnitOfWork unitOfWork)
+            IMapper mapper, IRedisService redisService, ICloudinaryService cloudinaryService, IUnitOfWork unitOfWork, IUserQuestService userQuestService)
         {
             _authRepository = authRepository;
             _tokenGenerators = tokenGenerators;
@@ -57,6 +58,7 @@ namespace CGP.Application.Services
             _redisService = redisService;
             _cloudinaryService = cloudinaryService;
             _unitOfWork = unitOfWork;
+            _userQuestService = userQuestService;
         }
 
 
@@ -86,7 +88,9 @@ namespace CGP.Application.Services
                 }
 
                 // Generate JWT token
+                await _userQuestService.EnsureDailyQuestAsync(user.Id);
                 var token = await GenerateJwtToken(user);
+
                 await _unitOfWork.activityLogRepository.AddAsync(new ActivityLog
                 {
                     UserId = user.Id,
