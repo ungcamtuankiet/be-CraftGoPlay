@@ -244,12 +244,26 @@ namespace CGP.Infrastructure.Repositories
             }
         }
 
-        public async Task<List<ApplicationUser>> GetAllsVoucherByUserId(Guid userId, VoucherTypeEnum voucherTypeEnum)
+        public async Task<List<ApplicationUser>> GetAllsVoucherByUserId(Guid userId, VoucherTypeEnum? voucherTypeEnum)
         {
-            return await _dbContext.User
-                .Include(u => u.Vouchers.Where(v => v.Type == voucherTypeEnum))
+            var query = _dbContext.User
                 .Where(u => u.Id == userId)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (voucherTypeEnum == VoucherTypeEnum.Product)
+            {
+                query = query.Include(u => u.Vouchers.Where(v => v.Type == voucherTypeEnum));
+            }
+            else if(voucherTypeEnum == VoucherTypeEnum.Delivery)
+            {
+                query = query.Include(u => u.Vouchers.Where(v => v.Type == voucherTypeEnum));
+            }
+            else
+            {
+                query = query.Include(u => u.Vouchers);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

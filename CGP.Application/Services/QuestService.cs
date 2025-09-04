@@ -34,5 +34,36 @@ namespace CGP.Application.Services
                 Data = null
             };
         }
+
+        public async Task<Result<List<ViewQuestDTO>>> GetAllQuests()
+        {
+            var result = _mapper.Map<List<ViewQuestDTO>>(await _unitOfWork.questRepository.GetAllAsync());  
+            return new Result<List<ViewQuestDTO>>()
+            {
+                Error = 0,
+                Message = "Lấy danh sách nhiệm vụ thành công",
+                Data = result
+            };
+        }
+
+        public async Task<Result<ViewQuestDTO>> GetQuestById(Guid id)
+        {
+            var result =_mapper.Map<ViewQuestDTO>(_unitOfWork.questRepository.GetByIdAsync(id));
+            if(result == null)
+            {
+                return new Result<ViewQuestDTO>()
+                {
+                    Error = 1,
+                    Message = "Nhiệm vụ không tồn tại",
+                    Data = null
+                };
+            }
+            return new Result<ViewQuestDTO>()
+            {
+                Error = 0,
+                Message = "Lấy nhiệm vụ thành công",
+                Data = result
+            };
+        }
     }
 }

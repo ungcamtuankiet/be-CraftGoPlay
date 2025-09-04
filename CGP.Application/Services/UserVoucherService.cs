@@ -105,7 +105,7 @@ namespace CGP.Application.Services
 
         }
 
-        public async Task<Result<object>> GetAllVouchersByUserId(Guid userId, VoucherTypeEnum voucherType)
+        public async Task<Result<object>> GetAllVouchersByUserId(Guid userId, VoucherTypeEnum? voucherType)
         {
             var result = _mapper.Map<List<ViewUserVoucherDTO>>(await _unitOfWork.userRepository.GetAllsVoucherByUserId(userId, voucherType));
             return new Result<object>

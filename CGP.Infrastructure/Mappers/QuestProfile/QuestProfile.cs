@@ -7,13 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CGP.Infrastructure.Mappers
+namespace CGP.Infrastructure.Mappers.QuestProfile
 {
     public class QuestProfile : Profile
     {
         public QuestProfile()
         {
             CreateMap<Quest, CreateQuestDTO>().ReverseMap();
+            CreateMap<Quest, ViewQuestDTO>().ReverseMap();
         }
     }
 }

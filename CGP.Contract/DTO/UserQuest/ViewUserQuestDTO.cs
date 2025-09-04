@@ -1,4 +1,5 @@
-﻿using CGP.Domain.Enums;
+﻿using CGP.Contract.DTO.Quest;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace CGP.Contract.DTO.UserQuest
         public QuestStatus Status { get; set; }
         public bool RewardClaimed { get; set; }
         public DateTime? CompletedAt { get; set; }
+        public ViewQuestDTO Quest { get; set; }
     }
 }

@@ -1,6 +1,8 @@
-﻿using CGP.Application.Interfaces;
+﻿using CGP.Application;
+using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -46,6 +48,15 @@ namespace CGP.Infrastructure.Repositories
                 .ThenInclude(p => p.User)    
                 .Where(oi => oi.OrderId == orderId)
                 .ToListAsync();
+        }
+
+        public async Task<List<OrderItem>> GetOrderItemsWithDeliveryStatusAsync()
+        {
+            var now = DateTime.UtcNow.AddHours(7);
+            var orderItems = await _dbContext.OrderItem
+                    .Where(oi => oi.Status == OrderStatusEnum.Delivered && oi.ModificationDate != null && oi.ModificationDate <= now.AddMinutes(-3))
+                    .ToListAsync();
+            return orderItems;
         }
     }
 }
