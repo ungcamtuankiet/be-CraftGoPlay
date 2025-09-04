@@ -10,7 +10,7 @@ namespace CGP.Domain.Entities
     public class Transaction : BaseEntity
     {
         public Guid UserId { get; set; }
-        public Guid OrderId { get; set; }
+        public Guid? OrderId { get; set; }
         public Guid? PaymentId { get; set; }
         public Guid? VoucherId { get; set; }
         public Guid? WalletId { get; set; }
