@@ -99,7 +99,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            int reward = 100;
+            int reward = 20;
             var checkCheckIn = await _unitOfWork.dailyCheckInRepository.IsCheckIn(dto.UserId);
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(dto.UserId);
             var currentDate = DateTime.UtcNow.AddHours(7).Date;
@@ -156,7 +156,7 @@ namespace CGP.Application.Services
             // Tính thưởng dựa trên streak
             if (checkCheckIn.StreakCount == 3 || checkCheckIn.StreakCount == 6)
             {
-                reward = 200;
+                reward = 40;
             }
 
             getUserPoint.Amount += reward;

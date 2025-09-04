@@ -65,6 +65,14 @@ namespace CGP.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("CountOrdersByUserId/{userId}")]
+        /*        [Authorize(Policy = "UserPolicy")]*/
+        public async Task<IActionResult> CountOrdersByUserId(Guid userId)
+        {
+            var result = await _orderService.CountOrdersByUserIdAsync(userId);
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
         [HttpGet("CountOrdersByArtisanId/{artisanId}")]
         /*        [Authorize(Policy = "ArtisanPolicy")]*/
         public async Task<IActionResult> CountOrdersByArtisanId(Guid artisanId)
