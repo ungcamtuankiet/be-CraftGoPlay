@@ -10,6 +10,6 @@ namespace CGP.Contract.DTO.UserVoucher
     public class GetAllVouchersByUserIdDTO
     {
         public Guid UserId { get; set; }
-        public VoucherTypeEnum VoucherType { get; set; }
+        public VoucherTypeEnum? VoucherType { get; set; } = null;
     }
 }

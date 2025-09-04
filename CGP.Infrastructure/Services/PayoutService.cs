@@ -64,17 +64,64 @@ namespace CGP.Infrastructure.Services
             return paymentUrl;
         }
 
-        public async Task<string> CreateWithdrawUrl(WithDraw withDraw)
+        public async Task<Result<string>> CreateWithdrawUrl(WithDraw withDraw)
         {
+            var getUser = await _unitOfWork.userRepository.GetByIdAsync(withDraw.UserId);
+            var getUserPoint = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(withDraw.UserId);
+
+            if(getUser == null)
+            {
+                return new Result<string>()
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại",
+                };
+            }
+
+            if (getUserPoint.AvailableBalance < withDraw.Amount)
+            {
+                return new Result<string>()
+                {
+                    Error = 1,
+                    Message = "Số dư không đủ",
+                };
+            }
+
+            if(withDraw.Amount <= 10000)
+            {
+                return new Result<string>()
+                {
+                    Error = 1,
+                    Message = "Số tiền tối thiểu để rút là 10000",
+                };
+            }
+
+            getUserPoint.AvailableBalance -= withDraw.Amount;
+            getUserPoint.ModificationDate = DateTime.UtcNow.AddHours(7);
+            _unitOfWork.walletRepository.Update(getUserPoint);
+
+            var walletTransaction = new WalletTransaction()
+            {
+                Wallet_Id = getUserPoint.Id,
+                Amount = withDraw.Amount,
+                Type = WalletTransactionTypeEnum.Withdrawal,
+                Description = $"Rút tiền về tài khoản {withDraw.BankCode} - {withDraw.BankAccount}",
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+                IsDeleted = false,
+            };
+
+            await _unitOfWork.walletTransactionRepository.AddAsync(walletTransaction);
+
             var transation = new Transaction()
             {
                 OrderId = null,
                 UserId = withDraw.UserId,
+                WalletId = getUserPoint.Id,
                 PaymentId = null,
                 Amount = withDraw.Amount,
                 Currency = "VND",
                 PaymentMethod = PaymentMethodEnum.Online,
-                TransactionStatus = TransactionStatusEnum.Pending,
+                TransactionStatus = TransactionStatusEnum.Success,
                 TransactionDate = DateTime.UtcNow.AddHours(7),
                 TransactionFee = 0,
                 CreatedAt = DateTime.UtcNow.AddHours(7),
@@ -87,7 +134,12 @@ namespace CGP.Infrastructure.Services
             var baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}";
             var returnUrl = $"{baseUrl}/api/payment/withdraw-return?transactionId={transation.Id}&status=success";
 
-            return returnUrl;
+            return new Result<string>()
+            {
+                Error = 0,
+                Message = "Tạo yêu cầu rút tiền thành công",
+                Data= returnUrl
+            };
         }
 
         public async Task<string> QueryTransactionAsync(string txnRef, string orderInfo, string transactionDate)

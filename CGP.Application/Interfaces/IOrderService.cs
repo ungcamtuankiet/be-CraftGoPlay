@@ -31,5 +31,8 @@ namespace CGP.Application.Interfaces
         Task<Result<OrderDashboardForArtisanDto>> GetDashboardForArtisan(RevenueFilterDto filter);
         Task<Result<OrderDashboardForAdminDto>> GetDashboardForAdmin(RevenueFilterForAdmin filter);
         Task<Result<ProductCountByMonthDto>> GetProductCountsByMonthAsync(int year, Guid? artisanId = null);
+
+        //Hangfire
+        Task AutoCompleteOrderItemsAsync();
     }
 }
