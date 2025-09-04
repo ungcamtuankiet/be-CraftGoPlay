@@ -21,8 +21,8 @@ namespace CGP.Application.Interfaces
         Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersByUserIdAsync(Guid userId, int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<ResponseOrder<List<ViewOrderDTO>>> GetOrdersByArtisanIdAsync(Guid artisanId, int pageIndex, int pageSize, OrderStatusEnum? status);
         Task<Result<bool>> UpdateOrderStatusAsync(Guid orderId, OrderStatusEnum statusDto, ReasonDeliveryFailed reason);
-        Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Dictionary<Guid, double> deliveryAmounts, Guid address, string voucherDeliveryCode, string? voucherProductCode, PaymentMethodEnum paymentMethod);
-        Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, string voucherDeliveryCode, string? voucherProductCode, CreateDirectOrderDto dto);
+        Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Dictionary<Guid, double> deliveryAmounts, Guid address, string voucherDeliveryCode, string? voucherProductCode, decimal Point, PaymentMethodEnum paymentMethod);
+        Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, string voucherDeliveryCode, string? voucherProductCode, decimal Point, CreateDirectOrderDto dto);
         Task<Result<string>> CreateVnPayUrlAsync(Guid transactionId, HttpContext httpContext);
         Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query);
         Task<Result<OrderCountDto>> CountOrdersByArtisanIdAsync(Guid artisanId);

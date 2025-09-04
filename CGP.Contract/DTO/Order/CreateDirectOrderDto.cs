@@ -14,6 +14,7 @@ namespace CGP.Contract.DTO.Order
         public double DeliveryAmount { get; set; }
         public Guid UserId { get; set; }
         public int Quantity { get; set; }
+        public decimal Point { get; set; } = 0;
         public string? VoucherProductCode { get; set; }
         public string? VoucherDeliveryCode { get; set; }
         public PaymentMethodEnum PaymentMethod { get; set; }

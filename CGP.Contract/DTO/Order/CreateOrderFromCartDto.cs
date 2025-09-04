@@ -18,7 +18,7 @@ namespace CGP.Contract.DTO.Order
 
         [Required(ErrorMessage = "DeliveryAmounts is required.")]
         public string DeliveryAmounts { get; set; }
-
+        public decimal Point { get; set; } = 0;
         public string? VoucherProductCode { get; set; }
 
         public string? VoucherDeliveryCode { get; set; }

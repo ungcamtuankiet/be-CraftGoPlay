@@ -22,15 +22,33 @@ namespace CGP.Infrastructure.Repositories {
 
         public async Task<Wallet> GetWalletByUserIdAsync(Guid userId)
         {
-            return await _context.Wallet
+            var wallet = await _context.Wallet
                 .Include(w => w.WalletTransactions)
                 .FirstOrDefaultAsync(w => w.User_Id == userId && w.Type == WalletTypeEnum.User);
+
+            if (wallet != null)
+            {
+                wallet.WalletTransactions = wallet.WalletTransactions
+                    .OrderByDescending(t => t.CreationDate) // đổi CreationDate thành field ngày của bạn
+                    .ToList();
+            }
+
+            return wallet;
         }
         public async Task<Wallet> GetWalletByArtisanIdAsync(Guid artianId)
         {
-            return await _context.Wallet
+            var wallet = await _context.Wallet
                 .Include(w => w.WalletTransactions)
                 .FirstOrDefaultAsync(w => w.User_Id == artianId && w.Type == WalletTypeEnum.Artisan);
+
+            if (wallet != null)
+            {
+                wallet.WalletTransactions = wallet.WalletTransactions
+                    .OrderByDescending(t => t.CreationDate) // đổi CreationDate thành field ngày của bạn
+                    .ToList();
+            }
+
+            return wallet;
         }
 
         public async Task<Wallet> GetWalletSystem()

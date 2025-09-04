@@ -1,11 +1,5 @@
-﻿using CGP.Contract.DTO.CraftVillage;
-using CGP.Contract.DTO.UserAddress;
-using CGP.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CGP.Contract.DTO.ArtisanRequest;
+using CGP.Contract.DTO.CraftVillage;
 
 namespace CGP.Contract.DTO.User
 {
@@ -16,5 +10,6 @@ namespace CGP.Contract.DTO.User
         public DateTime? DateOfBirth { get; set; }
         public string? Thumbnail { get; set; }
         public ViewCraftVillageDTO? CraftVillage { get; set; }
+        public ViewArtisanRequestDTO? ArtisanRequest { get; set; }
     }
 }
