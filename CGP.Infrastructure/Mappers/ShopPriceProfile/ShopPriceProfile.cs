@@ -18,6 +18,10 @@ namespace CGP.Infrastructure.Mappers.ShopPriceProfile
             CreateMap<ShopPrice, ViewItemShopPriceDTO>()
                 .ForMember(dest => dest.Item, opt => opt.MapFrom(src => src.Item))
                 .ReverseMap();
+
+            CreateMap<ShopPrice, ViewItemsSeillDTO>()
+                .ForMember(dest => dest.SellPrice, opt => opt.MapFrom(src => src.Price))
+                .ReverseMap();
         }
     }
 }

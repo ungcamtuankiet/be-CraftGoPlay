@@ -2,9 +2,11 @@
 using CGP.Application.Interfaces;
 using CGP.Application.Utils;
 using CGP.Contract.Abstractions.VnPayService;
+using CGP.Contract.DTO.Wallet;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +14,12 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
+using VNPAY.NET.Enums;
 
 namespace CGP.Infrastructure.Services
 {
@@ -23,12 +28,14 @@ namespace CGP.Infrastructure.Services
         private readonly VnPaySettings _settings;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PayoutService(IOptions<VnPaySettings> options, IConfiguration configuration, IUnitOfWork unitOfWork)
+        public PayoutService(IOptions<VnPaySettings> options, IConfiguration configuration, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
         {
             _settings = options.Value;
             _configuration = configuration;
             _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<string> CreatePaymentUrl(Guid transactionId, decimal totalAmount, HttpContext context)
@@ -39,7 +46,6 @@ namespace CGP.Infrastructure.Services
             vnpay.AddRequestData("vnp_Command", "pay");
             vnpay.AddRequestData("vnp_TmnCode", _settings.TmnCode);
 
-            // Tổng số tiền nhân 100 theo yêu cầu của VNPay
             vnpay.AddRequestData("vnp_Amount", ((int)(totalAmount * 100)).ToString());
 
             vnpay.AddRequestData("vnp_CreateDate", DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss"));
@@ -52,13 +58,64 @@ namespace CGP.Infrastructure.Services
 
             vnpay.AddRequestData("vnp_ReturnUrl", _settings.ReturnUrl);
 
-            // ⚠️ Đây là thay đổi quan trọng: dùng TransactionId thay vì OrderId
             vnpay.AddRequestData("vnp_TxnRef", transactionId.ToString());
 
             var paymentUrl = vnpay.CreateRequestUrl(_settings.PaymentUrl, _settings.HashSecret);
             return paymentUrl;
         }
 
+        public async Task<string> CreateWithdrawUrl(WithDraw withDraw)
+        {
+            var transation = new Transaction()
+            {
+                OrderId = null,
+                UserId = withDraw.UserId,
+                PaymentId = null,
+                Amount = withDraw.Amount,
+                Currency = "VND",
+                PaymentMethod = PaymentMethodEnum.Online,
+                TransactionStatus = TransactionStatusEnum.Pending,
+                TransactionDate = DateTime.UtcNow.AddHours(7),
+                TransactionFee = 0,
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+                UpdatedAt = DateTime.UtcNow.AddHours(7),
+                Notes = $"Rút tiền về tài khoản {withDraw.BankCode} - {withDraw.BankAccount}",
+                IsDeleted = false,
+            };
+            await _unitOfWork.transactionRepository.AddAsync(transation);
+            await _unitOfWork.SaveChangeAsync();
+            var baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}";
+            var returnUrl = $"{baseUrl}/api/payment/withdraw-return?transactionId={transation.Id}&status=success";
+
+            return returnUrl;
+        }
+
+        public async Task<string> QueryTransactionAsync(string txnRef, string orderInfo, string transactionDate)
+        {
+
+            var parameters = new Dictionary<string, string>
+            {
+                { "vnp_Version", "2.1.0" },
+                { "vnp_Command", "querydr" },
+                { "vnp_TmnCode",  _settings.TmnCode },
+                { "vnp_TxnRef", txnRef },
+                { "vnp_OrderInfo", orderInfo },
+                { "vnp_TransactionDate", transactionDate },
+                { "vnp_CreateDate", DateTime.UtcNow.ToString("yyyyMMddHHmmss") },
+                { "vnp_IpAddr", "127.0.0.1" }
+            };
+
+            string rawData = string.Join("&", parameters
+                .OrderBy(kvp => kvp.Key)
+                .Select(kvp => $"{kvp.Key}={kvp.Value}"));
+
+            parameters.Add("vnp_SecureHash", _settings.HashSecret);
+
+            using var client = new HttpClient();    
+            var content = new FormUrlEncodedContent(parameters);
+            var response = await client.PostAsync(_settings.ReturnUrl, content);
+            return await response.Content.ReadAsStringAsync();
+        }
 
         public async Task<Result<bool>> RefundAsync(Guid orderId)
         {
@@ -164,5 +221,15 @@ namespace CGP.Infrastructure.Services
 
             return vnpay.ValidateSignature(vnp_SecureHash,_settings.HashSecret);
         }
+
+        public async Task<Transaction> HandleWithdrawReturn(Guid transactionId, TransactionStatusEnum status)
+        {
+            var transaction = await _unitOfWork.transactionRepository.GetByIdAsync(transactionId);
+            if (transaction == null) return null;
+
+            transaction.TransactionStatus = status == TransactionStatusEnum.Success ? TransactionStatusEnum.Success : TransactionStatusEnum.Failed;
+            return transaction;
+        }
+
     }
 }

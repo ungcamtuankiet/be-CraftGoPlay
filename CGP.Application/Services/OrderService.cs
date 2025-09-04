@@ -166,6 +166,8 @@ namespace CGP.Application.Services
             var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
             var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
+            var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
+            var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
             double totalShipping = deliveryAmounts.Values.Sum();
             double discountProduct = 0;
             double discountDelivery = 0;
@@ -270,6 +272,16 @@ namespace CGP.Application.Services
                                     Message = "Mã giảm giá cho sản phẩm không tồn tại.",
                                 };
                             }
+
+                            if(checkVoucherProductUsed != null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá đã được sử dụng.",
+                                };
+                            }
+
                             if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
                             {
                                 return new Result<Guid>()
@@ -357,6 +369,15 @@ namespace CGP.Application.Services
                                 {
                                     Error = 1,
                                     Message = "Mã giảm giá cho vận chuyển không tồn tại.",
+                                };
+                            }
+
+                            if(checkVoucherDeliveryUsed != null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá đã được sử dụng.",
                                 };
                             }
 
@@ -557,6 +578,15 @@ namespace CGP.Application.Services
                                     Message = "Mã giảm giá cho sản phẩm không tồn tại.",
                                 };
                             }
+
+                            if (checkVoucherProductUsed != null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá đã được sử dụng.",
+                                };
+                            }
                             if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
                             {
                                 return new Result<Guid>()
@@ -644,6 +674,15 @@ namespace CGP.Application.Services
                                 {
                                     Error = 1,
                                     Message = "Mã giảm giá cho vận chuyển không tồn tại.",
+                                };
+                            }
+
+                            if (checkVoucherDeliveryUsed != null)
+                            {
+                                return new Result<Guid>()
+                                {
+                                    Error = 1,
+                                    Message = "Mã giảm giá đã được sử dụng.",
                                 };
                             }
 
@@ -846,6 +885,8 @@ namespace CGP.Application.Services
             var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
             var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
+            var checkVoucherProductUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherProduct.Id);
+            var checkVoucherDeliveryUsed = await _unitOfWork.orderVoucherRepository.CheckVoucherUsed(userId, getVoucherDelivery.Id);
             double discountProduct = 0;
             double discountDelivery = 0;
             double totalDiscount = 0;
@@ -894,6 +935,16 @@ namespace CGP.Application.Services
                                 Message = "Mã giảm giá cho sản phẩm không tồn tại.",
                             };
                         }
+
+                        if (checkVoucherProductUsed != null)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá đã được sử dụng.",
+                            };
+                        }
+
                         if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
                         {
                             return new Result<Guid>()
@@ -972,6 +1023,16 @@ namespace CGP.Application.Services
                                 Message = "Mã giảm giá cho vận chuyển không tồn tại.",
                             };
                         }
+
+                        if (checkVoucherDeliveryUsed != null)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá đã được sử dụng.",
+                            };
+                        }
+
                         if (order.Product_Amount < getVoucherDelivery.MinOrderValue)
                         {
                             return new Result<Guid>
@@ -1137,6 +1198,16 @@ namespace CGP.Application.Services
                                 Message = "Mã giảm giá cho sản phẩm không tồn tại.",
                             };
                         }
+
+                        if (checkVoucherProductUsed != null)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá đã được sử dụng.",
+                            };
+                        }
+
                         if (getVoucherProduct.StartDate > DateTime.UtcNow.AddHours(7))
                         {
                             return new Result<Guid>()
@@ -1215,6 +1286,16 @@ namespace CGP.Application.Services
                                 Message = "Mã giảm giá cho vận chuyển không tồn tại.",
                             };
                         }
+
+                        if (checkVoucherDeliveryUsed != null)
+                        {
+                            return new Result<Guid>()
+                            {
+                                Error = 1,
+                                Message = "Mã giảm giá đã được sử dụng.",
+                            };
+                        }
+
                         if (order.Product_Amount < getVoucherDelivery.MinOrderValue)
                         {
                             return new Result<Guid>
@@ -1690,6 +1771,7 @@ namespace CGP.Application.Services
 
                     _unitOfWork.orderRepository.Update(order);
                     order.ModificationDate = DateTime.UtcNow.AddHours(7);
+
                     await _unitOfWork.SaveChangeAsync();
 
                     return new Result<bool>()

@@ -1,7 +1,9 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,12 @@ namespace CGP.Infrastructure.Repositories
         public OrderVoucherRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
         {
             _context = context;
+        }
+
+        public async Task<OrderVoucher> CheckVoucherUsed(Guid userId, Guid voucherId)
+        {
+            return await _context.OrderVoucher
+                .FirstOrDefaultAsync(o => o.Order.UserId == userId && o.VoucherId == voucherId && o.Order.Status != OrderStatusEnum.Cancelled);
         }
     }
 }

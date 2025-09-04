@@ -4,9 +4,11 @@ using CGP.Contract.DTO.Item;
 using CGP.Contract.DTO.ShopPrice;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +29,16 @@ namespace CGP.Application.Services
         {
             var result = _mapper.Map<List<ViewItemShopPriceDTO>>(await _unitOfWork.shopPriceRepository.GetAllShopPrice());
             return new Result<object>()
+            {
+                Error = 0,
+                Message = "Lấy danh sách vật phẩm được treo bán thành công",
+                Data = result
+            };
+        }
+        public async Task<Result<List<ViewItemsSeillDTO>>> GetItemsSell()
+        {
+            var result = _mapper.Map<List<ViewItemsSeillDTO>>(await _unitOfWork.shopPriceRepository.GetAllShopPrice());
+            return new Result<List<ViewItemsSeillDTO>>()
             {
                 Error = 0,
                 Message = "Lấy danh sách vật phẩm được treo bán thành công",
@@ -139,6 +151,80 @@ namespace CGP.Application.Services
             {
                 Error = 0,
                 Message = "Gỡ bỏ vật phẩm trên cửa hàng thành công"
+            };
+        }
+
+        public async Task<Result<SellResponse>> SellItem(SellRequest request)
+        {
+            var getItemInInventory = await _unitOfWork.inventoryRepository.GetItemInInventory(request.UserId, request.ItemId);
+            var getItemInShop = await _unitOfWork.shopPriceRepository.GetItemInShop(request.ItemId);
+            var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(request.UserId);
+            var getItem = await _unitOfWork.itemRepository.GetByIdAsync(request.ItemId);
+            var getUser = await _unitOfWork.userRepository.GetByIdAsync(request.UserId);
+
+            if(getUser == null)
+            {
+                return new Result<SellResponse>()
+                {
+                    Error = 1,
+                    Message = "Người dùng không tồn tại"
+                };
+            }
+
+            if (getItemInInventory == null)
+            {
+                return new Result<SellResponse>()
+                {
+                    Error = 1,
+                    Message = "Vật phẩm không tồn tại"
+                };
+            }
+
+            if(getItemInInventory.Quantity < request.Quantity)
+            {
+                return new Result<SellResponse>()
+                {
+                    Error = 1,
+                    Message = "Số lượng vật phẩm không đủ để bán"
+                };
+            }
+
+            if(getItemInShop == null)
+            {
+                return new Result<SellResponse>()
+                {
+                    Error = 1,
+                    Message = "Vật phẩm không tồn tại trong cửa hàng"
+                };
+            }
+
+            getUserPoint.Amount += (request.Quantity * getItemInShop.Price);
+            _unitOfWork.pointRepository.Update(getUserPoint);
+            var newPointTransaction = new PointTransaction()
+            {
+                Point_Id = getUserPoint.Id,
+                Amount = request.Quantity * getItemInShop.Price,
+                Status = PointTransactionEnum.Swap,
+                Description = $"Bán {request.Quantity} {getItem.NameItem}",
+                CreationDate = DateTime.UtcNow.AddHours(7)
+            };
+            await _unitOfWork.pointTransactionRepository.AddAsync(newPointTransaction);
+            getItemInInventory.Quantity -= request.Quantity;
+            _unitOfWork.inventoryRepository.Update(getItemInInventory);
+            await _unitOfWork.SaveChangeAsync();
+            return new Result<SellResponse>()
+            {
+                Error = 0,
+                Message = "Bán vật phẩm thành công",
+                Data = new SellResponse()
+                {
+                    ReceivedCoins = request.Quantity *  getItemInShop.Price,
+                    ItemId = request.ItemId,
+                    QuantitySold = request.Quantity,
+                    UnitPrice = getItemInShop.Price,
+                    ToalPrice = request.Quantity * getItemInShop.Price,
+                    NewBalance = getUserPoint.Amount
+                }
             };
         }
     }
