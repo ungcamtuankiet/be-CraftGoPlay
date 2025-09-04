@@ -20,6 +20,17 @@ namespace CGP.WebAPI.Controllers
             _returnRequestService = returnRequestService;
         }
 
+        [HttpGet("GetReturnRequestByUserId/{userId}")]
+        public async Task<IActionResult> GetReturnRequestByUserId(Guid userId, [FromQuery] ReturnStatusEnum? status = null, int pageIndex = 1, int pageSize = 10)
+        {
+            var result = await _returnRequestService.GetReturnRequestByUserIdAsync(userId, status, pageIndex, pageSize);
+            if (result.Error != 0)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         [HttpGet("GetReturnRequestByArtisanId/{artisanId}")]
         public async Task<IActionResult> GetReturnRequestByArtisanId(Guid artisanId, [FromQuery] ReturnStatusEnum? status = null, int pageIndex = 1, int pageSize = 10)
         {

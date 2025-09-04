@@ -8,6 +8,7 @@ namespace CGP.Contract.DTO.User
 {
     public class ViewUserReturnRequestDTO
     {
+        public Guid Id { get; set; }
         public string Email { get; set; }
         public string UserName { get; set; }
         public DateTime? DateOfBirth { get; set; }

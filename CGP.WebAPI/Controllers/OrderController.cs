@@ -21,6 +21,22 @@ namespace CGP.WebAPI.Controllers
             _orderService = orderService;
         }
 
+        [HttpGet("GetAllOrders")]
+        /*        [Authorize(Policy = "StaffPolicy")]*/
+        public async Task<IActionResult> GetOrdersAsync([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
+        {
+            var result = await _orderService.GetOrdersAsync(pageIndex, pageSize, status);
+            if (result.Error == 1)
+            {
+                return NotFound(result);
+            }
+            if (result.Error == 2)
+            {
+                return Forbid();
+            }
+            return Ok(result);
+        }
+
         [HttpGet("GetOrdersByUserId/{userId}")]
 /*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> GetOrdersByUserId(Guid userId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatusEnum? status = null)
