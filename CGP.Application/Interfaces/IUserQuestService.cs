@@ -1,5 +1,6 @@
 ﻿using CGP.Contract.DTO.UserQuest;
 using CGP.Contracts.Abstractions.Shared;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace CGP.Application.Interfaces
     {
         Task<Result<List<ViewUserQuestDTO>>> GetUserQuestsAsync(Guid userId);
         Task EnsureDailyQuestAsync(Guid userId);
+        Task UpdateProgressAsync(Guid userId, QuestType questType, int amount);
         Task<Result<object>> ClaimDailyRewardAsync(Guid userId, Guid questId);
     }
 }

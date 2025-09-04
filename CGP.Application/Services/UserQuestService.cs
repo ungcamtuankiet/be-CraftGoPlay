@@ -39,27 +39,45 @@ namespace CGP.Application.Services
             var checkExistQuest = await _unitOfWork.userQuestRepository.CheckExistQuest(userId);
             if (checkExistQuest != null) return;
 
-            var dailyQuests = await _unitOfWork.questRepository.GetQuest();
+            var dailyQuests = await _unitOfWork.questRepository.GetDailyQuests();
             if (dailyQuests == null) return;
 
-            var userQuest = new UserQuest
+            foreach (var quest in dailyQuests)
             {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                QuestId = dailyQuests.Id,
-                Progress = 1,                
-                Status = QuestStatus.Completed,
-                RewardClaimed = false,      
-                CreationDate = DateTime.UtcNow.AddHours(7),
-                CompletedAt = DateTime.UtcNow
-            };
-            await _unitOfWork.userQuestRepository.AddAsync(userQuest);
+                var existQuest = await _unitOfWork.userQuestRepository
+                    .GetUserQuestAsync(userId, quest.Id);
+
+                if (existQuest != null) continue; 
+
+                var userQuest = new UserQuest
+                {
+                    UserId = userId,
+                    QuestId = quest.Id,
+                    RewardClaimed = false,
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CompletedAt = null
+                };
+                if (quest.QuestType == QuestType.DailyLogin)
+                {
+                    userQuest.Progress = 1;
+                    userQuest.Status = QuestStatus.Completed;
+                    userQuest.CompletedAt = DateTime.UtcNow.AddHours(7);
+                }
+                else
+                {
+                    userQuest.Progress = 0;
+                    userQuest.Status = QuestStatus.Pending;
+                    userQuest.CompletedAt = null;
+                }
+
+                await _unitOfWork.userQuestRepository.AddAsync(userQuest);
+            }
             await _unitOfWork.SaveChangeAsync();
         }
 
         public async Task<Result<object>> ClaimDailyRewardAsync(Guid userId, Guid questId)
         {
-            var userQuest = await _unitOfWork.userQuestRepository.GetUserQuest(userId, questId);
+            var userQuest = await _unitOfWork.userQuestRepository.GetUserQuestAsync(userId, questId);
             if (userQuest == null)
             {
                 return new Result<object>()
@@ -87,6 +105,21 @@ namespace CGP.Application.Services
                 Message = "Nhận phần thưởng thành công.",
                 Data = null
             };
+        }
+
+        public async Task UpdateProgressAsync(Guid userId, QuestType questType, int amount)
+        {
+            var userQuest = await _unitOfWork.userQuestRepository.GetByUserAndQuestTypeAsync(userId, questType);
+            if (userQuest == null) return;
+            userQuest.Progress += amount;
+            if (userQuest.Progress >= 5)
+            {
+                userQuest.Progress = 5;
+                userQuest.Status = QuestStatus.Completed;
+                userQuest.CompletedAt = DateTime.UtcNow.AddHours(7);
+            }
+            _unitOfWork.userQuestRepository.Update(userQuest);
+            await _unitOfWork.SaveChangeAsync();
         }
 
 

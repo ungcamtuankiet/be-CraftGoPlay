@@ -9,6 +9,6 @@ namespace CGP.Application.Repositories
 {
     public interface IQuestRepository : IGenericRepository<Quest>
     {
-        Task<Quest> GetQuest();
+        Task<List<Quest>> GetDailyQuests();
     }
 }
