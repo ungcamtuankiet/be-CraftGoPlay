@@ -216,6 +216,7 @@ namespace CGP.Application.Services
 
             var getUser = await _unitOfWork.userRepository.GetUserById(getRequest.UserId);
             getUser.CraftVillage_Id = getRequest.CraftVillageId;
+            getRequest.ModificationDate = DateTime.UtcNow.AddHours(7);
             await _unitOfWork.artisanRequestRepository.AcceptRequest(getRequest);
             getUser.RoleId = 3;
             await _unitOfWork.userRepository.UpdateAsync(getUser);

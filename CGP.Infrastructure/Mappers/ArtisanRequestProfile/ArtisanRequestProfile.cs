@@ -21,6 +21,7 @@ namespace CGP.Infrastructure.Mappers.ArtisanRequestProfile
                 .ForMember(dest => dest.Reason, opt => opt.MapFrom(src => src.Reason));
             CreateMap<ArtisanRequest, ViewRequestDTO>().ReverseMap();
             CreateMap<ArtisanRequest, ViewAddressOfArtisanDTO>().ReverseMap();
+            CreateMap<ArtisanRequest, ViewArtisanRequestDTO>().ReverseMap();
         }
     }
 }

@@ -94,7 +94,7 @@ namespace CGP.WebAPI.Controllers
         public async Task<IActionResult> CreateFromCart([FromForm] CreateOrderFromCartDto request)
         {
             var deliveryAmounts = JsonSerializer.Deserialize<Dictionary<Guid, double>>(request.DeliveryAmounts);
-            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, deliveryAmounts, request.AddressId, request.VoucherDeliveryCode, request.VoucherProductCode, request.PaymentMethod);
+            var result = await _orderService.CreateOrderFromCartAsync(request.UserId, request.SelectedCartItemIds, deliveryAmounts, request.AddressId, request.VoucherDeliveryCode, request.VoucherProductCode, request.Point, request.PaymentMethod);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
@@ -102,7 +102,7 @@ namespace CGP.WebAPI.Controllers
 /*        [Authorize(Policy = "UserPolicy")]*/
         public async Task<IActionResult> CreateDirect([FromForm] CreateDirectOrderDto dto, Guid userId)
         {
-            var result = await _orderService.CreateDirectOrderAsync(userId, dto.AddressId,dto.DeliveryAmount,dto.VoucherDeliveryCode, dto.VoucherProductCode, dto);
+            var result = await _orderService.CreateDirectOrderAsync(userId, dto.AddressId,dto.DeliveryAmount,dto.VoucherDeliveryCode, dto.VoucherProductCode, dto.Point, dto);
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 

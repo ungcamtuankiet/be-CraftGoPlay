@@ -16,6 +16,8 @@ namespace CGP.Domain.Entities
         public double Delivery_Amount { get; set; }
         public double ProductDiscount { get; set; }
         public double DeliveryDiscount { get; set; }
+        public decimal Point { get; set; }
+        public decimal PointDiscount { get; set; }
         public double TotalDiscount { get; set; }
         public decimal TotalPrice { get; set; }
         public int DeliveriesCount { get; set; } = 0;

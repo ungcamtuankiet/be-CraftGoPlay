@@ -153,7 +153,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Dictionary<Guid, double> deliveryAmounts, Guid address, string voucherDeliveryCode, string? voucherProductCode, PaymentMethodEnum paymentMethod)
+        public async Task<Result<Guid>> CreateOrderFromCartAsync(Guid userId, List<Guid> selectedCartItemIds, Dictionary<Guid, double> deliveryAmounts, Guid address, string voucherDeliveryCode, string? voucherProductCode, decimal Point,PaymentMethodEnum paymentMethod)
         {
             var cart = await _unitOfWork.cartRepository.GetCartByUserIdAsync(userId);
             var transactionId = Guid.NewGuid();
@@ -165,6 +165,7 @@ namespace CGP.Application.Services
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
             var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
             var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
+            var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
             double totalShipping = deliveryAmounts.Values.Sum();
             double discountProduct = 0;
             double discountDelivery = 0;
@@ -442,7 +443,9 @@ namespace CGP.Application.Services
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
-                    order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount;
+                    order.Point = Point;
+                    order.PointDiscount = Point * 100;
+                    order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                     order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
                     orders.Add(order);
                     await _unitOfWork.orderRepository.AddAsync(order);
@@ -727,7 +730,9 @@ namespace CGP.Application.Services
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
-                    order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount;
+                    order.Point = Point;
+                    order.PointDiscount = Point * 100;
+                    order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                     order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
                     await _unitOfWork.orderRepository.AddAsync(order);
                     orders.Add(order);
@@ -807,6 +812,17 @@ namespace CGP.Application.Services
                 cart.IsCheckedOut = false;
             }
             _unitOfWork.cartRepository.Update(cart);
+            getUserPoint.Amount = (int)(getUserPoint.Amount - Point);
+            var pointTransaction = new PointTransaction
+            {
+                Point_Id = getUserPoint.Id,
+                Amount = Point,
+                Description = $"Sử dụng {Point} điểm để đặt hàng.",
+                Status = PointTransactionEnum.Redeemed,
+                CreationDate = DateTime.UtcNow.AddHours(7),
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+            };
+            await _unitOfWork.pointTransactionRepository.AddAsync(pointTransaction);
             await _unitOfWork.SaveChangeAsync();
             return new Result<Guid>()
             {
@@ -816,7 +832,7 @@ namespace CGP.Application.Services
             };
         }
 
-        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, string voucherDeliveryCode, string? voucherProductCode, CreateDirectOrderDto dto)
+        public async Task<Result<Guid>> CreateDirectOrderAsync(Guid userId, Guid address, double Delivery_Amount, string voucherDeliveryCode, string? voucherProductCode, decimal Point,CreateDirectOrderDto dto)
         {
             var product = await _unitOfWork.productRepository.GetByIdAsync(dto.ProductId);
             var transactionId = Guid.NewGuid();
@@ -829,6 +845,7 @@ namespace CGP.Application.Services
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
             var getVoucherDelivery = await _unitOfWork.voucherRepository.CheckVoucherDelivery(voucherDeliveryCode);
             var getVoucherProduct = await _unitOfWork.voucherRepository.CheckVoucherProduct(voucherProductCode);
+            var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
             double discountProduct = 0;
             double discountDelivery = 0;
             double totalDiscount = 0;
@@ -1048,10 +1065,12 @@ namespace CGP.Application.Services
                 order.TransactionId = transactionId;
                 order.ProductDiscount = discountProduct;
                 order.DeliveryDiscount = discountDelivery;
+                order.Point = Point;
+                order.PointDiscount = Point * 100;
                 order.PaymentMethod = dto.PaymentMethod;
                 order.Delivery_Amount = Delivery_Amount;
                 order.CreationDate = DateTime.UtcNow;
-                order.TotalDiscount = discountProduct + discountDelivery;
+                order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                 order.OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -1292,7 +1311,9 @@ namespace CGP.Application.Services
                 order.Delivery_Amount = Delivery_Amount;
                 order.DeliveryDiscount = discountDelivery;
                 order.ProductDiscount = discountProduct;
-                order.TotalDiscount = discountDelivery + discountProduct;
+                order.Point = Point;
+                order.PointDiscount = Point * 100;
+                order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                 order.Product_Amount = (double)(dto.Quantity * product.Price);
                 order.OrderItems = new List<OrderItem>
                 {
@@ -1376,6 +1397,17 @@ namespace CGP.Application.Services
                 }
             }
 
+            getUserPoint.Amount = (int)(getUserPoint.Amount - Point);
+            var pointTransaction = new PointTransaction
+            {
+                Point_Id = getUserPoint.Id,
+                Amount = Point,
+                Description = $"Sử dụng {Point} điểm để đặt hàng.",
+                Status = PointTransactionEnum.Redeemed,
+                CreationDate = DateTime.UtcNow.AddHours(7),
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+            };
+            await _unitOfWork.pointTransactionRepository.AddAsync(pointTransaction);
             await _unitOfWork.SaveChangeAsync();
             return new Result<Guid>()
             {

@@ -18,7 +18,9 @@ namespace CGP.Contract.DTO.Voucher
         public PaymentMethodEnum PaymentMethod { get; set; }
         public double MinOrderValue { get; set; }
         public double MaxDiscountAmount { get; set; }
+        public int PointChangeAmount { get; set; }
         public int UsedCount { get; set; }
+        public int ChangeAmout { get; set; } = 0;
         public int Quantity { get; set; }
         public double Discount { get; set; }
         public DateTime StartDate { get; set; }

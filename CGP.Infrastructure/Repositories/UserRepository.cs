@@ -146,6 +146,7 @@ namespace CGP.Infrastructure.Repositories
                 .Include(u => u.CraftVillage)
                 .Include(u => u.Wallet)
                 .Include(u => u.UserAddresses)
+                .Include(u => u.ArtisanRequest)
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
 

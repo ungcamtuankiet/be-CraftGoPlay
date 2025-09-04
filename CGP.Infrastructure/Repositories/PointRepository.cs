@@ -35,10 +35,18 @@ namespace CGP.Infrastructure.Repositories
 
         public async Task<Point> GetPointsByUserId(Guid userId)
         {
-            return await _dbContext.Point
-                .Include(p => p.User)
-                .Include(p => p.PointTransactions)
-                .FirstOrDefaultAsync(p => p.UserId == userId);
+            var point = await _dbContext.Point
+                .Include(w => w.PointTransactions)
+                .FirstOrDefaultAsync(w => w.UserId == userId);
+
+            if (point != null)
+            {
+                point.PointTransactions = point.PointTransactions
+                    .OrderByDescending(t => t.CreationDate) // đổi CreationDate thành field ngày của bạn
+                    .ToList();
+            }
+
+            return point;
         }
     }
 }
