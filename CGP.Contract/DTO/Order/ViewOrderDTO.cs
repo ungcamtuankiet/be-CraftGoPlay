@@ -17,10 +17,14 @@ namespace CGP.Contract.DTO.Order
         public Guid UserId { get; set; }
         public double Product_Amount { get; set; }
         public double Delivery_Amount { get; set; }
+        public double ProductDiscount { get; set; }
+        public double DeliveryDiscount { get; set; }
+        public decimal PointDiscount { get; set; }
         public double TotalDiscount { get; set; }
         public decimal TotalPrice { get; set; }
         public OrderStatusEnum Status { get; set; }
         public PaymentMethodEnum PaymentMethod { get; set; }
+        public ReasonDeliveryFailed ReasonDeliveryFailed { get; set; } = ReasonDeliveryFailed.Empty;
         public bool IsPaid { get; set; } = false;
         public DateTime CreationDate { get; set; }
         public List<ViewOrderItemDTO> OrderItems { get; set; } = new List<ViewOrderItemDTO>();
