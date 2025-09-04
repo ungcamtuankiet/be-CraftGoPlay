@@ -5,6 +5,7 @@ using CGP.Contract.DTO.Farmland;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
 using CGP.Domain.Enums;
+using CloudinaryDotNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,14 @@ namespace CGP.Application.Services
     public class FarmlandService : IFarmlandService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserQuestService _userQuestService;
         private readonly IMapper _mapper;
 
-        public FarmlandService(IUnitOfWork unitOfWork, IMapper mapper)
+        public FarmlandService(IUnitOfWork unitOfWork, IMapper mapper, IUserQuestService userQuestService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _userQuestService = userQuestService;
         }
 
         public async Task<Result<List<ViewFarmlandDTO>>> GetFarmlandsByUserIdAsync(Guid userId)
@@ -307,7 +310,7 @@ namespace CGP.Application.Services
 
             _unitOfWork.farmlandCropRepository.Update(getFarmLandCrop);
             await _unitOfWork.SaveChangeAsync();
-
+            await _userQuestService.UpdateProgressAsync(user.Id, QuestType.WaterPlant, 1);
             return new Result<object>
             {
                 Error = 0,

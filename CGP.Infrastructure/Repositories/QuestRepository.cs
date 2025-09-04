@@ -20,10 +20,11 @@ namespace CGP.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Quest> GetQuest()
+        public async Task<List<Quest>> GetDailyQuests()
         {
             return await _context.Quest
-            .FirstOrDefaultAsync(q => q.QuestType == QuestType.DailyLogin && q.IsDaily);
+            .Where(q => q.IsDaily)
+            .ToListAsync();
         }
     }
 }

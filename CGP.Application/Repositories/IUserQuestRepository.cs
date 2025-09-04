@@ -1,4 +1,5 @@
 ﻿using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,8 @@ namespace CGP.Application.Repositories
     public interface IUserQuestRepository : IGenericRepository<UserQuest>
     {
         Task<UserQuest> CheckExistQuest(Guid userId);
-        Task<UserQuest> GetUserQuest(Guid userId, Guid questId);
         Task<List<UserQuest>> GetUserQuests(Guid userId);
+        Task<UserQuest> GetUserQuestAsync(Guid userId, Guid questId);
+        Task<UserQuest> GetByUserAndQuestTypeAsync(Guid userId, QuestType questType);
     }
 }
