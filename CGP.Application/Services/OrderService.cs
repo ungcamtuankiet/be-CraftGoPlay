@@ -2055,6 +2055,18 @@ namespace CGP.Application.Services
             };
         }
 
+        public async Task<Result<int>> CountOrdersByUserIdAsync(Guid userId)
+        {
+            var totalOrders = await _unitOfWork.orderRepository.CountAsyncForUser(userId);
+
+            return new Result<int>
+            {
+                Error = 0,
+                Message = "Đếm số đơn hàng theo artisan và trạng thái thành công",
+                Data = totalOrders
+            };
+        }
+
         public async Task<Result<OrderCountDto>> CountOrdersByArtisanIdAsync(Guid artisanId)
         {
             var totalOrders = await _unitOfWork.orderRepository.CountAsyncForArtisan(artisanId);

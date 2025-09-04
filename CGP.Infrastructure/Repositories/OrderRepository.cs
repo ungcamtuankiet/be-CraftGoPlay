@@ -129,6 +129,13 @@ namespace CGP.Infrastructure.Repositories
         }
 
         //Dashboard
+        public async Task<int> CountAsyncForUser(Guid userId)
+        {
+            var query = _dbContext.Order
+                .Where(o => o.UserId == userId);
+
+            return await query.CountAsync();
+        }
 
         public async Task<int> CountAsyncForArtisan(Guid artisanId, DateTime? from = null, DateTime? to = null)
         {

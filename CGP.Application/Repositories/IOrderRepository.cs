@@ -21,6 +21,7 @@ namespace CGP.Application.Repositories
         //Dashboard
         Task<int> CountAsyncForArtisan(Guid artisanId, DateTime? from = null, DateTime? to = null);
         Task<int> CountAsyncForAdmin(DateTime? from = null, DateTime? to = null);
+        Task<int> CountAsyncForUser(Guid userId);
         Task<Dictionary<string, int>> GetStatusCountsAsyncForArtisan(Guid artisanId, DateTime? from = null, DateTime? to = null);
         Task<Dictionary<string, int>> GetStatusCountsAsyncForAdmin(DateTime? from = null, DateTime? to = null);
         Task<decimal> SumRevenueForArtisanAsync(Guid artisanId, DateTime? from = null, DateTime? to = null);
