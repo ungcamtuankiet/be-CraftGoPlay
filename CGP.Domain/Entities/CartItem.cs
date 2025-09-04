@@ -18,7 +18,7 @@ namespace CGP.Domain.Entities
         public decimal UnitPrice { get; set; } 
 
         public decimal TotalPrice => UnitPrice * Quantity;
-        public DateTime AddedAt { get; set; } = DateTime.UtcNow;
+        public DateTime AddedAt { get; set; } = DateTime.UtcNow.AddHours(7);
         public Cart Cart { get; set; } = null!;
         public Product Product { get; set; } = null!;
     }

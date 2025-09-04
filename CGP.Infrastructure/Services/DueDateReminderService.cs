@@ -33,7 +33,7 @@ namespace CGP.Infrastructure.Services
         {
             using var scope = _scopeFactory.CreateScope();
 
-            var now = DateTime.UtcNow;
+            var now = DateTime.UtcNow.AddHours(7);
 
             // Fetch cards that have reminders set and are within the notification window
             _logger.LogInformation("Checked and sent due date reminders.");

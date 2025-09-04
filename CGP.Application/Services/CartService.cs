@@ -88,7 +88,7 @@ namespace CGP.Application.Services
                 cart = new Cart
                 {
                     UserId = userId,
-                    CreationDate = DateTime.UtcNow
+                    CreationDate = DateTime.UtcNow.AddHours(7)
                 };
                 await _unitOfWork.cartRepository.AddCartAsync(cart);
             }

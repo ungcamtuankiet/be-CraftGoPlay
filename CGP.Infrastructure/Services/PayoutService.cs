@@ -42,7 +42,7 @@ namespace CGP.Infrastructure.Services
             // Tổng số tiền nhân 100 theo yêu cầu của VNPay
             vnpay.AddRequestData("vnp_Amount", ((int)(totalAmount * 100)).ToString());
 
-            vnpay.AddRequestData("vnp_CreateDate", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_CreateDate", DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", "VND");
             vnpay.AddRequestData("vnp_IpAddr", context.Connection.RemoteIpAddress?.ToString());
             vnpay.AddRequestData("vnp_Locale", "vn");
@@ -103,7 +103,7 @@ namespace CGP.Infrastructure.Services
                 { "vnp_OrderInfo", "Hoàn tiền đơn hàng khách không nhận" },
                 { "vnp_TransDate", order.Payment.CreatedAt.ToString("yyyyMMddHHmmss") },
                 { "vnp_CreateBy", "System" },
-                { "vnp_CreateDate", DateTime.UtcNow.ToString("yyyyMMddHHmmss") }
+                { "vnp_CreateDate", DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") }
             };
 
             string rawData = string.Join("&", refundData.Select(x => $"{x.Key}={x.Value}"));

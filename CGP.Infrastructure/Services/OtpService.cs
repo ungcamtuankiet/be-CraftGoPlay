@@ -17,7 +17,7 @@ namespace CGP.Infrastructure.Services
             var otpEntry = new OtpEntry
             {
                 Otp = otp,
-                ExpiryTime = DateTime.UtcNow.Add(expiration)
+                ExpiryTime = DateTime.UtcNow.AddHours(7).Add(expiration)
             };
             _otpStore[userId] = otpEntry;
 
@@ -29,7 +29,7 @@ namespace CGP.Infrastructure.Services
         {
             if (_otpStore.TryGetValue(userId, out var otpEntry))
             {
-                if (otpEntry.Otp == otp && otpEntry.ExpiryTime > DateTime.UtcNow)
+                if (otpEntry.Otp == otp && otpEntry.ExpiryTime > DateTime.UtcNow.AddHours(7))
                 {
                     // OTP is valid, remove it from the store
                     _otpStore.TryRemove(userId, out _);

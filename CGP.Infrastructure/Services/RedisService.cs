@@ -55,7 +55,7 @@ namespace CGP.Infrastructure.Services
 
         public async Task AddToBlacklistAsync(string token, DateTime expiry)
         {
-            var ttl = expiry - DateTime.UtcNow;
+            var ttl = expiry - DateTime.UtcNow.AddHours(7);
             await _redisDb.StringSetAsync($"blacklist:{token}", "1", ttl);
         }
 

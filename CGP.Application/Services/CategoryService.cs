@@ -147,7 +147,7 @@ namespace CGP.Application.Services
             getCategory.Image = uploadResult.SecureUrl.ToString();
             getCategory.CategoryName = updateCategoryDTO.CategoryName;
             getCategory.CategoryStatus = updateCategoryDTO.CategoryStatus;
-            getCategory.ModificationDate = DateTime.UtcNow;
+            getCategory.ModificationDate = DateTime.UtcNow.AddHours(7);
             _unitOfWork.categoryRepository.Update(getCategory);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>

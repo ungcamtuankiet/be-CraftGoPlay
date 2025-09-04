@@ -24,7 +24,7 @@ namespace CGP.Infrastructure.Repositories
         public async Task<List<WalletTransaction>> GetPendingTransactionsAsync(DateTime now)
         {
             return await _context.WalletTransaction
-                 .Where(t => t.Type == WalletTransactionTypeEnum.Pending && t.UnlockDate <= now)
+                .Where(t => t.Type == WalletTransactionTypeEnum.Pending && t.UnlockDate <= DateTime.UtcNow.AddHours(7) && !t.IsDeleted)
                 .Include(t => t.Wallet)
                 .OrderByDescending(t => t.ModificationDate)
                 .ToListAsync();
