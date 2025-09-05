@@ -153,7 +153,7 @@ namespace CGP.Infrastructure.Services
                 { "vnp_TxnRef", txnRef },
                 { "vnp_OrderInfo", orderInfo },
                 { "vnp_TransactionDate", transactionDate },
-                { "vnp_CreateDate", DateTime.UtcNow.ToString("yyyyMMddHHmmss") },
+                { "vnp_CreateDate", DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") },
                 { "vnp_IpAddr", "127.0.0.1" }
             };
 

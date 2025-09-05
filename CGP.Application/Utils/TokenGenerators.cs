@@ -50,7 +50,7 @@ namespace CGP.Application.Utils
                 audience,
                 claims,
                 DateTime.UtcNow,
-                DateTime.UtcNow.AddMinutes(expirationMinutes),
+                DateTime.UtcNow.AddHours(7).AddMinutes(expirationMinutes),
                 credentials
             );
 

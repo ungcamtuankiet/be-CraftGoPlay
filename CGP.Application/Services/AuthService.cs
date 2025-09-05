@@ -147,7 +147,7 @@ namespace CGP.Application.Services
                     CreationDate = DateTime.Now,
                     Provider = provider,
                     ProviderKey = key,
-                    OtpExpiryTime = DateTime.UtcNow.AddMinutes(10)
+                    OtpExpiryTime = DateTime.UtcNow.AddHours(7).AddMinutes(10)
                 };
                 await _userRepository.AddAsync(user);
             }
@@ -189,7 +189,7 @@ namespace CGP.Application.Services
                     Otp = otp,
                     RoleId = 4,
                     CreationDate = DateTime.Now.AddHours(7),
-                    OtpExpiryTime = DateTime.UtcNow.AddMinutes(10)
+                    OtpExpiryTime = DateTime.UtcNow.AddHours(7).AddMinutes(10)
                 };
 
                 await _userRepository.AddAsync(user);
