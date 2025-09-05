@@ -272,7 +272,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if(checkVoucherProductUsed != null)
+                            if(checkVoucherProductUsed != null || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Rejected)
                             {
                                 return new Result<Guid>()
                                 {
@@ -372,7 +372,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if(checkVoucherDeliveryUsed != null)
+                            if (checkVoucherDeliveryUsed != null || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Rejected)
                             {
                                 return new Result<Guid>()
                                 {
@@ -580,7 +580,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (checkVoucherProductUsed != null)
+                            if (checkVoucherProductUsed != null || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Rejected)
                             {
                                 return new Result<Guid>()
                                 {
@@ -679,7 +679,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (checkVoucherDeliveryUsed != null)
+                            if (checkVoucherDeliveryUsed != null || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Rejected)
                             {
                                 return new Result<Guid>()
                                 {
@@ -937,7 +937,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if (checkVoucherProductUsed != null)
+                        if (checkVoucherProductUsed != null || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Rejected)
                         {
                             return new Result<Guid>()
                             {
@@ -1026,7 +1026,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if (checkVoucherDeliveryUsed != null)
+                        if (checkVoucherDeliveryUsed != null || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Rejected)
                         {
                             return new Result<Guid>()
                             {
@@ -1202,7 +1202,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if (checkVoucherProductUsed != null)
+                        if (checkVoucherProductUsed != null || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherProductUsed.Order.Status != OrderStatusEnum.Rejected)
                         {
                             return new Result<Guid>()
                             {
@@ -1291,7 +1291,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if (checkVoucherDeliveryUsed != null)
+                        if (checkVoucherDeliveryUsed != null || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Cancelled || checkVoucherDeliveryUsed.Order.Status != OrderStatusEnum.Rejected)
                         {
                             return new Result<Guid>()
                             {

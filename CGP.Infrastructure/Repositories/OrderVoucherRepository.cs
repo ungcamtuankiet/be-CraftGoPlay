@@ -23,7 +23,9 @@ namespace CGP.Infrastructure.Repositories
         public async Task<OrderVoucher> CheckVoucherUsed(Guid userId, Guid voucherId)
         {
             return await _context.OrderVoucher
-                .FirstOrDefaultAsync(o => o.Order.UserId == userId && o.VoucherId == voucherId && o.Order.Status != OrderStatusEnum.Cancelled);
+                .Include(ov => ov.Order)
+                .Include(ov => ov.Voucher)
+                .FirstOrDefaultAsync(o => o.Order.UserId == userId && o.VoucherId == voucherId);
         }
     }
 }
