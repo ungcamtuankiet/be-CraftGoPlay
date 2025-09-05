@@ -1,6 +1,7 @@
 ﻿using CGP.Application.Interfaces;
 using CGP.Application.Repositories;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using CGP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,6 +23,11 @@ namespace CGP.Infrastructure.Repositories
         public async Task<Item?> GetItemByNameAsync(string nameItem)
         {
             return await _context.Items.FirstOrDefaultAsync(x => x.NameItem == nameItem && !x.IsDeleted);
+        }
+
+        public async Task<List<Item>> GetItemsTypeSeedAsync()
+        {
+            return await _context.Items.Where(x => x.ItemType == ItemTypeEnum.Seed).ToListAsync();
         }
     }
 }

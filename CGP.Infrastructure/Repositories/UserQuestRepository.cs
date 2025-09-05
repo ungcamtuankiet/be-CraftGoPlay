@@ -37,8 +37,7 @@ namespace CGP.Infrastructure.Repositories
 
         public async Task<UserQuest?> GetByUserAndQuestAsync(Guid userId, Guid questId)
         {
-            var vnTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "SE Asia Standard Time");
-            var today = vnTime.Date;
+            var today = DateTime.UtcNow.Date.AddHours(7);
             return await _context.UserQuest
                 .FirstOrDefaultAsync(uq => uq.UserId == userId
                     && uq.QuestId == questId
@@ -48,8 +47,7 @@ namespace CGP.Infrastructure.Repositories
 
         public async Task<List<UserQuest>> GetUserQuests(Guid userId)
         {
-            var vnTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "SE Asia Standard Time");
-            var today = vnTime.Date;
+            var today = DateTime.UtcNow.Date.AddHours(7);
 
             var userQuests = await _context.UserQuest
                 .Include(uq => uq.Quest)
@@ -64,8 +62,7 @@ namespace CGP.Infrastructure.Repositories
 
         public async Task<UserQuest> GetByUserAndQuestTypeAsync(Guid userId, QuestType questType)
         {
-            var vnTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "SE Asia Standard Time");
-            var today = vnTime.Date;
+            var today = DateTime.UtcNow.Date.AddHours(7);
             return await _context.UserQuest
                 .FirstOrDefaultAsync(uq => uq.UserId == userId
                     && uq.Quest.QuestType == questType

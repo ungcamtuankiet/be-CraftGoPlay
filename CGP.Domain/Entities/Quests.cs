@@ -12,7 +12,7 @@ namespace CGP.Domain.Entities
         public string QuestName { get; set; }   
         public string Description { get; set; } 
         public QuestType QuestType { get; set; }
-        public string Reward { get; set; }
+        public Guid Reward { get; set; }
         public bool IsDaily { get; set; }
         public ICollection<UserQuest> UserQuests { get; set; } = new List<UserQuest>();
     }

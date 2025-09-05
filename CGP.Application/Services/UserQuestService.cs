@@ -78,6 +78,8 @@ namespace CGP.Application.Services
         public async Task<Result<object>> ClaimDailyRewardAsync(Guid userId, Guid questId)
         {
             var userQuest = await _unitOfWork.userQuestRepository.GetUserQuestAsync(userId, questId);
+            var getReward = await _unitOfWork.questRepository.GetByIdAsync(userQuest.QuestId);
+            var getItemInventory = await _unitOfWork.inventoryRepository.GetItemInInventory(userId, getReward.Reward);
             if (userQuest == null)
             {
                 return new Result<object>()
@@ -94,9 +96,24 @@ namespace CGP.Application.Services
             if (userQuest.RewardClaimed)
                 return new Result<object> { Error = 1, Message = "Quà đã được nhận" };
 
-/*            await GiveRewardAsync(userId, userQuest.Quest.Reward);*/
-
             userQuest.RewardClaimed = true;
+            if(getItemInventory != null)
+            {
+                getItemInventory.Quantity += 1;
+                _unitOfWork.inventoryRepository.Update(getItemInventory);
+            }
+            else
+            {
+                await _unitOfWork.inventoryRepository.AddAsync(new Inventory
+                {
+                    UserId = userId,
+                    ItemId = getReward.Reward,
+                    Quantity = 1,
+                    InventoryType = "Backpack",
+                    SlotIndex = 27
+                });
+            }
+                
             _unitOfWork.userQuestRepository.Update(userQuest);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()
