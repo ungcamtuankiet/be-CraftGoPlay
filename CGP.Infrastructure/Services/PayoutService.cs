@@ -67,14 +67,32 @@ namespace CGP.Infrastructure.Services
         public async Task<Result<string>> CreateWithdrawUrl(WithDraw withDraw)
         {
             var getUser = await _unitOfWork.userRepository.GetByIdAsync(withDraw.UserId);
-            var getUserPoint = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(withDraw.UserId);
-
-            if(getUser == null)
+            if (getUser == null)
             {
                 return new Result<string>()
                 {
                     Error = 1,
                     Message = "Người dùng không tồn tại",
+                };
+            }
+
+            // Lấy ví dựa theo role
+            Wallet getUserPoint = null;
+            if (getUser.RoleId == 3) // Artisan
+            {
+                getUserPoint = await _unitOfWork.walletRepository.GetWalletByArtisanIdAsync(withDraw.UserId);
+            }
+            else if (getUser.RoleId == 4) // User
+            {
+                getUserPoint = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(withDraw.UserId);
+            }
+
+            if (getUserPoint == null)
+            {
+                return new Result<string>()
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy ví của người dùng",
                 };
             }
 
