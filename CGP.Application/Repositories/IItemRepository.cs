@@ -10,5 +10,6 @@ namespace CGP.Application.Repositories
     public interface IItemRepository : IGenericRepository<Item>
     {
         Task<Item?> GetItemByNameAsync(string nameItem);
+        Task<List<Item>> GetItemsTypeSeedAsync();
     }
 }

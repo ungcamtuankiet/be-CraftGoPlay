@@ -3,6 +3,7 @@ using CGP.Application.Interfaces;
 using CGP.Contract.DTO.Quest;
 using CGP.Contracts.Abstractions.Shared;
 using CGP.Domain.Entities;
+using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,27 @@ namespace CGP.Application.Services
         {
             var result = _mapper.Map<Quest>(createQuestDTO);
             await _unitOfWork.questRepository.AddAsync(result);
+            var getItemSeed = await _unitOfWork.itemRepository.GetByIdAsync(createQuestDTO.Reward);
+            if(getItemSeed == null)
+            {
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Vật phẩm phần thưởng không tồn tại",
+                    Data = null
+                };
+            }
+
+            if(getItemSeed.ItemType != ItemTypeEnum.Seed)
+            {
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Phần thưởng nhiệm vụ phải là vật phẩm loại hạt giống",
+                    Data = null
+                };
+            }
+
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()
             {

@@ -24,9 +24,9 @@ namespace CGP.Infrastructure.Migrations
                 table: "Order",
                 type: "int",
                 nullable: false,
-                defaultValue: 0);*/
+                defaultValue: 0);
 
-/*            migrationBuilder.AddColumn<int>(
+            migrationBuilder.AddColumn<int>(
                 name: "ReasonDeliveryFailed",
                 table: "Order",
                 type: "int",
@@ -51,13 +51,13 @@ namespace CGP.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+/*            migrationBuilder.DropColumn(
                 name: "DeliveriesCount",
                 table: "Order");
 
             migrationBuilder.DropColumn(
                 name: "ReasonDeliveryFailed",
-                table: "Order");
+                table: "Order");*/
 
             migrationBuilder.AlterColumn<double>(
                 name: "PointChangeAmount",

@@ -20,7 +20,7 @@ namespace CGP.Contract.DTO.Quest
         public QuestType QuestType { get; set; }
 
         [Required(ErrorMessage = "Phẩn thưởng nhiệm vụ là bắt buộc")]
-        public string Reward { get; set; }
+        public Guid Reward { get; set; }
 
         [Required(ErrorMessage = "Đặt nhiệm vụ có phải hằng ngày không là bắt buộc")]
         public bool IsDaily { get; set; }
