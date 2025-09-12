@@ -2,6 +2,7 @@
 using CGP.Application.Interfaces;
 using CGP.Contract.DTO.UserVoucher;
 using CGP.Contracts.Abstractions.Shared;
+using CGP.Domain.Entities;
 using CGP.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace CGP.Application.Services
             var getVoucher = await _unitOfWork.voucherRepository.GetByIdAsync(voucherId);
             var getUser = await _unitOfWork.userRepository.GetByIdAsync(userId);
             var userPoint = await _unitOfWork.pointRepository.GetPointsByUserId(userId);
-            var hasUserVoucher = await _unitOfWork.userRepository.CheckExistUserVoucher(userId, voucherId);
+            var hasUserVoucher = await _unitOfWork.userVoucherRepository.CheckExistUserVoucher(userId, voucherId);
             if (getVoucher == null)
             {
                 return new Result<object>
@@ -78,7 +79,12 @@ namespace CGP.Application.Services
                 };
             }
 
-            getUser.Vouchers.Add(getVoucher);
+            var userVoucher = new UserVoucher()
+            {
+                UserId = getUser.Id,
+                VoucherId = getVoucher.Id,
+            };
+            await _unitOfWork.userVoucherRepository.AddAsync(userVoucher);
             userPoint.Amount -= getVoucher.PointChangeAmount;
             var pointTransaction = new Domain.Entities.PointTransaction
             {
@@ -107,7 +113,7 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> GetAllVouchersByUserId(Guid userId, VoucherTypeEnum? voucherType)
         {
-            var result = _mapper.Map<List<ViewUserVoucherDTO>>(await _unitOfWork.userRepository.GetAllsVoucherByUserId(userId, voucherType));
+            var result = _mapper.Map<List<ViewUserVoucherDTO>>(await _unitOfWork.userVoucherRepository.GetAllsVoucherByUserId(userId, voucherType));
             return new Result<object>
             {
                 Error = 0,

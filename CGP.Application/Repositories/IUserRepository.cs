@@ -34,9 +34,5 @@ namespace CGP.Application.Repositories
         //Forget Password
         Task<ApplicationUser> GetUserByResetToken(string resetToken);
         Task<Dictionary<string, int>> CountUsersByRoleAsync();
-
-        //Voucher
-        Task<bool> CheckExistUserVoucher(Guid userId, Guid voucherId);
-        Task<List<ApplicationUser>> GetAllsVoucherByUserId(Guid userId, VoucherTypeEnum? voucherTypeEnum);
     }
 }

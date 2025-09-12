@@ -110,7 +110,7 @@ namespace CGP.Application.Services
                     ItemId = getReward.Reward,
                     Quantity = 1,
                     InventoryType = "Backpack",
-                    SlotIndex = 27
+                    SlotIndex = 26
                 });
             }
                 
