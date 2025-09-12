@@ -854,7 +854,7 @@ namespace CGP.Application.Services
                 cart.IsCheckedOut = false;
             }
             _unitOfWork.cartRepository.Update(cart);
-            if (Point != null)
+            if (Point > 0)
             {
                 getUserPoint.Amount = (int)(getUserPoint.Amount - Point);
                 var pointTransaction = new PointTransaction
@@ -1486,7 +1486,7 @@ namespace CGP.Application.Services
                 }
             }
 
-            if(Point != null)
+            if(Point > 0)
             {
                 getUserPoint.Amount = (int)(getUserPoint.Amount - Point);
                 var pointTransaction = new PointTransaction
