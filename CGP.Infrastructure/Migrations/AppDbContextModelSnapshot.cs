@@ -189,7 +189,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 9, 11, 14, 59, 29, 886, DateTimeKind.Local).AddTicks(5193),
+                            CreationDate = new DateTime(2025, 9, 12, 21, 26, 48, 374, DateTimeKind.Local).AddTicks(3969),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -202,7 +202,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 9, 11, 14, 59, 29, 886, DateTimeKind.Local).AddTicks(5229),
+                            CreationDate = new DateTime(2025, 9, 12, 21, 26, 48, 374, DateTimeKind.Local).AddTicks(3992),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
