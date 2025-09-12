@@ -854,7 +854,7 @@ namespace CGP.Application.Services
                 cart.IsCheckedOut = false;
             }
             _unitOfWork.cartRepository.Update(cart);
-            if (Point != null)
+            if (Point > 0)
             {
                 getUserPoint.Amount = (int)(getUserPoint.Amount - Point);
                 var pointTransaction = new PointTransaction
@@ -1486,7 +1486,7 @@ namespace CGP.Application.Services
                 }
             }
 
-            if(Point != null)
+            if(Point > 0)
             {
                 getUserPoint.Amount = (int)(getUserPoint.Amount - Point);
                 var pointTransaction = new PointTransaction
@@ -1616,7 +1616,7 @@ namespace CGP.Application.Services
                         DiscountAmount = 0,
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7),
-                        Notes = $"Thanh toán đơn hàng từ giỏ hàng, tổng cộng {orders.Count} đơn.",
+                        Notes = @$"Thanh toán thành công đơn hàng ""{order.Id}"", tổng cộng {orders.Count} đơn.",
                         CreatedBy = userId,
                         IsDeleted = false,
                         CreationDate = DateTime.UtcNow.AddHours(7)
@@ -1644,6 +1644,7 @@ namespace CGP.Application.Services
                 foreach (var order in orders)
                 {
                     order.Status = OrderStatusEnum.PaymentFailed;
+                    totalAmount += order.TotalPrice;
                     var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(order.Id);
                     foreach (var item in orderItems)
                     {
@@ -1651,7 +1652,29 @@ namespace CGP.Application.Services
                         item.ModificationDate = DateTime.UtcNow.AddHours(7);
                         _unitOfWork.orderItemRepository.Update(item);
                     }
+
+                    var transaction = new Domain.Entities.Transaction
+                    {
+                        Id = Guid.NewGuid(),
+                        Amount = totalAmount,
+                        UserId = userId,
+                        OrderId = order.Id,
+                        PaymentId = payment.Id,
+                        Currency = "VND",
+                        PaymentMethod = PaymentMethodEnum.Online,
+                        TransactionStatus = TransactionStatusEnum.Success,
+                        TransactionDate = DateTime.UtcNow.AddHours(7),
+                        DiscountAmount = 0,
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        UpdatedAt = DateTime.UtcNow.AddHours(7),
+                        Notes = @$"Thanh toán thất bại đơn hàng ""{order.Id}"", tổng cộng {orders.Count} đơn.",
+                        CreatedBy = userId,
+                        IsDeleted = false,
+                        CreationDate = DateTime.UtcNow.AddHours(7)
+                    };
+                    await _unitOfWork.transactionRepository.AddAsync(transaction);
                 }
+                await _unitOfWork.SaveChangeAsync();
                 return new Result<object>
                 {
                     Error = 1,
@@ -2224,7 +2247,7 @@ namespace CGP.Application.Services
 
         public async Task<Result<ProductCountByMonthDto>> GetProductCountsByMonthAsync(int year, Guid? artisanId = null)
         {
-            if (year < 1900 || year > DateTime.UtcNow.Year)
+            if (year < 1900 || year > DateTime.UtcNow.AddHours(7).Year)
             {
                 return new Result<ProductCountByMonthDto>
                 {
