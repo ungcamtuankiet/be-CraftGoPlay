@@ -273,7 +273,7 @@ namespace CGP.Infrastructure.Repositories
 
             // Query for available products (QuantityInStock > 0)
             var availableQuery = _dbContext.Product
-                .Where(p => p.QuantitySold > 0 && p.CreationDate.Year <= year);
+                .Where(p => p.Quantity > 0 && p.CreationDate.Year <= year && p.Status == ProductStatusEnum.Active);
 
             if (artisanId.HasValue)
             {

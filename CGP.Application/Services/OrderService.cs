@@ -2211,7 +2211,7 @@ namespace CGP.Application.Services
 
         public async Task<Result<ProductCountByMonthDto>> GetProductCountsByMonthAsync(int year, Guid? artisanId = null)
         {
-            if (year < 1900 || year > DateTime.UtcNow.Year)
+            if (year < 1900 || year > DateTime.UtcNow.AddHours(7).Year)
             {
                 return new Result<ProductCountByMonthDto>
                 {
