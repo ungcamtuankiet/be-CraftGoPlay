@@ -9,7 +9,7 @@ namespace CGP.Contract.DTO.UserVoucher
 {
     public class ViewUserVoucherDTO
     {
-        public Guid UserId { get; set; }
-        public List<ViewVoucherDTO> Vouchers { get; set; }
+        public ViewVoucherDTO Voucher { get; set; }
+        public bool IsUsed { get; set; }    
     }
 }

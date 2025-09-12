@@ -51,6 +51,7 @@ public class AppDbContext : DbContext
     public DbSet<SaleTransaction> SaleTransaction { get; set; }
     public DbSet<ShopPrice> ShopPrice { get; set; }
     public DbSet<Item> Items { get; set; }
+    public DbSet<UserVoucher> UserVouchers { get; set; }
     #endregion
 
 

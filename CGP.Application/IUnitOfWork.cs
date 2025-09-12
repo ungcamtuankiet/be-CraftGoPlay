@@ -47,6 +47,7 @@ namespace CGP.Application
         IItemRepository itemRepository { get; }
         ISaleTransactionRepository saleTransactionRepository { get; }
         IShopPriceRepository shopPriceRepository { get; }
+        IUserVoucherRepository userVoucherRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

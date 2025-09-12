@@ -98,6 +98,7 @@ namespace CGP.Infrastructure
             services.AddScoped<ISaleTransactionRepository, SaleTransactionRepository>();
             services.AddScoped<IItemRepository, ItemRepository>();
             services.AddScoped<IShopPriceRepository, ShopPriceRepository>();
+            services.AddScoped<IUserVoucherRepository, UserVoucherRepository>();
 
             //Database
             services.AddDbContext<AppDbContext>(options =>

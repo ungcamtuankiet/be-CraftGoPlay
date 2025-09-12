@@ -186,7 +186,9 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> UpdateStatusReturnRequestAsync(Guid returnRequestId, ReturnStatusEnum status, RejectReturnReasonEnum rejectReason)
         {
-            var getRequest = await _unitOfWork.returnRequestRepository.GetByIdAsync(returnRequestId);
+            var getRequest = await _unitOfWork.returnRequestRepository.GetReturnRequestById(returnRequestId);
+            var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(getRequest.UserId);
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
             if (getRequest == null)
             {
                 return new Result<object>
@@ -217,6 +219,31 @@ namespace CGP.Application.Services
             if(status == ReturnStatusEnum.Approved)
             {
                 getRequest.RejectReturnReasonEnum = null;
+                getWalletSystem.PendingBalance -= getRequest.OrderItem.Order.TotalPrice;
+                var addMoneyToWalletSystem = new WalletTransaction
+                {
+                    Wallet_Id = getWalletSystem.Id,
+                    Amount = getRequest.OrderItem.Order.TotalPrice,
+                    Type = WalletTransactionTypeEnum.Refund,
+                    Description = @$"Hoàn trả tiền đơn hàng {getRequest.OrderItem.Order.Id} cho nghệ nhân có mức giá {getRequest.OrderItem.Order.TotalPrice}VND.",
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+                await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
+
+                getWalletUser.AvailableBalance += getRequest.OrderItem.Order.TotalPrice;
+                var addMoneyToWalletUser = new WalletTransaction
+                {
+                    Wallet_Id = getWalletUser.Id,
+                    Amount = getRequest.OrderItem.Order.TotalPrice,
+                    Type = WalletTransactionTypeEnum.Refund,
+                    Description = @$"Sản phẩm có mã đơn hàng chi tiết là {getRequest.OrderItemId} được hoàn tiền {getRequest.OrderItem.Order.TotalPrice}VND.",
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+                await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletUser);
             }
             if(status == ReturnStatusEnum.Rejected)
             {
@@ -293,14 +320,28 @@ namespace CGP.Application.Services
                 request.ApprovedAt = DateTime.UtcNow.AddHours(7);
                 request.OrderItem.Order.Status = OrderStatusEnum.Refunded;
                 request.OrderItem.Order.Payment.IsRefunded = true;
-                walletUser.AvailableBalance = request.OrderItem.UnitPrice * request.OrderItem.Quantity;
 
+                var walletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
+
+                walletSystem.PendingBalance -= request.OrderItem.Order.TotalPrice;
+                var addMoneyToWalletSystem = new WalletTransaction
+                {
+                    Wallet_Id = walletSystem.Id,
+                    Amount = request.OrderItem.Order.TotalPrice,
+                    Type = WalletTransactionTypeEnum.Refund,
+                    Description = @$"Hoàn trả tiền đơn hàng {request.OrderItem.Order.Id} cho nghệ nhân có mức giá {request.OrderItem.Order.TotalPrice}VND.",
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+
+                walletUser.AvailableBalance += request.OrderItem.Order.TotalPrice;
                 var addMoneyToWalletUser = new WalletTransaction
                 {
                     Wallet_Id = walletUser.Id,
-                    Amount = request.OrderItem.UnitPrice * request.OrderItem.Quantity,
+                    Amount = request.OrderItem.Order.TotalPrice,
                     Type = WalletTransactionTypeEnum.Refund,
-                    Description = @$"Sản phẩm có mã đơn hàng chi tiết là ""{request.OrderItemId}"" được hoàn tiền {request.OrderItem.UnitPrice * request.OrderItem.Quantity}VND.",
+                    Description = @$"Sản phẩm có mã đơn hàng chi tiết là {request.OrderItem.Order.Id} được hoàn tiền {request.OrderItem.Order.TotalPrice}VND.",
                     CreationDate = DateTime.UtcNow.AddHours(7),
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                     IsDeleted = false
