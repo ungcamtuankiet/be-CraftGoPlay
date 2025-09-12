@@ -26,7 +26,7 @@ namespace CGP.Domain.Entities
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
         public ICollection<OrderVoucher> OrderVouchers { get; set; }
-        public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+        public ICollection<UserVoucher> Users { get; set; } = new List<UserVoucher>();
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

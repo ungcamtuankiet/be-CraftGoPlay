@@ -20,9 +20,6 @@ namespace CGP.Infrastructure.Mappers.UserProfile
             CreateMap<CreateNewAccountDTO, ApplicationUser>().ReverseMap();
             CreateMap<UpdateAccountDTO, ApplicationUser>().ReverseMap();
             CreateMap<ArtisanDTO, ApplicationUser>().ReverseMap();
-            CreateMap<ViewUserVoucherDTO, ApplicationUser>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
-                .ReverseMap();
         }
     }
 }
