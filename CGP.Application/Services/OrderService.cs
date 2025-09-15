@@ -1646,6 +1646,7 @@ namespace CGP.Application.Services
                 foreach (var order in orders)
                 {
                     order.Status = OrderStatusEnum.PaymentFailed;
+                    order.TransactionId = Guid.NewGuid();
                     totalAmount += order.TotalPrice;
                     var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(order.Id);
                     foreach (var item in orderItems)
@@ -2316,7 +2317,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (order.Status != OrderStatusEnum.PaymentFailed || order.Status != OrderStatusEnum.AwaitingPayment)
+            if (order.Status != OrderStatusEnum.PaymentFailed && order.Status != OrderStatusEnum.AwaitingPayment)
             {
                 return new Result<string>
                 {
@@ -2327,7 +2328,7 @@ namespace CGP.Application.Services
             }
             var transactionId = Guid.NewGuid();
             var totalAmount = order.TotalPrice;
-            var url = await _payoutService.CreatePaymentUrl(orderId, totalAmount, httpContext);
+            var url = await _payoutService.CreatePaymentUrl(transactionId, totalAmount, httpContext);
             order.Status = OrderStatusEnum.AwaitingPayment;
             order.TransactionId = transactionId;
             _unitOfWork.orderRepository.Update(order);
