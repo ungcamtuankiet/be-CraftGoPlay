@@ -2316,7 +2316,7 @@ namespace CGP.Application.Services
                 };
             }
 
-            if (order.Status != OrderStatusEnum.PaymentFailed)
+            if (order.Status != OrderStatusEnum.PaymentFailed || order.Status != OrderStatusEnum.AwaitingPayment)
             {
                 return new Result<string>
                 {

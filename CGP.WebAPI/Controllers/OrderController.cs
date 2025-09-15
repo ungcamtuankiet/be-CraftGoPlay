@@ -117,7 +117,7 @@ namespace CGP.WebAPI.Controllers
         {
             var result = await _orderService.HandleVnPayReturnAsync(Request.Query);
             var status = result.Error == 0 ? "success" : "failed";
-            return Redirect($"http://fe-craft-go-play.vercel.app/payment-{status}");
+            return Redirect($"https://fe-craft-go-play.vercel.app/payment-{status}");
         }
 
         [HttpPost("CreateFromCart")]
