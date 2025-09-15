@@ -1092,7 +1092,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if ((double)(product.Price * dto.Quantity) < getVoucherDelivery.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherDelivery.MaxDiscountAmount)
+                        if ((double)(product.Price * dto.Quantity) < getVoucherDelivery.MinOrderValue)
                         {
                             return new Result<Guid>()
                             {
@@ -1357,7 +1357,7 @@ namespace CGP.Application.Services
                             };
                         }
 
-                        if ((double)(product.Price * dto.Quantity) < getVoucherDelivery.MinOrderValue || (double)(product.Price * dto.Quantity) > getVoucherDelivery.MaxDiscountAmount)
+                        if ((double)(product.Price * dto.Quantity) < getVoucherDelivery.MinOrderValue)
                         {
                             return new Result<Guid>()
                             {
