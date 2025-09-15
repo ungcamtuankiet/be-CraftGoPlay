@@ -29,7 +29,7 @@ namespace CGP.WebAPI.Controllers
         [HttpPost("CompleteQuest")]
         public async Task<IActionResult> CompleteQuest([FromQuery] ClaimRewardDTO claim)
         {
-            var result = await _userQuestService.ClaimDailyRewardAsync(claim.UserId, claim.QuestId);
+            var result = await _userQuestService.ClaimDailyRewardAsync(claim.UserId, claim.UserQuestId);
             if (result.Error != 0)
             {
                 return BadRequest(result);

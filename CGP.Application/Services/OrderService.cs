@@ -1559,7 +1559,7 @@ namespace CGP.Application.Services
 
             var payment = new Payment
             {
-                OrderId = orders.First().Id, // lấy đại diện
+                OrderId = orders.First().Id, 
                 TransactionNo = query["vnp_TransactionNo"],
                 BankCode = query["vnp_BankCode"],
                 ResponseCode = responseCode,

@@ -28,11 +28,11 @@ namespace CGP.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<UserQuest> GetUserQuestAsync(Guid userId, Guid questId)
+        public async Task<UserQuest> GetUserQuestAsync(Guid userId, Guid userQuestId)
         {
             return await _context.UserQuest
                 .Include(uq => uq.Quest)
-                .FirstOrDefaultAsync(uq => uq.Id == questId && uq.UserId == userId);
+                .FirstOrDefaultAsync(uq => uq.Id == userQuestId && uq.UserId == userId);
         }
 
         public async Task<UserQuest?> GetByUserAndQuestAsync(Guid userId, Guid questId)

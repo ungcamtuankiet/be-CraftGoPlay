@@ -9,6 +9,6 @@ namespace CGP.Contract.DTO.UserQuest
     public class ClaimRewardDTO
     {
         public Guid UserId { get; set; }
-        public Guid QuestId { get; set; }
+        public Guid UserQuestId { get; set; }
     }
 }

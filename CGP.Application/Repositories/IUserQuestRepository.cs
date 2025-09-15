@@ -12,7 +12,7 @@ namespace CGP.Application.Repositories
     {
         Task<UserQuest> CheckExistQuest(Guid userId);
         Task<List<UserQuest>> GetUserQuests(Guid userId);
-        Task<UserQuest> GetUserQuestAsync(Guid userId, Guid questId);
+        Task<UserQuest> GetUserQuestAsync(Guid userId, Guid userQuestId);
         Task<UserQuest> GetByUserAndQuestTypeAsync(Guid userId, QuestType questType);
     }
 }
