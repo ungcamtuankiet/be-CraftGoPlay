@@ -14,6 +14,6 @@ namespace CGP.Application.Interfaces
         Task<Result<List<ViewUserQuestDTO>>> GetUserQuestsAsync(Guid userId);
         Task EnsureDailyQuestAsync(Guid userId);
         Task UpdateProgressAsync(Guid userId, QuestType questType, int amount);
-        Task<Result<object>> ClaimDailyRewardAsync(Guid userId, Guid questId);
+        Task<Result<object>> ClaimDailyRewardAsync(Guid userId, Guid userQusetId);
     }
 }

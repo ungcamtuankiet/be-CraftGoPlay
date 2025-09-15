@@ -75,9 +75,9 @@ namespace CGP.Application.Services
             await _unitOfWork.SaveChangeAsync();
         }
 
-        public async Task<Result<object>> ClaimDailyRewardAsync(Guid userId, Guid questId)
+        public async Task<Result<object>> ClaimDailyRewardAsync(Guid userId, Guid userQusetId)
         {
-            var userQuest = await _unitOfWork.userQuestRepository.GetUserQuestAsync(userId, questId);
+            var userQuest = await _unitOfWork.userQuestRepository.GetUserQuestAsync(userId, userQusetId);
             var getReward = await _unitOfWork.questRepository.GetByIdAsync(userQuest.QuestId);
             var getItemInventory = await _unitOfWork.inventoryRepository.GetItemInInventory(userId, getReward.Reward);
             if (userQuest == null)
