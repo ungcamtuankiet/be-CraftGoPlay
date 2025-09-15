@@ -14,6 +14,7 @@ namespace CGP.Contract.DTO.Quest
         public string Description { get; set; }
         public QuestType QuestType { get; set; }
         public string Reward { get; set; }
+        public int AmountReward { get; set; }
         public bool IsDaily { get; set; }
     }
 }

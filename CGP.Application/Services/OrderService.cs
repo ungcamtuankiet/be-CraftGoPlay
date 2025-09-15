@@ -10,7 +10,9 @@ using CGP.Domain.Enums;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Text.RegularExpressions;
+using System.Transactions;
 using Transaction = CGP.Domain.Entities.Transaction;
 
 namespace CGP.Application.Services
@@ -425,7 +427,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (totalProductAmount < getVoucherDelivery.MinOrderValue || totalProductAmount > getVoucherDelivery.MaxDiscountAmount)
+                            if (totalProductAmount < getVoucherDelivery.MinOrderValue)
                             {
                                 return new Result<Guid>()
                                 {
@@ -733,7 +735,7 @@ namespace CGP.Application.Services
                                 };
                             }
 
-                            if (totalProductAmount < getVoucherDelivery.MinOrderValue || totalProductAmount > getVoucherDelivery.MaxDiscountAmount)
+                            if (totalProductAmount < getVoucherDelivery.MinOrderValue)
                             {
                                 return new Result<Guid>()
                                 {
@@ -1662,7 +1664,7 @@ namespace CGP.Application.Services
                         PaymentId = payment.Id,
                         Currency = "VND",
                         PaymentMethod = PaymentMethodEnum.Online,
-                        TransactionStatus = TransactionStatusEnum.Success,
+                        TransactionStatus = TransactionStatusEnum.Cancelled,
                         TransactionDate = DateTime.UtcNow.AddHours(7),
                         DiscountAmount = 0,
                         CreatedAt = DateTime.UtcNow.AddHours(7),
@@ -2289,6 +2291,75 @@ namespace CGP.Application.Services
             }
 
             await _unitOfWork.SaveChangeAsync();
+        }
+
+        public async Task<Result<string>> RetryPayment(Guid orderId, HttpContext httpContext)
+        {
+            var order = await _unitOfWork.orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                return new Result<string>
+                {
+                    Error = 1,
+                    Message = "Không tìm thấy đơn hàng.",
+                    Data = null
+                };
+            }
+
+            if (order.IsPaid)
+            {
+                return new Result<string>
+                {
+                    Error = 1,
+                    Message = "Đơn hàng đã được thanh toán trước đó.",
+                    Data = null
+                };
+            }
+
+            if (order.Status != OrderStatusEnum.PaymentFailed)
+            {
+                return new Result<string>
+                {
+                    Error = 1,
+                    Message = "Đơn hàng không ở trạng thái cho phép thanh toán lại.",
+                    Data = null
+                };
+            }
+            var transactionId = Guid.NewGuid();
+            var totalAmount = order.TotalPrice;
+            var url = await _payoutService.CreatePaymentUrl(orderId, totalAmount, httpContext);
+            order.Status = OrderStatusEnum.AwaitingPayment;
+            order.TransactionId = transactionId;
+            _unitOfWork.orderRepository.Update(order);
+            var transaction = new Domain.Entities.Transaction
+            {
+                Id = transactionId,
+                Amount = order.TotalPrice,
+                UserId = order.UserId,
+                OrderId = order.Id,
+                Currency = "VND",
+                PaymentMethod = PaymentMethodEnum.Online,
+                TransactionStatus = TransactionStatusEnum.Pending,
+                TransactionDate = DateTime.UtcNow.AddHours(7),
+                DiscountAmount = 0,
+                CreatedAt = DateTime.UtcNow.AddHours(7),
+                UpdatedAt = DateTime.UtcNow.AddHours(7),
+                Notes = @$"Thanh toán lại đơn hàng ""{order.Id}"".",
+                CreatedBy = order.UserId,
+                IsDeleted = false,
+                CreationDate = DateTime.UtcNow.AddHours(7)
+            };
+
+            await _unitOfWork.transactionRepository.AddAsync(transaction);
+
+            await _unitOfWork.SaveChangeAsync();
+
+            return new Result<string>()
+            {
+                Error = 0,
+                Message = "Tạo URL thanh toán lại thành công",
+                Data = url
+            };
         }
     }
 }

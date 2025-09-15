@@ -23,7 +23,7 @@ namespace CGP.Infrastructure.Repositories
         public async Task<bool> CheckExistUserVoucher(Guid userId, Guid voucherId)
         {
             var userHasVoucher = await _context.UserVouchers
-                .FirstOrDefaultAsync(u => u.Id == userId && u.VoucherId == voucherId);
+                .FirstOrDefaultAsync(u => u.UserId == userId && u.VoucherId == voucherId);
 
             if(userHasVoucher != null)
             {

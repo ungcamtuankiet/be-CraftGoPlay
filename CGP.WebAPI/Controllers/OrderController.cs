@@ -105,6 +105,13 @@ namespace CGP.WebAPI.Controllers
             return StatusCode(result.Error == 0 ? 200 : 400, result);
         }
 
+        [HttpGet("RetryPayment/{orderId}")]
+        public async Task<IActionResult> RetryPayment(Guid orderId)
+        {
+            var result = await _orderService.RetryPayment(orderId, HttpContext);
+            return StatusCode(result.Error == 0 ? 200 : 400, result);
+        }
+
         [HttpGet("vnpay-return")]
         public async Task<IActionResult> VnPayReturn()
         {
