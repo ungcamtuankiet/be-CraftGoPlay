@@ -97,7 +97,7 @@ namespace CGP.Infrastructure.Repositories
             }
 
             return await query
-                .OrderByDescending(o => o.CreationDate)
+                .OrderByDescending(o => o.ModificationDate)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -122,7 +122,7 @@ namespace CGP.Infrastructure.Repositories
             }
 
             return await query
-                .OrderByDescending(o => o.CreationDate)
+                .OrderByDescending(o => o.ModificationDate)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
