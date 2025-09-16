@@ -250,7 +250,7 @@ namespace CGP.Application.Services
                         Quantity = i.Quantity,
                         UnitPrice = i.UnitPrice,
                         CreationDate = DateTime.UtcNow.AddHours(7),
-                        Status = OrderStatusEnum.Created
+                        Status = OrderStatusEnum.AwaitingPayment
                     }).ToList();
                     order.Product_Amount = (double)order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
 
@@ -458,6 +458,7 @@ namespace CGP.Application.Services
                     order.Status = OrderStatusEnum.AwaitingPayment;
                     order.PaymentMethod = paymentMethod;
                     order.CreationDate = DateTime.UtcNow.AddHours(7);
+                    order.ModificationDate = DateTime.UtcNow.AddHours(7);
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
@@ -761,6 +762,7 @@ namespace CGP.Application.Services
                     order.Status = OrderStatusEnum.Created;
                     order.PaymentMethod = paymentMethod;
                     order.CreationDate = DateTime.UtcNow.AddHours(7);
+                    order.ModificationDate = DateTime.UtcNow.AddHours(7);
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
@@ -1149,6 +1151,7 @@ namespace CGP.Application.Services
                 order.PaymentMethod = dto.PaymentMethod;
                 order.Delivery_Amount = Delivery_Amount;
                 order.CreationDate = DateTime.UtcNow.AddHours(7);
+                order.ModificationDate = DateTime.UtcNow.AddHours(7);
                 order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                 order.OrderItems = new List<OrderItem>
                 {
@@ -1159,7 +1162,7 @@ namespace CGP.Application.Services
                         Quantity = dto.Quantity,
                         UnitPrice = product.Price,
                         CreationDate = DateTime.UtcNow.AddHours(7),
-                        Status = OrderStatusEnum.Created
+                        Status = OrderStatusEnum.AwaitingPayment
                     }
                 };
                 order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
@@ -1409,6 +1412,7 @@ namespace CGP.Application.Services
                 order.TransactionId = transactionId;
                 order.PaymentMethod = dto.PaymentMethod;
                 order.CreationDate = DateTime.UtcNow.AddHours(7);
+                order.ModificationDate = DateTime.UtcNow.AddHours(7);
                 order.Delivery_Amount = Delivery_Amount;
                 order.DeliveryDiscount = discountDelivery;
                 order.ProductDiscount = discountProduct;
