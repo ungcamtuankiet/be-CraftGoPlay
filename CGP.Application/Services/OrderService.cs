@@ -353,9 +353,6 @@ namespace CGP.Application.Services
                                     discountProduct = discountProduct;
                                 }
                             }
-
-                            getVoucherProduct.UsedCount++;
-                            getUserVoucher.IsUsed = true;
                         }
                         else
                         {
@@ -449,8 +446,6 @@ namespace CGP.Application.Services
                                     discountDelivery = deliveryAmount;
                                 }
                             }
-                            getVoucherDelivery.UsedCount++;
-                            getUserVoucher.IsUsed = true;
                         }
                         else
                         {
@@ -661,9 +656,6 @@ namespace CGP.Application.Services
                                     discountProduct = discountProduct;
                                 }
                             }
-
-                            getVoucherProduct.UsedCount++;
-                            getUserVoucher.IsUsed = true;
                         }
                         else
                         {
@@ -757,8 +749,6 @@ namespace CGP.Application.Services
                                     discountDelivery = deliveryAmount;
                                 }
                             }
-                            getVoucherDelivery.UsedCount++;
-                            getUserVoucher.IsUsed = true;
                         }
                         else
                         {
@@ -869,6 +859,26 @@ namespace CGP.Application.Services
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                 };
                 await _unitOfWork.pointTransactionRepository.AddAsync(pointTransaction);
+            }
+
+            if (getVoucherProduct != null)
+            {
+                var useroucherProduct = await _unitOfWork.userVoucherRepository.GetUserVoucher(userId, getVoucherProduct.Id);
+                useroucherProduct.IsUsed = true;
+                _unitOfWork.userVoucherRepository.Update(useroucherProduct);
+
+                getVoucherProduct.UsedCount += 1; 
+                _unitOfWork.voucherRepository.Update(getVoucherProduct);
+            }
+
+            if (getVoucherDelivery != null)
+            {
+                var userVoucherDelivery = await _unitOfWork.userVoucherRepository.GetUserVoucher(userId, .Id);
+                userVoucherDelivery.IsUsed = true;
+                _unitOfWork.userVoucherRepository.Update(userVoucherDelivery);
+
+                getVoucherDelivery.UsedCount += 1;
+                _unitOfWork.voucherRepository.Update(getVoucherDelivery);
             }
             await _unitOfWork.SaveChangeAsync();
             return new Result<Guid>()
