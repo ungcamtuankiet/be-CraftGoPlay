@@ -875,7 +875,7 @@ namespace CGP.Application.Services
 
             if (getVoucherDelivery != null)
             {
-                var userVoucherDelivery = await _unitOfWork.userVoucherRepository.GetUserVoucher(userId, .Id);
+                var userVoucherDelivery = await _unitOfWork.userVoucherRepository.GetUserVoucher(userId, getVoucherDelivery.Id);
                 userVoucherDelivery.IsUsed = true;
                 _unitOfWork.userVoucherRepository.Update(userVoucherDelivery);
 
