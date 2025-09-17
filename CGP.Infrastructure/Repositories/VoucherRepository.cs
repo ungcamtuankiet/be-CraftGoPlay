@@ -20,6 +20,15 @@ namespace CGP.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<IList<Voucher>> GetAvailableVouchersForUserAsync(Guid userId)
+        {
+            return await _context.Voucher
+                .Where(v => !_context.UserVouchers
+                    .Any(uv => uv.VoucherId == v.Id && uv.UserId == userId))
+                .OrderByDescending(v => v.CreationDate)
+                .ToListAsync();
+        }
+
         public async Task<bool> CheckVoucherCode(string code)
         {
             var checkVoucherCode = await _context.Voucher.FirstOrDefaultAsync(v => v.Code == code);
