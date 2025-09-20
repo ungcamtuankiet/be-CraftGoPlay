@@ -28,6 +28,9 @@ namespace CGP.Application.Repositories
         Task<decimal> SumRevenueForAdminBeforFeeAsync(DateTime? from = null, DateTime? to = null);
         Task<decimal> SumRevenueForAdminDeliveryFeeAsync(DateTime? from = null, DateTime? to = null);
         Task<decimal> SumRevenueForAdminProductFeeAsync(DateTime? from = null, DateTime? to = null);
+        Task<decimal> SumRevenueForAdminProductFeeForArtisanAsync(DateTime? from = null, DateTime? to = null);
+        Task<decimal> SumRevenueForAdminDeliveryFeeShiperAsync(DateTime? from = null, DateTime? to = null);
+        Task<decimal> SumRevenueForAdminTotalDiscountAsync(DateTime? from = null, DateTime? to = null);
         Task<decimal> SumRevenueForAdminAfterFeeAsync(DateTime? from = null, DateTime? to = null);
         Task<ProductCountByMonthDto> GetProductCountsByMonthAsync(int year, Guid? artisanId = null);
     }

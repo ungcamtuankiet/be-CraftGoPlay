@@ -17,6 +17,9 @@ namespace CGP.Contract.DTO.DashBoard
         public decimal TotalRevenueBeforeFee { get; set; }
         public decimal TotalRevenueDeliveryFee { get; set; }
         public decimal TotalRevenueProductFee { get; set; }
+        public decimal TotalProductFeeForArtisan { get; set; }
+        public decimal TotalDeliveryFeeShiper { get; set; }
+        public decimal TotalDiscount { get; set; }
         public decimal TotalRevenueAfterFee { get; set; }
     }
 }

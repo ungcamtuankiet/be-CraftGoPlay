@@ -462,8 +462,8 @@ namespace CGP.Application.Services
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
-                    order.Point = Point;
-                    order.PointDiscount = Point * 100;
+                    order.Point = Point / grouped.Count();
+                    order.PointDiscount = order.Point * 100;
                     order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                     order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
                     orders.Add(order);
@@ -766,8 +766,8 @@ namespace CGP.Application.Services
                     order.Delivery_Amount = deliveryAmount;
                     order.ProductDiscount = discountProduct;
                     order.DeliveryDiscount = discountDelivery;
-                    order.Point = Point;
-                    order.PointDiscount = Point * 100;
+                    order.Point = Point / grouped.Count();
+                    order.PointDiscount = order.Point * 100;
                     order.TotalDiscount = order.ProductDiscount + order.DeliveryDiscount + (double)(order.PointDiscount);
                     order.TotalPrice = (decimal)(order.Product_Amount + order.Delivery_Amount - order.TotalDiscount);
                     await _unitOfWork.orderRepository.AddAsync(order);
@@ -2243,6 +2243,9 @@ namespace CGP.Application.Services
             decimal totalRevenueAfterFee = await _unitOfWork.orderRepository.SumRevenueForAdminAfterFeeAsync(from, to);
             decimal totalRevenueDeliveryFee = await _unitOfWork.orderRepository.SumRevenueForAdminDeliveryFeeAsync(from, to);
             decimal totalRevenueProductFee = await _unitOfWork.orderRepository.SumRevenueForAdminProductFeeAsync(from, to);
+            decimal TotalProductFeeForArtisan = await _unitOfWork.orderRepository.SumRevenueForAdminProductFeeForArtisanAsync(from, to);
+            decimal TotalDeliveryFeeShiper = await _unitOfWork.orderRepository.SumRevenueForAdminDeliveryFeeShiperAsync(from, to);
+            decimal TotalDiscount = await _unitOfWork.orderRepository.SumRevenueForAdminTotalDiscountAsync(from, to);
             var totalOrders = await _unitOfWork.orderRepository.CountAsyncForAdmin(from, to);
             var statusCounts = await _unitOfWork.orderRepository.GetStatusCountsAsyncForAdmin(from, to);
 
@@ -2257,6 +2260,9 @@ namespace CGP.Application.Services
                     TotalRevenueDeliveryFee = totalRevenueDeliveryFee,
                     TotalRevenueProductFee = totalRevenueProductFee,
                     TotalRevenueAfterFee = totalRevenueAfterFee,
+                    TotalProductFeeForArtisan = TotalProductFeeForArtisan,
+                    TotalDeliveryFeeShiper = TotalDeliveryFeeShiper,
+                    TotalDiscount = TotalDiscount,
                     OrderStatusCounts = statusCounts
                 }
             };
