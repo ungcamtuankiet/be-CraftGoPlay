@@ -138,7 +138,7 @@ namespace CGP.Application.Services
 
             var getUserPoint = await _unitOfWork.pointRepository.GetPointsByUserId(dto.UserId);
 
-            getUserPoint.Amount += 100;
+            getUserPoint.Amount += 20;
             getUserPoint.UpdatedAt = DateTime.UtcNow.AddHours(7);
             _unitOfWork.pointRepository.Update(getUserPoint);
 
@@ -147,7 +147,7 @@ namespace CGP.Application.Services
                 Point_Id = getUserPoint.Id,
                 Amount = 100,
                 Status = PointTransactionEnum.Earned,
-                Description = "Bạn nhận được 100 xu từ việc đánh giá sản phẩm.",
+                Description = "Bạn nhận được 20 xu từ việc đánh giá sản phẩm.",
             };
             await _unitOfWork.ratingRepository.AddAsync(rating);
             await _unitOfWork.pointTransactionRepository.AddAsync(pointTransaction);

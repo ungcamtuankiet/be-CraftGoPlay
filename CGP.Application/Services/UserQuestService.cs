@@ -96,24 +96,42 @@ namespace CGP.Application.Services
             if (userQuest.RewardClaimed)
                 return new Result<object> { Error = 1, Message = "Quà đã được nhận" };
 
-            userQuest.RewardClaimed = true;
+            var packageItems = await _unitOfWork.inventoryRepository.GetItemsInInventoryTypeAsync(userId);
             if(getItemInventory != null)
             {
-                getItemInventory.Quantity += 1;
+                getItemInventory.Quantity += userQuest.Quest.AmountReward;
                 _unitOfWork.inventoryRepository.Update(getItemInventory);
             }
             else
             {
+                // Tìm slot trống từ 1 → 27
+                var usedSlots = packageItems.Select(x => x.SlotIndex).ToHashSet();
+
+                int freeSlot = Enumerable.Range(0, 27).FirstOrDefault(slot => !usedSlots.Contains(slot));
+
+                if (freeSlot == 0 && usedSlots.Contains(0))
+                {
+                    // Nghĩa là full cả 27 ô
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Túi đã đầy, không thể nhận thưởng.",
+                        Data = null
+                    };
+                }
+
+
+
                 await _unitOfWork.inventoryRepository.AddAsync(new Inventory
                 {
                     UserId = userId,
                     ItemId = getReward.Reward,
-                    Quantity = 1,
+                    Quantity = userQuest.Quest.AmountReward,
                     InventoryType = "Backpack",
-                    SlotIndex = 26
+                    SlotIndex = freeSlot
                 });
             }
-                
+            userQuest.RewardClaimed = true;
             _unitOfWork.userQuestRepository.Update(userQuest);
             await _unitOfWork.SaveChangeAsync();
             return new Result<object>()

@@ -330,6 +330,66 @@ namespace CGP.Application.Services
             }
         }
 
+        public async Task<Result<object>> ResendOtpAsync(string email)
+        {
+            try
+            {
+                var user = await _unitOfWork.userRepository
+                    .FindByEmail(email);
+
+                if (user == null)
+                {
+                    return new Result<object>()
+                    {
+                        Error = 1,
+                        Message = "Email không tồn tại.",
+                        Data = null
+                    };
+                }
+
+                if (user.IsVerified)
+                {
+                    return new Result<object>()
+                    {
+                        Error = 1,
+                        Message = "Tài khoản đã được xác minh.",
+                        Data = null
+                    };
+                }
+
+                string otp;
+                if (user.Otp != null && user.OtpExpiryTime.HasValue && user.OtpExpiryTime > DateTime.UtcNow.AddHours(7))
+                {
+                    otp = user.Otp;
+                }
+                else
+                {
+                    otp = GenerateOtp();
+                    user.Otp = otp;
+                    user.OtpExpiryTime = DateTime.UtcNow.AddHours(7).AddMinutes(10);
+
+                    await _unitOfWork.userRepository.UpdateAsync(user);
+                    await _unitOfWork.SaveChangeAsync();
+                }
+                await _emailService.SendOtpEmailAsync(email, otp);
+                return new Result<object>()
+                {
+                    Error = 0,
+                    Message = "Gửi lại mã xác minh tới email thành công.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<object>()
+                {
+                    Error = 1,
+                    Message = "Đã xảy ra lỗi khi gửi lại mã xác minh.",
+                    Data = null
+                };
+            }
+        }
+
         public async Task<bool> VerifyOtpAndCompleteRegistrationAsync(string email, string otp)
         {
             var user = await _userRepository.GetUserByEmail(email);
