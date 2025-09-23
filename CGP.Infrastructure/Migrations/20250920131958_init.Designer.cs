@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CGP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250912142650_init")]
+    [Migration("20250920131958_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -192,7 +192,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b471"),
-                            CreationDate = new DateTime(2025, 9, 12, 21, 26, 48, 374, DateTimeKind.Local).AddTicks(3969),
+                            CreationDate = new DateTime(2025, 9, 20, 20, 19, 56, 449, DateTimeKind.Local).AddTicks(5568),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -205,7 +205,7 @@ namespace CGP.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("8b56687e-8377-4743-aac9-08dcf5c4b47f"),
-                            CreationDate = new DateTime(2025, 9, 12, 21, 26, 48, 374, DateTimeKind.Local).AddTicks(3992),
+                            CreationDate = new DateTime(2025, 9, 20, 20, 19, 56, 449, DateTimeKind.Local).AddTicks(5597),
                             Email = "staff@gmail.com",
                             IsDeleted = false,
                             IsVerified = true,
@@ -1441,6 +1441,9 @@ namespace CGP.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AmountReward")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");

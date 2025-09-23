@@ -290,6 +290,24 @@ namespace CGP.WebAPI.Controllers
             }
         }
 
+        [HttpPost("user/otp/resend")]
+        public async Task<IActionResult> ResendOtp([FromQuery] string email)
+        {
+            try
+            {
+                var result = await _authService.ResendOtpAsync(email);
+                if (result.Error == 1)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
+        }
+
         /// <summary>
         /// Changes the user's password.
         /// </summary>

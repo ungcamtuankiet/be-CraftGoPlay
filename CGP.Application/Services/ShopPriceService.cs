@@ -204,7 +204,7 @@ namespace CGP.Application.Services
             {
                 Point_Id = getUserPoint.Id,
                 Amount = request.Quantity * getItemInShop.Price,
-                Status = PointTransactionEnum.Swap,
+                Status = PointTransactionEnum.Earned,
                 Description = $"Bán {request.Quantity} {getItem.NameItem}",
                 CreationDate = DateTime.UtcNow.AddHours(7)
             };

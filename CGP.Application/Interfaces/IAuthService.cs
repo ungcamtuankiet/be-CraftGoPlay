@@ -28,6 +28,7 @@ namespace CGP.Application.Interfaces
         Task<bool> VerifyOtpAsync(string email, string otp);
         //Task RegisterShopAsync(ShopRegisterDTO shopRegisterDTO);
         Task<bool> VerifyOtpAndCompleteRegistrationAsync(string email, string otp);
+        Task<Result<object>> ResendOtpAsync(string email);
         //Google
         /*        Task<Result<object>> UserCompleteSignUpByGoogle(SignupGoogleRequest userRegistrationDto);*/
         //CHANGE PASSWORD 
