@@ -145,7 +145,7 @@ namespace CGP.Application.Services
             var pointTransaction = new PointTransaction()
             {
                 Point_Id = getUserPoint.Id,
-                Amount = 100,
+                Amount = 20,
                 Status = PointTransactionEnum.Earned,
                 Description = "Bạn nhận được 20 xu từ việc đánh giá sản phẩm.",
             };
