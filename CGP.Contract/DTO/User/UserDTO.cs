@@ -21,5 +21,6 @@ namespace CGP.Contract.DTO.User
         public int RoleId { get; set; }
         public ViewCraftVillageDTO? CraftVillage { get; set; }
         public List<ViewAddressDTO> UserAddresses { get; set; } = new List<ViewAddressDTO>();
+        public string? Provider { get; set; }
     }
 }
