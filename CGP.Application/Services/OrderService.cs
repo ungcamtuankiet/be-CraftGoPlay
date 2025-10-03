@@ -1647,7 +1647,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletSystem.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Purchase,
-                        Description = @$"Thanh toán đơn hàng ""{order.Id}"" có mức giá: {order.TotalPrice}VND với phương thức thanh toán VNPay.",
+                        Description = @$"Người dùng thanh toán đơn hàng ""{order.Id}"" có mức giá: {order.TotalPrice}VND với phương thức thanh toán VNPay.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -1958,23 +1958,20 @@ namespace CGP.Application.Services
 
                 if (order.PaymentMethod == PaymentMethodEnum.Cash && order.IsPaid == false)
                 {
-                    foreach (var item in orderItems)
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance + order.TotalPrice;
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
+                    
+                    var addMoneyToWalletSystem = new WalletTransaction
                     {
-                        getWalletSystem.PendingBalance = getWalletSystem.PendingBalance + order.TotalPrice;
-                        _unitOfWork.walletRepository.Update(getWalletSystem);
-
-                        var addMoneyToWalletSystem = new WalletTransaction
-                        {
-                            Wallet_Id = getWalletSystem.Id,
-                            Amount = order.TotalPrice,
-                            Type = WalletTransactionTypeEnum.Purchase,
-                            Description = @$"Thanh toán đơn hàng ""{order.Id}"" có mức giá {order.TotalPrice}VNĐ với phương thức thanh toán COD.",
-                            CreationDate = DateTime.UtcNow.AddHours(7),
-                            CreatedAt = DateTime.UtcNow.AddHours(7),
-                            IsDeleted = false
-                        };
-                        await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
-                    }
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = order.TotalPrice,
+                        Type = WalletTransactionTypeEnum.Purchase,
+                        Description = @$"Người dùng thanh toán đơn hàng ""{order.Id}"" có mức giá {order.TotalPrice}VNĐ với phương thức thanh toán COD.",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
                     order.ModificationDate = DateTime.UtcNow.AddHours(7);
                 }
                 order.ModificationDate = DateTime.UtcNow.AddHours(7);
@@ -2062,8 +2059,8 @@ namespace CGP.Application.Services
                     {
                         Wallet_Id = getWalletSystem.Id,
                         Amount = amountRefundArtisan,
-                        Type = WalletTransactionTypeEnum.Purchase,
-                        Description = @$"Hoàn trả tiền đơn hàng ""{order.Id}"" cho nghệ nhân có mức giá {amountRefundArtisan}VND.",
+                        Type = WalletTransactionTypeEnum.ReceiveFromOrder,
+                        Description = @$"Thanh toán tiền hàng cho nghệ nhân từ đơn hàng ""{order.Id}""",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -2085,8 +2082,8 @@ namespace CGP.Application.Services
                 {
                     Wallet_Id = getWalletSystem.Id,
                     Amount = amountRefunDeliverySystem,
-                    Type = WalletTransactionTypeEnum.Purchase,
-                    Description = @$"Hoàn trả tiền phí vận chuyển của đơn hàng ""{order.Id}"" cho đơn vị vận chuyển với mức giá {amountRefunDeliverySystem}VND.",
+                    Type = WalletTransactionTypeEnum.ReceiveShippingFee,
+                    Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
                     CreationDate = DateTime.UtcNow.AddHours(7),
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                     IsDeleted = false
@@ -2350,6 +2347,13 @@ namespace CGP.Application.Services
             var totalAmount = order.TotalPrice;
             var url = await _payoutService.CreatePaymentUrl(transactionId, totalAmount, httpContext);
             order.Status = OrderStatusEnum.AwaitingPayment;
+            var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(order.Id);
+            foreach (var item in orderItems)
+            {
+                item.Status = OrderStatusEnum.AwaitingPayment;
+                item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                _unitOfWork.orderItemRepository.Update(item);
+            }
             order.TransactionId = transactionId;
             _unitOfWork.orderRepository.Update(order);
             var transaction = new Domain.Entities.Transaction
