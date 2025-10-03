@@ -1551,7 +1551,7 @@ namespace CGP.Application.Services
 
         public async Task<Result<object>> HandleVnPayReturnAsync(IQueryCollection query)
         {
-            // Lấy TransactionId thay vì OrderId
+            // Lấy TransactionId từ query
             var transactionId = Guid.Parse(query["vnp_TxnRef"]);
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
 
@@ -1571,18 +1571,42 @@ namespace CGP.Application.Services
             var responseCode = query["vnp_ResponseCode"].ToString();
             var userId = orders.First().UserId;
 
-            var payment = new Payment
+            // Kiểm tra xem Payment đã tồn tại cho OrderId hay chưa
+            var orderId = orders.First().Id;
+            var existingPayment = await _unitOfWork.paymentRepository.GetPaymentByOrderId(orderId); // Giả sử bạn có phương thức này
+
+            Payment payment;
+            if (existingPayment == null)
             {
-                OrderId = orders.First().Id, 
-                TransactionNo = query["vnp_TransactionNo"],
-                BankCode = query["vnp_BankCode"],
-                ResponseCode = responseCode,
-                SecureHash = query["vnp_SecureHash"],
-                CreatedBy = userId,
-                PaymentMethod = PaymentMethodEnum.Online,
-                RawData = string.Join("&", query.Select(x => $"{x.Key}={x.Value}"))
-            };
-            await _unitOfWork.paymentRepository.AddAsync(payment);
+                // Nếu chưa có Payment, tạo mới
+                payment = new Payment
+                {
+                    OrderId = orderId,
+                    TransactionNo = query["vnp_TransactionNo"],
+                    BankCode = query["vnp_BankCode"],
+                    ResponseCode = responseCode,
+                    SecureHash = query["vnp_SecureHash"],
+                    CreatedBy = userId,
+                    PaymentMethod = PaymentMethodEnum.Online,
+                    RawData = string.Join("&", query.Select(x => $"{x.Key}={x.Value}")),
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+                await _unitOfWork.paymentRepository.AddAsync(payment);
+            }
+            else
+            {
+                // Nếu đã có Payment, cập nhật thông tin
+                existingPayment.TransactionNo = query["vnp_TransactionNo"];
+                existingPayment.BankCode = query["vnp_BankCode"];
+                existingPayment.ResponseCode = responseCode;
+                existingPayment.SecureHash = query["vnp_SecureHash"];
+                existingPayment.RawData = string.Join("&", query.Select(x => $"{x.Key}={x.Value}"));
+                existingPayment.ModificationDate = DateTime.UtcNow.AddHours(7);
+                _unitOfWork.paymentRepository.Update(existingPayment);
+                payment = existingPayment;
+            }
 
             decimal totalAmount = 0;
 
@@ -1618,6 +1642,8 @@ namespace CGP.Application.Services
                     order.IsPaid = true;
                     order.Status = OrderStatusEnum.Created;
                     totalAmount += order.TotalPrice;
+
+                    // Tạo giao dịch mới
                     var transaction = new Domain.Entities.Transaction
                     {
                         Id = Guid.NewGuid(),
@@ -1699,6 +1725,7 @@ namespace CGP.Application.Services
                     Data = null
                 };
             }
+
             await _unitOfWork.SaveChangeAsync();
 
             return new Result<object>
