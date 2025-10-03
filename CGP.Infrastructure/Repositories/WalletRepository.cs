@@ -22,18 +22,21 @@ namespace CGP.Infrastructure.Repositories {
 
         public async Task<Wallet> GetWalletByUserIdAsync(Guid userId)
         {
-            var wallet = await _context.Wallet
+            return await _context.Wallet
                 .Include(w => w.WalletTransactions)
-                .FirstOrDefaultAsync(w => w.User_Id == userId && w.Type == WalletTypeEnum.User);
-
-            if (wallet != null)
-            {
-                wallet.WalletTransactions = wallet.WalletTransactions
-                    .OrderByDescending(t => t.CreationDate) // đổi CreationDate thành field ngày của bạn
-                    .ToList();
-            }
-
-            return wallet;
+                .Where(w => w.User_Id == userId && w.Type == WalletTypeEnum.User)
+                .Select(w => new Wallet
+                {
+                    Id = w.Id,
+                    User_Id = w.User_Id,
+                    Type = w.Type,
+                    PendingBalance = w.PendingBalance,
+                    AvailableBalance = w.AvailableBalance,
+                    WalletTransactions = w.WalletTransactions
+                        .OrderByDescending(t => t.CreationDate)
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
         }
         public async Task<Wallet> GetWalletByArtisanIdAsync(Guid artianId)
         {
@@ -50,12 +53,20 @@ namespace CGP.Infrastructure.Repositories {
 
             return wallet;
         }
-
         public async Task<Wallet> GetWalletSystem()
         {
-            return await _context.Wallet
+            var wallet = await _context.Wallet
                 .Include(w => w.WalletTransactions)
-                .FirstOrDefaultAsync(w =>w.Type == WalletTypeEnum.System);
+                .FirstOrDefaultAsync(w => w.Type == WalletTypeEnum.System);
+
+            if (wallet != null)
+            {
+                wallet.WalletTransactions = wallet.WalletTransactions
+                    .OrderByDescending(t => t.CreationDate)
+                    .ToList();
+            }
+
+            return wallet;
         }
     }
 }
