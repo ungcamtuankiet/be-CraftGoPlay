@@ -151,6 +151,7 @@ namespace CGP.Application.Services
 
             // Thêm yêu cầu hoàn trả
             returnRequest.ImageUrl = uploadResult.SecureUrl.ToString();
+            returnRequest.ModificationDate = DateTime.UtcNow.AddHours(7);
             await _unitOfWork.returnRequestRepository.AddAsync(returnRequest);
 
             // Cập nhật trạng thái OrderItem
@@ -189,12 +190,13 @@ namespace CGP.Application.Services
             var getRequest = await _unitOfWork.returnRequestRepository.GetReturnRequestById(returnRequestId);
             var getWalletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(getRequest.UserId);
             var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
+
             if (getRequest == null)
             {
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Yêu cầu hoàn tiền khg tồn tại.",
+                    Message = "Yêu cầu hoàn tiền không tồn tại."
                 };
             }
 
@@ -203,7 +205,7 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Yêu cầu hoàn tiền đã được xử lý trước đó.",
+                    Message = "Yêu cầu hoàn tiền đã được xử lý trước đó."
                 };
             }
 
@@ -212,40 +214,111 @@ namespace CGP.Application.Services
                 return new Result<object>
                 {
                     Error = 1,
-                    Message = "Yêu cầu hoàn tiền đã được duyệt trước đó.",
+                    Message = "Yêu cầu hoàn tiền đã được duyệt trước đó."
                 };
             }
 
-            if(status == ReturnStatusEnum.Approved)
+            if (status == ReturnStatusEnum.Approved)
             {
                 getRequest.RejectReturnReasonEnum = null;
-                getWalletSystem.PendingBalance -= getRequest.OrderItem.Order.TotalPrice;
+
+                // Lấy thông tin đơn hàng và các mục đơn hàng
+                var order = await _unitOfWork.orderRepository.GetByIdAsync(getRequest.OrderItem.OrderId);
+                var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(order.Id);
+
+                // Kiểm tra nếu đơn hàng đã được hoàn tiền
+                if (order.Payment.IsRefunded)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Đơn hàng đã được hoàn tiền trước đó."
+                    };
+                }
+
+                // Tính tổng số tiền hoàn trả
+                decimal refundAmount = 0;
+
+                // Lấy danh sách yêu cầu hoàn trả của đơn hàng
+                var returnRequests = await _unitOfWork.returnRequestRepository.GetReturnRequestsByOrderIdAsync(order.Id);
+                var approvedReturnRequests = returnRequests.Where(r => r.Status == ReturnStatusEnum.Approved || r.Status == ReturnStatusEnum.Refunded).ToList();
+                bool isLastItemToApprove = approvedReturnRequests.Count + 1 == orderItems.Count && returnRequests.Any(r => r.Id == returnRequestId && r.Status == ReturnStatusEnum.Pending);
+
+                // Kiểm tra số lượng sản phẩm trong đơn hàng
+                if (orderItems.Count == 1)
+                {
+                    // Nếu đơn hàng chỉ có 1 sản phẩm, hoàn trả toàn bộ số tiền (bao gồm phí vận chuyển)
+                    refundAmount = order.TotalPrice;
+                    order.Status = OrderStatusEnum.FullReturn;
+                    order.Payment.IsRefunded = true;
+                }
+                else
+                {
+                    // Nếu đơn hàng có nhiều sản phẩm
+                    if (isLastItemToApprove)
+                    {
+                        // Nếu đây là sản phẩm cuối cùng được duyệt hoàn trả
+                        // Tính tổng số tiền đã hoàn trước đó
+                        decimal previouslyRefundedAmount = approvedReturnRequests.Sum(r => (decimal)(r.OrderItem.UnitPrice * r.OrderItem.Quantity));
+                        // Chỉ hoàn số tiền còn lại (bao gồm phí vận chuyển nếu có)
+                        refundAmount = order.TotalPrice - previouslyRefundedAmount;
+                        order.Status = OrderStatusEnum.FullReturn;
+                        order.Payment.IsRefunded = true;
+                    }
+                    else
+                    {
+                        // Nếu chỉ một phần sản phẩm được hoàn trả, chỉ hoàn tiền sản phẩm hiện tại
+                        refundAmount = (decimal)(getRequest.OrderItem.UnitPrice * getRequest.OrderItem.Quantity);
+                        order.Status = OrderStatusEnum.PartialReturn;
+                    }
+                }
+
+                // Cập nhật trạng thái OrderItem thành Refunded
+                getRequest.OrderItem.Status = OrderStatusEnum.Refunded;
+                _unitOfWork.orderItemRepository.Update(getRequest.OrderItem);
+
+                // Kiểm tra trạng thái của tất cả OrderItem để cập nhật Order status thành Completed
+                var allItemsCompleted = orderItems.All(item => item.Status == OrderStatusEnum.Completed || item.Status == OrderStatusEnum.Refunded);
+                if (allItemsCompleted)
+                {
+                    order.Status = OrderStatusEnum.Completed;
+                }
+
+                // Cập nhật ví hệ thống
+                getWalletSystem.PendingBalance -= refundAmount;
                 var addMoneyToWalletSystem = new WalletTransaction
                 {
                     Wallet_Id = getWalletSystem.Id,
-                    Amount = getRequest.OrderItem.Order.TotalPrice,
+                    Amount = refundAmount,
                     Type = WalletTransactionTypeEnum.Refund,
-                    Description = @$"Hoàn trả tiền đơn hàng {getRequest.OrderItem.Order.Id} cho nghệ nhân có mức giá {getRequest.OrderItem.Order.TotalPrice}VND.",
+                    Description = @$"Hoàn trả tiền cho sản phẩm ""{getRequest.OrderItemId}"" của đơn hàng ""{getRequest.OrderItem.Order.Id}"".",
                     CreationDate = DateTime.UtcNow.AddHours(7),
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                     IsDeleted = false
                 };
+                _unitOfWork.walletRepository.Update(getWalletSystem);
                 await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
 
-                getWalletUser.AvailableBalance += getRequest.OrderItem.Order.TotalPrice;
+                // Cập nhật ví người dùng
+                getWalletUser.AvailableBalance += refundAmount;
                 var addMoneyToWalletUser = new WalletTransaction
                 {
                     Wallet_Id = getWalletUser.Id,
-                    Amount = getRequest.OrderItem.Order.TotalPrice,
+                    Amount = refundAmount,
                     Type = WalletTransactionTypeEnum.Refund,
-                    Description = @$"Sản phẩm có mã đơn hàng chi tiết là {getRequest.OrderItemId} được hoàn tiền {getRequest.OrderItem.Order.TotalPrice}VND.",
+                    Description = @$"Sản phẩm ""{getRequest.OrderItemId}"" của đơn hàng ""{getRequest.OrderItem.OrderId}"" được hoàn tiền.",
                     CreationDate = DateTime.UtcNow.AddHours(7),
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                     IsDeleted = false
                 };
+                _unitOfWork.walletRepository.Update(getWalletUser);
                 await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletUser);
+
+                // Cập nhật trạng thái đơn hàng
+                _unitOfWork.orderRepository.Update(order);
             }
-            if(status == ReturnStatusEnum.Rejected)
+
+            if (status == ReturnStatusEnum.Rejected)
             {
                 getRequest.RejectReturnReasonEnum = rejectReason;
             }
@@ -255,6 +328,7 @@ namespace CGP.Application.Services
             getRequest.ModificationDate = DateTime.UtcNow.AddHours(7);
             _unitOfWork.returnRequestRepository.Update(getRequest);
             await _unitOfWork.SaveChangeAsync();
+
             return new Result<object>
             {
                 Error = 0,
@@ -316,36 +390,90 @@ namespace CGP.Application.Services
 
             if (acceptRefund)
             {
+
+                var order = request.OrderItem.Order;
+                var orderItems = await _unitOfWork.orderItemRepository.GetOrderItemsByOrderIdAsync(order.Id);
+
+                if (order.Payment.IsRefunded)
+                {
+                    return new Result<object>
+                    {
+                        Error = 1,
+                        Message = "Đơn hàng đã được hoàn tiền trước đó."
+                    };
+                }
+
+                decimal refundAmount = 0;
+
+                var returnRequests = await _unitOfWork.returnRequestRepository.GetReturnRequestsByOrderIdAsync(order.Id);
+                var approvedReturnRequests = returnRequests.Where(r => r.Status == ReturnStatusEnum.Approved || r.Status == ReturnStatusEnum.Refunded).ToList();
+                bool isLastItemToApprove = approvedReturnRequests.Count + 1 == orderItems.Count;
+
+                if (orderItems.Count == 1)
+                {
+                    refundAmount = order.TotalPrice;
+                    order.Status = OrderStatusEnum.FullReturn;
+                    order.Payment.IsRefunded = true;
+                }
+                else
+                {
+                    if (isLastItemToApprove)
+                    {
+                        decimal previouslyRefundedAmount = approvedReturnRequests.Sum(r => (decimal)(r.OrderItem.UnitPrice * r.OrderItem.Quantity));
+                        refundAmount = order.TotalPrice - previouslyRefundedAmount;
+                        order.Status = OrderStatusEnum.FullReturn;
+                        order.Payment.IsRefunded = true;
+                    }
+                    else
+                    {
+                        refundAmount = (decimal)(request.OrderItem.UnitPrice * request.OrderItem.Quantity);
+                        order.Status = OrderStatusEnum.PartialReturn;
+                    }
+                }
+
                 request.Status = ReturnStatusEnum.Refunded;
                 request.ApprovedAt = DateTime.UtcNow.AddHours(7);
-                request.OrderItem.Order.Status = OrderStatusEnum.Refunded;
-                request.OrderItem.Order.Payment.IsRefunded = true;
+                request.IsRefunded = true;
+
+                request.OrderItem.Status = OrderStatusEnum.Refunded;
+                _unitOfWork.orderItemRepository.Update(request.OrderItem);
+
+                var allItemsCompleted = orderItems.All(item => item.Status == OrderStatusEnum.Completed || item.Status == OrderStatusEnum.Refunded);
+                if (allItemsCompleted)
+                {
+                    order.Status = OrderStatusEnum.Completed;
+                }
+
+                _unitOfWork.orderRepository.Update(order);
 
                 var walletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
 
-                walletSystem.PendingBalance -= request.OrderItem.Order.TotalPrice;
+                walletSystem.PendingBalance -= refundAmount;
                 var addMoneyToWalletSystem = new WalletTransaction
                 {
                     Wallet_Id = walletSystem.Id,
-                    Amount = request.OrderItem.Order.TotalPrice,
+                    Amount = refundAmount,
                     Type = WalletTransactionTypeEnum.Refund,
-                    Description = @$"Hoàn trả tiền đơn hàng {request.OrderItem.Order.Id} cho nghệ nhân có mức giá {request.OrderItem.Order.TotalPrice}VND.",
+                    Description = @$"Hoàn trả tiền cho sản phẩm ""{request.OrderItemId}"" của đơn hàng ""{order.Id}"".",
                     CreationDate = DateTime.UtcNow.AddHours(7),
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                     IsDeleted = false
                 };
+                _unitOfWork.walletRepository.Update(walletSystem);
+                await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
 
-                walletUser.AvailableBalance += request.OrderItem.Order.TotalPrice;
+                walletUser.AvailableBalance += refundAmount;
                 var addMoneyToWalletUser = new WalletTransaction
                 {
                     Wallet_Id = walletUser.Id,
-                    Amount = request.OrderItem.Order.TotalPrice,
+                    Amount = refundAmount,
                     Type = WalletTransactionTypeEnum.Refund,
-                    Description = @$"Sản phẩm có mã đơn hàng chi tiết là {request.OrderItem.Order.Id} được hoàn tiền {request.OrderItem.Order.TotalPrice}VND.",
+                    Description = @$"Sản phẩm ""{request.OrderItemId}"" của đơn hàng ""{order.Id}"" được hoàn tiền.",
                     CreationDate = DateTime.UtcNow.AddHours(7),
                     CreatedAt = DateTime.UtcNow.AddHours(7),
                     IsDeleted = false
                 };
+                _unitOfWork.walletRepository.Update(walletUser);
                 await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletUser);
             }
             else

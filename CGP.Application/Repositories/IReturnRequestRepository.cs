@@ -17,5 +17,6 @@ namespace CGP.Application.Repositories
         Task<ReturnRequest> GetReturnRequestById(Guid id);
         Task<ReturnRequest> GetByOrderItemIdAsync(Guid orderItemId);
         Task<ReturnRequest> GetReturnRequestByOrderItemIdAsync(Guid orderItemId);
+        Task<List<ReturnRequest>> GetReturnRequestsByOrderIdAsync(Guid orderId);
     }
 }

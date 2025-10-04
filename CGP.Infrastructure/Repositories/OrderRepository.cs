@@ -213,7 +213,6 @@ namespace CGP.Infrastructure.Repositories
             return await query.SumAsync(i => Math.Round((i.UnitPrice * i.Quantity) * 0.95m));
         }
 
-
         private async Task<decimal> SumRevenueForAdminAsync(Expression<Func<Order, decimal?>> selector, DateTime? from = null, DateTime? to = null)
         {
             var query = _dbContext.Order
@@ -228,7 +227,6 @@ namespace CGP.Infrastructure.Repositories
             return await query.SumAsync(selector) ?? 0;
         }
 
-
         public Task<decimal> SumRevenueForAdminBeforFeeAsync(DateTime? from = null, DateTime? to = null)
         {
             return SumRevenueForAdminAsync(i => (decimal?)i.TotalPrice, from, to);
@@ -237,29 +235,62 @@ namespace CGP.Infrastructure.Repositories
         public Task<decimal> SumRevenueForAdminDeliveryFeeAsync(DateTime? from = null, DateTime? to = null)
         {
             return SumRevenueForAdminAsync(
-                i => ((decimal?)i.Delivery_Amount  * 0.15m) - (decimal?)i.DeliveryDiscount - ((decimal?)i.PointDiscount / 2),
+                i => ((decimal?)i.Delivery_Amount * 0.15m) - (decimal?)i.DeliveryDiscount - ((decimal?)i.PointDiscount / 2),
                 from,
                 to
             );
         }
 
-        public Task<decimal> SumRevenueForAdminProductFeeAsync(DateTime? from = null, DateTime? to = null)
+        public async Task<decimal> SumRevenueForAdminProductFeeAsync(DateTime? from = null, DateTime? to = null)
         {
-            return SumRevenueForAdminAsync(
-                i => ((decimal?)i.Product_Amount * 0.05m) - (decimal?)i.ProductDiscount - ((decimal?)i.PointDiscount / 2),
-                from,
-                to
-            );
+            var query = _dbContext.Order
+                .Where(i => i.Status == OrderStatusEnum.Completed);
+
+            if (from.HasValue)
+                query = query.Where(i => i.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(i => i.CreationDate <= to.Value);
+
+            var results = await query
+                .Select(i => new
+                {
+                    ProductFee = (i.OrderItems
+                        .Where(oi => oi.Status != OrderStatusEnum.Refunded)
+                        .Sum(oi => oi.UnitPrice * oi.Quantity) * 0.05m)
+                        - (decimal)(i.ProductDiscount)
+                        - ((i.PointDiscount) / 2)
+                })
+                .ToListAsync();
+
+            return results.Sum(r => r.ProductFee);
         }
 
-        public Task<decimal> SumRevenueForAdminProductFeeForArtisanAsync(DateTime? from = null, DateTime? to = null)
+        public async Task<decimal> SumRevenueForAdminProductFeeForArtisanAsync(DateTime? from = null, DateTime? to = null)
         {
-            return SumRevenueForAdminAsync(
-                i => (decimal?)i.Product_Amount * 0.95m,
-                from,
-                to
-            );
+            var query = _dbContext.Order
+                .Where(i => i.Status == OrderStatusEnum.Completed);
+
+            if (from.HasValue)
+                query = query.Where(i => i.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(i => i.CreationDate <= to.Value);
+
+            var results = await query
+                .Select(i => new
+                {
+                    ProductFee = (i.OrderItems
+                        .Where(oi => oi.Status != OrderStatusEnum.Refunded)
+                        .Sum(oi => oi.UnitPrice * oi.Quantity) * 0.95m)
+                        - (decimal)i.ProductDiscount
+                        - ((i.PointDiscount) / 2)
+                })
+                .ToListAsync();
+
+            return results.Sum(r => r.ProductFee);
         }
+
 
         public Task<decimal> SumRevenueForAdminDeliveryFeeShiperAsync(DateTime? from = null, DateTime? to = null)
         {
@@ -279,15 +310,32 @@ namespace CGP.Infrastructure.Repositories
             );
         }
 
-        public Task<decimal> SumRevenueForAdminAfterFeeAsync(DateTime? from = null, DateTime? to = null)
+        public async Task<decimal> SumRevenueForAdminAfterFeeAsync(DateTime? from = null, DateTime? to = null)
         {
-            return SumRevenueForAdminAsync(
-                i => (decimal?)i.TotalPrice
-                    - (decimal?)i.Product_Amount  * 0.95m
-                    - (decimal?)i.Delivery_Amount  * 0.85m,
-                from,
-                to
-            );
+            var query = _dbContext.Order
+                .Where(i => i.Status == OrderStatusEnum.Completed);
+
+            if (from.HasValue)
+                query = query.Where(i => i.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(i => i.CreationDate <= to.Value);
+
+            var results = await query
+                .Select(i => new
+                {
+                    AfterFee = (i.TotalPrice)
+                        - (i.OrderItems
+                            .Where(oi => oi.Status == OrderStatusEnum.Refunded)
+                            .Sum(oi => oi.UnitPrice * oi.Quantity))
+                        - (i.OrderItems
+                            .Where(oi => oi.Status != OrderStatusEnum.Refunded)
+                            .Sum(oi => oi.UnitPrice * oi.Quantity) * 0.95m)
+                        - ((decimal)(i.Delivery_Amount) * 0.85m)
+                })
+                .ToListAsync();
+
+            return results.Sum(r => r.AfterFee);
         }
 
         public async Task<ProductCountByMonthDto> GetProductCountsByMonthAsync(int year, Guid? artisanId = null)
