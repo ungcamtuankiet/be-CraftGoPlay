@@ -10,6 +10,8 @@ namespace CGP.Domain.Enums
     {
         DailyLogin,
         WaterPlant,
+        HarvestPlant,
+        PlantPlant,
         BrowseProducts
     }
 }
