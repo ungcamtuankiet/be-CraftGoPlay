@@ -104,14 +104,12 @@ namespace CGP.Application.Services
             }
             else
             {
-                // Tìm slot trống từ 1 → 27
                 var usedSlots = packageItems.Select(x => x.SlotIndex).ToHashSet();
 
                 int freeSlot = Enumerable.Range(0, 27).FirstOrDefault(slot => !usedSlots.Contains(slot));
 
                 if (freeSlot == 0 && usedSlots.Contains(0))
                 {
-                    // Nghĩa là full cả 27 ô
                     return new Result<object>
                     {
                         Error = 1,
