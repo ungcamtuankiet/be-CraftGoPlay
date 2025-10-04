@@ -54,6 +54,7 @@ namespace CGP.Infrastructure.Repositories
         {
             var now = DateTime.UtcNow.AddHours(7);
             var orderItems = await _dbContext.OrderItem
+                .Include(oi => oi.Order)
                     .Where(oi => oi.Status == OrderStatusEnum.Delivered && oi.ModificationDate != null && oi.ModificationDate <= now.AddMinutes(-3))
                     .ToListAsync();
             return orderItems;
