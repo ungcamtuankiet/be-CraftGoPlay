@@ -2063,7 +2063,7 @@ namespace CGP.Application.Services
                     product.QuantitySold = product.QuantitySold + item.Quantity;
                     _unitOfWork.productRepository.Update(product);
                     var amountRefundArtisan = (item.UnitPrice * item.Quantity) * 0.95m;
-                    var amountRefunProductAmountForSystem = ((item.UnitPrice * item.Quantity) * 0.05m) - (decimal)order.ProductDiscount - (order.PointDiscount / 2);
+                    var amountRefunProductAmountForSystem = ((item.UnitPrice * item.Quantity) * 0.05m) - ((decimal)order.ProductDiscount / orderItems.Count) - ((order.PointDiscount / 2) / orderItems.Count);
                     getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefundArtisan; //trừ cho nghệ nhân
                     getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunProductAmountForSystem; //trừ tiền cộng vào ví ava
                     getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + amountRefunProductAmountForSystem; //cộng tiền vào ví ava
@@ -2095,7 +2095,7 @@ namespace CGP.Application.Services
                 }
 
                 var amountRefunDeliverySystem = (decimal)(order.Delivery_Amount * 0.85);
-                var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
+                var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - (decimal)order.DeliveryDiscount - (order.PointDiscount / 2);
                 getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliverySystem;
                 getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
                 getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + amountRefunDeliveryAmountForSystem;
@@ -2328,6 +2328,7 @@ namespace CGP.Application.Services
 
             foreach (var item in getOrderItems)
             {
+                var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(item.OrderId);
                 // Nếu item được giao thành công → trả tiền cho nghệ nhân
                 if (item.Status == OrderStatusEnum.Delivered) // hoặc Pending chờ Complete
                 {
@@ -2336,7 +2337,7 @@ namespace CGP.Application.Services
                     _unitOfWork.productRepository.Update(product);
 
                     var amountRefundArtisan = (item.UnitPrice * item.Quantity) * 0.95m;
-                    var amountRefunProductAmountForSystem = ((item.UnitPrice * item.Quantity) * 0.05m) - (decimal)item.Order.ProductDiscount - (item.Order.PointDiscount / 2);
+                    var amountRefunProductAmountForSystem = ((item.UnitPrice * item.Quantity) * 0.05m) - ((decimal)item.Order.ProductDiscount / order.OrderItems.Count)- ((item.Order.PointDiscount / 2) / order.OrderItems.Count);
                     getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefundArtisan; //trừ cho nghệ nhân
                     getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunProductAmountForSystem; //trừ tiền cộng vào ví ava
                     getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + amountRefunProductAmountForSystem; //cộng tiền vào ví ava
@@ -2377,8 +2378,6 @@ namespace CGP.Application.Services
                     _unitOfWork.orderItemRepository.Update(item);
                 }
 
-                // Order check
-                var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(item.OrderId);
                 if (order != null)
                 {
                     bool allFinished = order.OrderItems.All(oi =>
@@ -2393,7 +2392,7 @@ namespace CGP.Application.Services
 
                         // Thanh toán phí vận chuyển khi toàn bộ order đã "kết thúc"
                         var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
-                        var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
+                        var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - (decimal)order.DeliveryDiscount - (order.PointDiscount / 2);
                         getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
                         getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
                         getWalletSystem.AvailableBalance += amountRefunDeliveryAmountForSystem;
