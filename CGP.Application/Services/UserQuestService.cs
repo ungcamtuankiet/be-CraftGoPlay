@@ -145,30 +145,26 @@ namespace CGP.Application.Services
             var userQuest = await _unitOfWork.userQuestRepository.GetByUserAndQuestTypeAsync(userId, questType);
             if (userQuest == null) return;
             userQuest.Progress += amount;
-            if (userQuest.Progress >= 5)
+            if(questType == QuestType.WaterPlant)
             {
-                userQuest.Progress = 5;
-                userQuest.Status = QuestStatus.Completed;
-                userQuest.CompletedAt = DateTime.UtcNow.AddHours(7);
+                if (userQuest.Progress >= 5)
+                {
+                    userQuest.Progress = 5;
+                    userQuest.Status = QuestStatus.Completed;
+                    userQuest.CompletedAt = DateTime.UtcNow.AddHours(7);
+                }
+            }
+            else
+            {
+                if (userQuest.Progress >= 1)
+                {
+                    userQuest.Progress = 1;
+                    userQuest.Status = QuestStatus.Completed;
+                    userQuest.CompletedAt = DateTime.UtcNow.AddHours(7);
+                }
             }
             _unitOfWork.userQuestRepository.Update(userQuest);
             await _unitOfWork.SaveChangeAsync();
         }
-
-
-        /*        private async Task GiveRewardAsync(Guid userId, string reward)
-                {
-                    var userSeed = new Inventory
-                    {
-                        Id = Guid.NewGuid(),
-                        UserId = userId,
-                        SeedType = reward,
-                        Quantity = 1,
-                        ReceivedAt = DateTime.UtcNow
-                    };
-
-                    _dbContext.UserSeeds.Add(userSeed);
-                    await _dbContext.SaveChangesAsync();
-                }*/
     }
 }
