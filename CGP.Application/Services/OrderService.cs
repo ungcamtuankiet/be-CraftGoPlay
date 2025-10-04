@@ -1673,7 +1673,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletSystem.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Purchase,
-                        Description = @$"Người dùng thanh toán đơn hàng ""{order.Id}"" có mức giá: {order.TotalPrice}VND với phương thức thanh toán VNPay.",
+                        Description = @$"Người dùng thanh toán đơn hàng ""{order.Id}"" với phương thức thanh toán VNPay.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -1819,7 +1819,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletUser.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Refund,
-                        Description = $"Hoàn tiền tới người dùng cho đơn hàng:{order.Id} bị hủy với số tiền: {order.TotalPrice}.",
+                        Description = @$"Hoàn tiền tới người dùng cho đơn hàng ""{order.Id}"" bị hủy.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -1831,7 +1831,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletSystem.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Refund,
-                        Description = $"Nhận tiền hoàn lại cho đơn hàng:{order.Id} đã hủy với số tiền: {order.TotalPrice}.",
+                        Description = @$"Người dùng nhận tiền hoàn lại cho đơn hàng ""{order.Id}"" đã hủy.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -1895,28 +1895,13 @@ namespace CGP.Application.Services
 
                 if (order.PaymentMethod == PaymentMethodEnum.Online && order.IsPaid == true)
                 {
-                    var payent = new Payment()
-                    {
-                        OrderId = order.Id,
-                        TransactionNo = getPayment.TransactionNo,
-                        BankCode = getPayment.BankCode,
-                        ResponseCode = "00",
-                        SecureHash = getPayment.SecureHash,
-                        PaymentMethod = PaymentMethodEnum.Online,
-                        RawData = getPayment.RawData,
-                        CreatedAt = DateTime.UtcNow.AddHours(7),
-                        IsDeleted = false,
-                        IsRefunded = true
-                    };
-                    await _unitOfWork.paymentRepository.AddAsync(payent);
-
                     var transaction = new Transaction
                     {
                         Id = order.TransactionId,
                         UserId = order.UserId,
                         OrderId = order.Id,
                         Amount = order.TotalPrice,
-                        PaymentId = payent.Id,
+                        PaymentId = getPayment.Id,
                         Currency = "VND",
                         PaymentMethod = order.PaymentMethod,
                         TransactionStatus = (TransactionStatusEnum)order.Status,
@@ -1941,7 +1926,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletUser.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Refund,
-                        Description = $"Hoàn tiền tới người dùng cho đơn hàng:{order.Id} bị từ chối  với số tiền: {order.TotalPrice}.",
+                        Description = @$"Hoàn tiền tới người dùng cho đơn hàng ""{order.Id}"" bị từ chối.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -1953,7 +1938,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletSystem.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Refund,
-                        Description = $"Nhận tiền hoàn lại cho đơn hàng:{order.Id} bị từ chối với số tiền: {order.TotalPrice}.",
+                        Description = @$"Người dùng nhận tiền hoàn lại cho đơn hàng ""{order.Id}"" bị từ chối.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -1993,7 +1978,7 @@ namespace CGP.Application.Services
                         Wallet_Id = getWalletSystem.Id,
                         Amount = order.TotalPrice,
                         Type = WalletTransactionTypeEnum.Purchase,
-                        Description = @$"Người dùng thanh toán đơn hàng ""{order.Id}"" có mức giá {order.TotalPrice}VNĐ với phương thức thanh toán COD.",
+                        Description = @$"Người dùng thanh toán đơn hàng ""{order.Id}"" với phương thức thanh toán COD.",
                         CreationDate = DateTime.UtcNow.AddHours(7),
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         IsDeleted = false
@@ -2316,8 +2301,31 @@ namespace CGP.Application.Services
         public async Task AutoCompleteOrderItemsAsync()
         {
             var getOrderItems = await _unitOfWork.orderItemRepository.GetOrderItemsWithDeliveryStatusAsync();
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
+
             foreach (var item in getOrderItems)
             {
+                var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                product.QuantitySold += item.Quantity;
+                _unitOfWork.productRepository.Update(product);
+
+                var amountRefundArtisan = Math.Round((item.UnitPrice * item.Quantity) * 0.95m);
+                await _walletService.CreatePendingTransactionAsync(product.Artisan_id, amountRefundArtisan, 3);
+
+                getWalletSystem.PendingBalance -= amountRefundArtisan;
+
+                var addMoneyToWalletSystem = new WalletTransaction
+                {
+                    Wallet_Id = getWalletSystem.Id,
+                    Amount = amountRefundArtisan,
+                    Type = WalletTransactionTypeEnum.ReceiveFromOrder,
+                    Description = @$"Thanh toán tiền hàng cho nghệ nhân từ đơn hàng ""{item.OrderId}""",
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+                await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
+
                 item.Status = OrderStatusEnum.Completed;
                 item.ModificationDate = DateTime.UtcNow.AddHours(7);
                 _unitOfWork.orderItemRepository.Update(item);
@@ -2325,13 +2333,49 @@ namespace CGP.Application.Services
                 var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(item.OrderId);
                 if (order != null)
                 {
-                    bool allCompleted = order.OrderItems.All(oi => oi.Status == OrderStatusEnum.Completed);
-                    if (allCompleted)
+                    bool allFinished = order.OrderItems.All(oi =>
+                        oi.Status == OrderStatusEnum.Completed ||
+                        oi.Status == OrderStatusEnum.Refunded ||
+                        oi.Status == OrderStatusEnum.Cancelled);
+
+                    if (allFinished)
                     {
                         order.Status = OrderStatusEnum.Completed;
                         order.ModificationDate = DateTime.UtcNow.AddHours(7);
                         _unitOfWork.orderRepository.Update(order);
                     }
+                }
+            }
+
+            if (getOrderItems.Any())
+            {
+                var firstOrderId = getOrderItems.First().OrderId;
+                var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(firstOrderId);
+
+                if (order != null)
+                {
+                    var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
+                    getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
+
+                    if (getWalletSystem.PendingBalance > 0)
+                    {
+                        getWalletSystem.AvailableBalance += getWalletSystem.PendingBalance;
+                        getWalletSystem.PendingBalance = 0;
+                    }
+
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                    var addTotalAfterDeductions = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefunDeliverySystem,
+                        Type = WalletTransactionTypeEnum.ReceiveShippingFee,
+                        Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
                 }
             }
 
