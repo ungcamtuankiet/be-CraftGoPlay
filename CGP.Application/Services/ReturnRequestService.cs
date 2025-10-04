@@ -248,7 +248,7 @@ namespace CGP.Application.Services
                 if (orderItems.Count == 1)
                 {
                     // Nếu đơn hàng chỉ có 1 sản phẩm, hoàn trả toàn bộ số tiền (bao gồm phí vận chuyển)
-                    refundAmount = order.TotalPrice;
+                    refundAmount = (decimal)(order.Product_Amount - order.ProductDiscount);
                     order.Status = OrderStatusEnum.FullReturn;
                     order.Payment.IsRefunded = true;
                 }
@@ -258,17 +258,20 @@ namespace CGP.Application.Services
                     if (isLastItemToApprove)
                     {
                         // Nếu đây là sản phẩm cuối cùng được duyệt hoàn trả
-                        // Tính tổng số tiền đã hoàn trước đó
-                        decimal previouslyRefundedAmount = approvedReturnRequests.Sum(r => (decimal)(r.OrderItem.UnitPrice * r.OrderItem.Quantity));
-                        // Chỉ hoàn số tiền còn lại (bao gồm phí vận chuyển nếu có)
-                        refundAmount = order.TotalPrice - previouslyRefundedAmount;
+                        // Tính tổng số tiền sản phẩm đã hoàn trước đó
+                        decimal previouslyRefundedAmount = approvedReturnRequests.Sum(r =>
+                            (decimal)(r.OrderItem.UnitPrice * r.OrderItem.Quantity) - (decimal)(order.ProductDiscount / order.OrderItems.Count));
+
+                        // Chỉ hoàn số tiền sản phẩm còn lại (không bao gồm phí vận chuyển)
+                        decimal totalProductAmount = (decimal)(order.Product_Amount - order.ProductDiscount) - (decimal)(order.ProductDiscount / order.OrderItems.Count);
+                        refundAmount = totalProductAmount - previouslyRefundedAmount;
                         order.Status = OrderStatusEnum.FullReturn;
                         order.Payment.IsRefunded = true;
                     }
                     else
                     {
                         // Nếu chỉ một phần sản phẩm được hoàn trả, chỉ hoàn tiền sản phẩm hiện tại
-                        refundAmount = (decimal)(getRequest.OrderItem.UnitPrice * getRequest.OrderItem.Quantity);
+                        refundAmount = (decimal)(getRequest.OrderItem.UnitPrice * getRequest.OrderItem.Quantity) - (decimal)(order.ProductDiscount / order.OrderItems.Count);
                         order.Status = OrderStatusEnum.PartialReturn;
                     }
                 }
@@ -411,22 +414,30 @@ namespace CGP.Application.Services
 
                 if (orderItems.Count == 1)
                 {
-                    refundAmount = order.TotalPrice;
+                    refundAmount = (decimal)(order.Product_Amount - order.ProductDiscount);
                     order.Status = OrderStatusEnum.FullReturn;
                     order.Payment.IsRefunded = true;
                 }
                 else
                 {
+                    // Nếu đơn hàng có nhiều sản phẩm
                     if (isLastItemToApprove)
                     {
-                        decimal previouslyRefundedAmount = approvedReturnRequests.Sum(r => (decimal)(r.OrderItem.UnitPrice * r.OrderItem.Quantity));
-                        refundAmount = order.TotalPrice - previouslyRefundedAmount;
+                        // Nếu đây là sản phẩm cuối cùng được duyệt hoàn trả
+                        // Tính tổng số tiền sản phẩm đã hoàn trước đó
+                        decimal previouslyRefundedAmount = approvedReturnRequests.Sum(r =>
+                            (decimal)(r.OrderItem.UnitPrice * r.OrderItem.Quantity) - (decimal)(order.ProductDiscount / order.OrderItems.Count));
+
+                        // Chỉ hoàn số tiền sản phẩm còn lại (không bao gồm phí vận chuyển)
+                        decimal totalProductAmount = (decimal)(order.Product_Amount - order.ProductDiscount) - (decimal)(order.ProductDiscount / order.OrderItems.Count);
+                        refundAmount = totalProductAmount - previouslyRefundedAmount;
                         order.Status = OrderStatusEnum.FullReturn;
                         order.Payment.IsRefunded = true;
                     }
                     else
                     {
-                        refundAmount = (decimal)(request.OrderItem.UnitPrice * request.OrderItem.Quantity);
+                        // Nếu chỉ một phần sản phẩm được hoàn trả, chỉ hoàn tiền sản phẩm hiện tại
+                        refundAmount = (decimal)(request.OrderItem.UnitPrice * request.OrderItem.Quantity) - (decimal)(order.ProductDiscount / order.OrderItems.Count);
                         order.Status = OrderStatusEnum.PartialReturn;
                     }
                 }
