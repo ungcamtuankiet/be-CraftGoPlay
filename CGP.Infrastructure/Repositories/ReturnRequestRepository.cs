@@ -49,6 +49,15 @@ namespace CGP.Infrastructure.Repositories
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
+        public async Task<List<ReturnRequest>> GetReturnRequestsByOrderIdAsync(Guid orderId)
+        {
+            return await _dbContext.ReturnRequest
+                .Include(r => r.OrderItem)
+                .Where(r => r.OrderItem.OrderId == orderId)
+                .OrderByDescending(rr => rr.CreationDate)
+                .ToListAsync();
+        }
+
         public async Task<List<ReturnRequest>> GetByUserIdAsync(Guid userId, int pageIndex, int pageSize, ReturnStatusEnum? status)
         {
             var result = _dbContext.ReturnRequest
