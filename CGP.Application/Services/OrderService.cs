@@ -2062,10 +2062,12 @@ namespace CGP.Application.Services
                     var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
                     product.QuantitySold = product.QuantitySold + item.Quantity;
                     _unitOfWork.productRepository.Update(product);
-                    var amountRefundArtisan = Math.Round((item.UnitPrice * item.Quantity) * 0.95m);
+                    var amountRefundArtisan = (item.UnitPrice * item.Quantity) * 0.95m;
+                    var amountRefunProductAmountForSystem = ((item.UnitPrice * item.Quantity) * 0.05m) - (decimal)order.ProductDiscount - (order.PointDiscount / 2);
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefundArtisan; //trừ cho nghệ nhân
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunProductAmountForSystem; //trừ tiền cộng vào ví ava
+                    getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + amountRefunProductAmountForSystem; //cộng tiền vào ví ava
                     await _walletService.CreatePendingTransactionAsync(product.Artisan_id, amountRefundArtisan, 3);
-
-                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefundArtisan;
 
                     var addMoneyToWalletSystem = new WalletTransaction
                     {
@@ -2078,16 +2080,25 @@ namespace CGP.Application.Services
                         IsDeleted = false
                     };
                     await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
+
+                    var addMoneyToWalletSystem1 = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefunProductAmountForSystem,
+                        Type = WalletTransactionTypeEnum.Release,
+                        Description = @$"Nhận tiền hàng từ đơn hàng ""{order.Id}""",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem1);
                 }
 
-                var amountRefunDeliverySystem = (decimal)(order.Delivery_Amount * 0.85); 
+                var amountRefunDeliverySystem = (decimal)(order.Delivery_Amount * 0.85);
+                var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
                 getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliverySystem;
-                if(getWalletSystem.PendingBalance > 0)
-                {
-                    getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + getWalletSystem.PendingBalance;
-                    getWalletSystem.PendingBalance = 0;
-                }
-                
+                getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
+                getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + amountRefunDeliveryAmountForSystem;
                 _unitOfWork.walletRepository.Update(getWalletSystem);
 
                 var addTotalAfterDeductions = new WalletTransaction
@@ -2101,6 +2112,18 @@ namespace CGP.Application.Services
                     IsDeleted = false
                 };
                 await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
+
+                var addTotalAfterDeductions1 = new WalletTransaction
+                {
+                    Wallet_Id = getWalletSystem.Id,
+                    Amount = amountRefunDeliveryAmountForSystem,
+                    Type = WalletTransactionTypeEnum.Release,
+                    Description = @$"Nhận tiền vận chuyển từ đơn hàng ""{order.Id}"".",
+                    CreationDate = DateTime.UtcNow.AddHours(7),
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    IsDeleted = false
+                };
+                await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions1);
             }
             order.Status = statusDto;
             order.ModificationDate = DateTime.UtcNow.AddHours(7);
@@ -2305,84 +2328,107 @@ namespace CGP.Application.Services
 
             foreach (var item in getOrderItems)
             {
-                var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
-                product.QuantitySold += item.Quantity;
-                _unitOfWork.productRepository.Update(product);
-
-                var amountRefundArtisan = Math.Round((item.UnitPrice * item.Quantity) * 0.95m);
-                await _walletService.CreatePendingTransactionAsync(product.Artisan_id, amountRefundArtisan, 3);
-
-                getWalletSystem.PendingBalance -= amountRefundArtisan;
-
-                var addMoneyToWalletSystem = new WalletTransaction
+                // Nếu item được giao thành công → trả tiền cho nghệ nhân
+                if (item.Status == OrderStatusEnum.Delivered) // hoặc Pending chờ Complete
                 {
-                    Wallet_Id = getWalletSystem.Id,
-                    Amount = amountRefundArtisan,
-                    Type = WalletTransactionTypeEnum.ReceiveFromOrder,
-                    Description = @$"Thanh toán tiền hàng cho nghệ nhân từ đơn hàng ""{item.OrderId}""",
-                    CreationDate = DateTime.UtcNow.AddHours(7),
-                    CreatedAt = DateTime.UtcNow.AddHours(7),
-                    IsDeleted = false
-                };
-                await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
+                    var product = await _unitOfWork.productRepository.GetByIdAsync(item.ProductId);
+                    product.QuantitySold += item.Quantity;
+                    _unitOfWork.productRepository.Update(product);
 
-                item.Status = OrderStatusEnum.Completed;
-                item.ModificationDate = DateTime.UtcNow.AddHours(7);
-                _unitOfWork.orderItemRepository.Update(item);
+                    var amountRefundArtisan = (item.UnitPrice * item.Quantity) * 0.95m;
+                    var amountRefunProductAmountForSystem = ((item.UnitPrice * item.Quantity) * 0.05m) - (decimal)item.Order.ProductDiscount - (item.Order.PointDiscount / 2);
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefundArtisan; //trừ cho nghệ nhân
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunProductAmountForSystem; //trừ tiền cộng vào ví ava
+                    getWalletSystem.AvailableBalance = getWalletSystem.AvailableBalance + amountRefunProductAmountForSystem; //cộng tiền vào ví ava
+                    await _walletService.CreatePendingTransactionAsync(product.Artisan_id, amountRefundArtisan, 3);
 
+                    var addMoneyToWalletSystem = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefundArtisan,
+                        Type = WalletTransactionTypeEnum.ReceiveFromOrder,
+                        Description = @$"Thanh toán tiền hàng cho nghệ nhân từ đơn hàng ""{item.OrderId}""",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem);
+
+                    var addMoneyToWalletSystem1 = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefundArtisan,
+                        Type = WalletTransactionTypeEnum.Release,
+                        Description = @$"Nhận tiền hàng từ đơn hàng ""{item.OrderId}""",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addMoneyToWalletSystem1);
+
+                    item.Status = OrderStatusEnum.Completed;
+                    item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                    _unitOfWork.orderItemRepository.Update(item);
+                }
+                // Nếu Refund thì bỏ qua (không thanh toán)
+                else if (item.Status == OrderStatusEnum.Refunded)
+                {
+                    item.ModificationDate = DateTime.UtcNow.AddHours(7);
+                    _unitOfWork.orderItemRepository.Update(item);
+                }
+
+                // Order check
                 var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(item.OrderId);
                 if (order != null)
                 {
                     bool allFinished = order.OrderItems.All(oi =>
                         oi.Status == OrderStatusEnum.Completed ||
-                        oi.Status == OrderStatusEnum.Refunded ||
-                        oi.Status == OrderStatusEnum.Cancelled);
+                        oi.Status == OrderStatusEnum.Refunded);
 
                     if (allFinished)
                     {
                         order.Status = OrderStatusEnum.Completed;
                         order.ModificationDate = DateTime.UtcNow.AddHours(7);
                         _unitOfWork.orderRepository.Update(order);
+
+                        // Thanh toán phí vận chuyển khi toàn bộ order đã "kết thúc"
+                        var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
+                        var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
+                        getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
+                        getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
+                        getWalletSystem.AvailableBalance += amountRefunDeliveryAmountForSystem;
+
+                        _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                        var addTotalAfterDeductions = new WalletTransaction
+                        {
+                            Wallet_Id = getWalletSystem.Id,
+                            Amount = amountRefunDeliverySystem,
+                            Type = WalletTransactionTypeEnum.ReceiveShippingFee,
+                            Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            CreatedAt = DateTime.UtcNow.AddHours(7),
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
+
+                        var addTotalAfterDeductions1 = new WalletTransaction
+                        {
+                            Wallet_Id = getWalletSystem.Id,
+                            Amount = amountRefunDeliveryAmountForSystem,
+                            Type = WalletTransactionTypeEnum.Release,
+                            Description = @$"Nhận tiền vận chuyển từ đơn hàng ""{order.Id}"".",
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            CreatedAt = DateTime.UtcNow.AddHours(7),
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions1);
                     }
-                }
-            }
-
-            if (getOrderItems.Any())
-            {
-                var firstOrderId = getOrderItems.First().OrderId;
-                var order = await _unitOfWork.orderRepository.GetOrderByIdAsync(firstOrderId);
-
-                if (order != null)
-                {
-                    var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
-                    getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
-
-                    if (getWalletSystem.PendingBalance > 0)
-                    {
-                        getWalletSystem.AvailableBalance += getWalletSystem.PendingBalance;
-                        getWalletSystem.PendingBalance = 0;
-                    }
-
-                    _unitOfWork.walletRepository.Update(getWalletSystem);
-
-                    var addTotalAfterDeductions = new WalletTransaction
-                    {
-                        Wallet_Id = getWalletSystem.Id,
-                        Amount = amountRefunDeliverySystem,
-                        Type = WalletTransactionTypeEnum.ReceiveShippingFee,
-                        Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
-                        CreationDate = DateTime.UtcNow.AddHours(7),
-                        CreatedAt = DateTime.UtcNow.AddHours(7),
-                        IsDeleted = false
-                    };
-                    await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
                 }
             }
 
             await _unitOfWork.SaveChangeAsync();
         }
-
-
         public async Task<Result<string>> RetryPayment(Guid orderId, HttpContext httpContext)
         {
             var order = await _unitOfWork.orderRepository.GetByIdAsync(orderId);

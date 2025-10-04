@@ -251,6 +251,39 @@ namespace CGP.Application.Services
                     refundAmount = (decimal)(order.Product_Amount - order.ProductDiscount);
                     order.Status = OrderStatusEnum.FullReturn;
                     order.Payment.IsRefunded = true;
+
+                    // Thanh toán phí vận chuyển khi toàn bộ order đã "kết thúc"
+                    var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
+                    var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
+                    getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
+                    getWalletSystem.AvailableBalance += amountRefunDeliveryAmountForSystem;
+
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                    var addTotalAfterDeductions = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefunDeliverySystem,
+                        Type = WalletTransactionTypeEnum.ReceiveShippingFee,
+                        Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
+
+                    var addTotalAfterDeductions1 = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefunDeliveryAmountForSystem,
+                        Type = WalletTransactionTypeEnum.Release,
+                        Description = @$"Nhận tiền vận chuyển từ đơn hàng ""{order.Id}"".",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions1);
                 }
                 else
                 {
@@ -267,6 +300,39 @@ namespace CGP.Application.Services
                         refundAmount = totalProductAmount - previouslyRefundedAmount;
                         order.Status = OrderStatusEnum.FullReturn;
                         order.Payment.IsRefunded = true;
+
+                        // Thanh toán phí vận chuyển khi toàn bộ order đã "kết thúc"
+                        var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
+                        var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
+                        getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
+                        getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
+                        getWalletSystem.AvailableBalance += amountRefunDeliveryAmountForSystem;
+
+                        _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                        var addTotalAfterDeductions = new WalletTransaction
+                        {
+                            Wallet_Id = getWalletSystem.Id,
+                            Amount = amountRefunDeliverySystem,
+                            Type = WalletTransactionTypeEnum.ReceiveShippingFee,
+                            Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            CreatedAt = DateTime.UtcNow.AddHours(7),
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
+
+                        var addTotalAfterDeductions1 = new WalletTransaction
+                        {
+                            Wallet_Id = getWalletSystem.Id,
+                            Amount = amountRefunDeliveryAmountForSystem,
+                            Type = WalletTransactionTypeEnum.Release,
+                            Description = @$"Nhận tiền vận chuyển từ đơn hàng ""{order.Id}"".",
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            CreatedAt = DateTime.UtcNow.AddHours(7),
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions1);
                     }
                     else
                     {
@@ -279,13 +345,6 @@ namespace CGP.Application.Services
                 // Cập nhật trạng thái OrderItem thành Refunded
                 getRequest.OrderItem.Status = OrderStatusEnum.Refunded;
                 _unitOfWork.orderItemRepository.Update(getRequest.OrderItem);
-
-                // Kiểm tra trạng thái của tất cả OrderItem để cập nhật Order status thành Completed
-                var allItemsCompleted = orderItems.All(item => item.Status == OrderStatusEnum.Completed || item.Status == OrderStatusEnum.Refunded);
-                if (allItemsCompleted)
-                {
-                    order.Status = OrderStatusEnum.Completed;
-                }
 
                 // Cập nhật ví hệ thống
                 getWalletSystem.PendingBalance -= refundAmount;
@@ -381,6 +440,7 @@ namespace CGP.Application.Services
         {
             var request = await _unitOfWork.returnRequestRepository.GetReturnRequestById(returnRequestId);
             var walletUser = await _unitOfWork.walletRepository.GetWalletByUserIdAsync(request.UserId);
+            var getWalletSystem = await _unitOfWork.walletRepository.GetWalletSystem();
 
             if (request == null || request.Status != ReturnStatusEnum.Escalated)
             {
@@ -417,6 +477,39 @@ namespace CGP.Application.Services
                     refundAmount = (decimal)(order.Product_Amount - order.ProductDiscount);
                     order.Status = OrderStatusEnum.FullReturn;
                     order.Payment.IsRefunded = true;
+
+                    // Thanh toán phí vận chuyển khi toàn bộ order đã "kết thúc"
+                    var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
+                    var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
+                    getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
+                    getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
+                    getWalletSystem.AvailableBalance += amountRefunDeliveryAmountForSystem;
+
+                    _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                    var addTotalAfterDeductions = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefunDeliverySystem,
+                        Type = WalletTransactionTypeEnum.ReceiveShippingFee,
+                        Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
+
+                    var addTotalAfterDeductions1 = new WalletTransaction
+                    {
+                        Wallet_Id = getWalletSystem.Id,
+                        Amount = amountRefunDeliveryAmountForSystem,
+                        Type = WalletTransactionTypeEnum.Release,
+                        Description = @$"Nhận tiền vận chuyển từ đơn hàng ""{order.Id}"".",
+                        CreationDate = DateTime.UtcNow.AddHours(7),
+                        CreatedAt = DateTime.UtcNow.AddHours(7),
+                        IsDeleted = false
+                    };
+                    await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions1);
                 }
                 else
                 {
@@ -433,6 +526,39 @@ namespace CGP.Application.Services
                         refundAmount = totalProductAmount - previouslyRefundedAmount;
                         order.Status = OrderStatusEnum.FullReturn;
                         order.Payment.IsRefunded = true;
+
+                        // Thanh toán phí vận chuyển khi toàn bộ order đã "kết thúc"
+                        var amountRefunDeliverySystem = (decimal)order.Delivery_Amount * 0.85m;
+                        var amountRefunDeliveryAmountForSystem = ((decimal)order.Delivery_Amount * 0.15m) - order.DeliveriesCount - (order.PointDiscount / 2);
+                        getWalletSystem.PendingBalance -= amountRefunDeliverySystem;
+                        getWalletSystem.PendingBalance = getWalletSystem.PendingBalance - amountRefunDeliveryAmountForSystem;
+                        getWalletSystem.AvailableBalance += amountRefunDeliveryAmountForSystem;
+
+                        _unitOfWork.walletRepository.Update(getWalletSystem);
+
+                        var addTotalAfterDeductions = new WalletTransaction
+                        {
+                            Wallet_Id = getWalletSystem.Id,
+                            Amount = amountRefunDeliverySystem,
+                            Type = WalletTransactionTypeEnum.ReceiveShippingFee,
+                            Description = @$"Thanh toán phí vận chuyển cho đơn vị giao hàng từ đơn hàng ""{order.Id}"".",
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            CreatedAt = DateTime.UtcNow.AddHours(7),
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions);
+
+                        var addTotalAfterDeductions1 = new WalletTransaction
+                        {
+                            Wallet_Id = getWalletSystem.Id,
+                            Amount = amountRefunDeliveryAmountForSystem,
+                            Type = WalletTransactionTypeEnum.Release,
+                            Description = @$"Nhận tiền vận chuyển từ đơn hàng ""{order.Id}"".",
+                            CreationDate = DateTime.UtcNow.AddHours(7),
+                            CreatedAt = DateTime.UtcNow.AddHours(7),
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.walletTransactionRepository.AddAsync(addTotalAfterDeductions1);
                     }
                     else
                     {
@@ -448,12 +574,6 @@ namespace CGP.Application.Services
 
                 request.OrderItem.Status = OrderStatusEnum.Refunded;
                 _unitOfWork.orderItemRepository.Update(request.OrderItem);
-
-                var allItemsCompleted = orderItems.All(item => item.Status == OrderStatusEnum.Completed || item.Status == OrderStatusEnum.Refunded);
-                if (allItemsCompleted)
-                {
-                    order.Status = OrderStatusEnum.Completed;
-                }
 
                 _unitOfWork.orderRepository.Update(order);
 
