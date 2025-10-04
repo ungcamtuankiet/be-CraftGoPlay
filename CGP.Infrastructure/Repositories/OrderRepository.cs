@@ -227,9 +227,29 @@ namespace CGP.Infrastructure.Repositories
             return await query.SumAsync(selector) ?? 0;
         }
 
-        public Task<decimal> SumRevenueForAdminBeforFeeAsync(DateTime? from = null, DateTime? to = null)
+        public async Task<decimal> SumRevenueForAdminBeforFeeAsync(DateTime? from = null, DateTime? to = null)
         {
-            return SumRevenueForAdminAsync(i => (decimal?)i.TotalPrice, from, to);
+            var query = _dbContext.Order
+                .Where(i => i.Status == OrderStatusEnum.Completed);
+
+            if (from.HasValue)
+                query = query.Where(i => i.CreationDate >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(i => i.CreationDate <= to.Value);
+
+            var results = await query
+                .Select(i => new
+                {
+                    BeforeFee = (i.OrderItems
+                            .Where(oi => oi.Status == OrderStatusEnum.Completed)
+                            .Sum(oi => oi.UnitPrice * oi.Quantity))
+                        + ((decimal)(i.Delivery_Amount))
+                        - (decimal)(i.TotalDiscount)
+                })
+                .ToListAsync();
+
+            return results.Sum(r => r.BeforeFee);
         }
 
         public Task<decimal> SumRevenueForAdminDeliveryFeeAsync(DateTime? from = null, DateTime? to = null)
@@ -329,7 +349,7 @@ namespace CGP.Infrastructure.Repositories
                             .Where(oi => oi.Status == OrderStatusEnum.Refunded)
                             .Sum(oi => oi.UnitPrice * oi.Quantity))
                         - (i.OrderItems
-                            .Where(oi => oi.Status != OrderStatusEnum.Refunded)
+                            .Where(oi => oi.Status == OrderStatusEnum.Completed)
                             .Sum(oi => oi.UnitPrice * oi.Quantity) * 0.95m)
                         - ((decimal)(i.Delivery_Amount) * 0.85m)
                 })
